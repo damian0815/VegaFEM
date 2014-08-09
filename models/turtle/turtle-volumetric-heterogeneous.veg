@@ -1554,8 +1554,7 @@ ENU, 1000, 100000000, 0.45
 
 # material for the rest of the body
 *MATERIAL softMaterial
-#ENU, 1000, 1000000, 0.35
-ENU, 1000, 35000, 0.49
+ENU, 1000, 1000000, 0.35
 
 # the backshell
 *REGION
