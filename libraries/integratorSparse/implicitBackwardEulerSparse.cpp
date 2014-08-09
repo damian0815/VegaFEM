@@ -228,6 +228,10 @@ int ImplicitBackwardEulerSparse::DoTimestep()
         delete(solver);
       }
       char solverString[16] = "SPOOLES";
+	  if ( info>0 ) {
+		  // positive info = success
+		  info = 0;
+	  }
     #endif
 
     #ifdef PARDISO

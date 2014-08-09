@@ -72,7 +72,8 @@ SPOOLESSolverMT::SPOOLESSolverMT(const SparseMatrix * A, int numThreads, int ver
 
   BridgeMT * bridgeMT = BridgeMT_new();
   BridgeMT_setMatrixParams(bridgeMT, n, SPOOLES_REAL, SPOOLES_SYMMETRIC);
-  BridgeMT_setMessageInfo(bridgeMT, 1, msgFile);
+  //BridgeMT_setMessageInfo(bridgeMT, 1, msgFile);
+  BridgeMT_setMessageInfo(bridgeMT, 0, msgFile);
   int rc = BridgeMT_setup(bridgeMT, mtxA);
   if (rc != 1)
   {
