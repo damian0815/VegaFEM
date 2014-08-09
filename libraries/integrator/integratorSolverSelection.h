@@ -34,6 +34,6 @@
 //       with Vega and therefore always available.
 
 //#define PARDISO
-//#define SPOOLES
-#define PCG
+#define SPOOLES
+//#define PCG
 
