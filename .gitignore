@@ -1,5 +1,11 @@
 *.o
 *.a
-#libraries/include
+*.dylib
+.DS_Store
+libraries/include
+libraries/lib
+utilities/volumetricMeshUtilities/generate*
+utilities/interactiveDeformableSimulator/interactiveDeformableSimulator
+utilities/bin
 
 
