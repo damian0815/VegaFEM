@@ -402,8 +402,8 @@ inline std::ostream &operator << (std::ostream &s, const Mat3d &v)
 
   return(
     s << '[' << a00 << ' ' << a01 << ' ' << a02 << ']' << std::endl <<
-    s << '[' << a10 << ' ' << a11 << ' ' << a12 << ']' << std::endl <<
-    s << '[' << a20 << ' ' << a21 << ' ' << a22 << ']'
+    '[' << a10 << ' ' << a11 << ' ' << a12 << ']' << std::endl <<
+    '[' << a20 << ' ' << a21 << ' ' << a22 << ']'
   );
 }
 

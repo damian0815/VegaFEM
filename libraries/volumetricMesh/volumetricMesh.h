@@ -218,6 +218,12 @@ public:
     inline int getNumElements() const;
     inline void getElements(std::set<int> & elements) const;
     inline bool isMember(int element) const;
+	  
+	  inline void subtract( const Set& other ) {
+		  std::set<int> curElements = elements;
+		  elements.clear();
+		  std::set_difference(curElements.begin(), curElements.end(), other.elements.begin(), other.elements.end(), std::inserter(elements, elements.end()) );
+	  }
 
     inline void insert(int element);
     inline void clear();
