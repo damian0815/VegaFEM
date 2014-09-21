@@ -52,11 +52,11 @@ TetMesh::TetMesh(char * filename, int specialFileType, int verbose): VolumetricM
     throw 1;
   }
 
-  char lineBuffer[1024];
+  char lineBuffer[16384];
   VolumetricMeshParser parser;
 
   // first, read the vertices
-  sprintf(lineBuffer, "%s.node", filename);
+  snprintf(lineBuffer, 16384, "%s.node", filename);
   if (parser.open(lineBuffer) != 0)
     throw 2;
   
@@ -82,7 +82,7 @@ TetMesh::TetMesh(char * filename, int specialFileType, int verbose): VolumetricM
   parser.close();
 
   // next, read the elements
-  sprintf(lineBuffer, "%s.ele", filename);
+  snprintf(lineBuffer, 16384, "%s.ele", filename);
   if (parser.open(lineBuffer) != 0)
     throw 4;
 
