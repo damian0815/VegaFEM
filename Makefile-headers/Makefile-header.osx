@@ -98,7 +98,7 @@ GLEW_LIB=
 
 CG_LIBS_DIR=
 CG_LIBS=-framework Cg
-CG_INCLUDE=
+CG_INCLUDE=-F/Library/Frameworks -framework Cg
 
 # === needed for large sparse eigenvalue analysis and the LargeModalDeformationFactory ===
 
