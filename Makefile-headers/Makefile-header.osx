@@ -1,6 +1,6 @@
 # Vega Makefile header for OS X 
 
-OPTIMIZATIONFLAG=-O2
+OPTIMIZATIONFLAG=-O2 -g
 #OPTIMIZATIONFLAG=-g
 
 CXX=g++
