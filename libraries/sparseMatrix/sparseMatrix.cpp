@@ -980,6 +980,20 @@ void SparseMatrix::AddSparseEntry(int row, int denseJ)
 	// insert new entry
 	columnIndices[row][insertionPoint] = denseJ;
 	columnEntries[row][insertionPoint] = 0.0;
+	
+	// mark other things as out of date
+	if (diagonalIndices) {
+		diagonalIndicesOutOfDate = true;
+	}
+	if (transposedIndices) {
+		transposedIndicesOutOfDate = true;
+	}
+	if (numSubMatrixIDs>0) {
+		subMatrixIndicesOutOfDate = true;
+	}
+	if (superMatrixIndices) {
+		superMatrixIndicesOutOfDate = true;
+	}
 }
 
 // same as calling AddSparseEntry in a 3x3 block between (startRow,startDenseJ) and (startRow+2,startDenseJ+2)
@@ -1048,6 +1062,13 @@ void SparseMatrix::BuildSuperMatrixIndices(int numFixedRowColumns, int * fixedRo
 
 void SparseMatrix::BuildSuperMatrixIndices(int numFixedRows, int * fixedRows, int numFixedColumns, int * fixedColumns, SparseMatrix * superMatrix, int oneIndexed)
 {
+	if (superMatrixIndices)
+	{
+		free(superMatrixIndices);
+		free(superRows);
+		superMatrixIndices = NULL;
+	}
+	
 	int numSuperColumns = superMatrix->GetNumColumns();
 	int numColumns = numSuperColumns - numFixedColumns;
 	
@@ -1092,6 +1113,7 @@ void SparseMatrix::BuildSuperMatrixIndices(int numFixedRows, int * fixedRows, in
 	} 
 	
 	free(superColumns_);
+	superMatrixIndicesOutOfDate = false;
 }
 
 void SparseMatrix::AssignSuperMatrix(SparseMatrix * superMatrix)
