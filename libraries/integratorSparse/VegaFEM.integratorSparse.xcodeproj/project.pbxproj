@@ -1,0 +1,209 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXFileReference section */
+		2DE3EFAF1A971B4B008BC2A2 /* centralDifferencesSparse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = centralDifferencesSparse.h; sourceTree = "<group>"; };
+		2DE3EFB01A971B4B008BC2A2 /* eulerSparse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = eulerSparse.h; sourceTree = "<group>"; };
+		2DE3EFB11A971B4B008BC2A2 /* implicitBackwardEulerSparse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = implicitBackwardEulerSparse.h; sourceTree = "<group>"; };
+		2DE3EFB21A971B4B008BC2A2 /* implicitNewmarkSparse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = implicitNewmarkSparse.h; sourceTree = "<group>"; };
+		2DE3EFB31A971B4B008BC2A2 /* integratorBaseSparse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = integratorBaseSparse.h; sourceTree = "<group>"; };
+		2DE3EFB41A971B4B008BC2A2 /* centralDifferencesSparse.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = centralDifferencesSparse.cpp; sourceTree = "<group>"; };
+		2DE3EFB51A971B4B008BC2A2 /* eulerSparse.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = eulerSparse.cpp; sourceTree = "<group>"; };
+		2DE3EFB61A971B4B008BC2A2 /* implicitBackwardEulerSparse.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = implicitBackwardEulerSparse.cpp; sourceTree = "<group>"; };
+		2DE3EFB71A971B4B008BC2A2 /* implicitNewmarkSparse.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = implicitNewmarkSparse.cpp; sourceTree = "<group>"; };
+		2DE3EFB81A971B4B008BC2A2 /* integratorBaseSparse.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = integratorBaseSparse.cpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		2DE3EF4C1A9712BE008BC2A2 = {
+			isa = PBXGroup;
+			children = (
+				2DE3EFAF1A971B4B008BC2A2 /* centralDifferencesSparse.h */,
+				2DE3EFB01A971B4B008BC2A2 /* eulerSparse.h */,
+				2DE3EFB11A971B4B008BC2A2 /* implicitBackwardEulerSparse.h */,
+				2DE3EFB21A971B4B008BC2A2 /* implicitNewmarkSparse.h */,
+				2DE3EFB31A971B4B008BC2A2 /* integratorBaseSparse.h */,
+				2DE3EFB41A971B4B008BC2A2 /* centralDifferencesSparse.cpp */,
+				2DE3EFB51A971B4B008BC2A2 /* eulerSparse.cpp */,
+				2DE3EFB61A971B4B008BC2A2 /* implicitBackwardEulerSparse.cpp */,
+				2DE3EFB71A971B4B008BC2A2 /* implicitNewmarkSparse.cpp */,
+				2DE3EFB81A971B4B008BC2A2 /* integratorBaseSparse.cpp */,
+				2DE3EF561A9712BF008BC2A2 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		2DE3EF561A9712BF008BC2A2 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXLegacyTarget section */
+		2DE3EF701A971317008BC2A2 /* libintegratorSparse */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 2DE3EF711A971317008BC2A2 /* Build configuration list for PBXLegacyTarget "libintegratorSparse" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			dependencies = (
+			);
+			name = libintegratorSparse;
+			passBuildSettingsInEnvironment = 1;
+			productName = libintegratorSparse;
+		};
+/* End PBXLegacyTarget section */
+
+/* Begin PBXProject section */
+		2DE3EF4D1A9712BE008BC2A2 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0510;
+				ORGANIZATIONNAME = "Damian Stewart";
+			};
+			buildConfigurationList = 2DE3EF501A9712BE008BC2A2 /* Build configuration list for PBXProject "VegaFEM.integratorSparse" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 2DE3EF4C1A9712BE008BC2A2;
+			productRefGroup = 2DE3EF561A9712BF008BC2A2 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				2DE3EF701A971317008BC2A2 /* libintegratorSparse */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin XCBuildConfiguration section */
+		2DE3EF571A9712BF008BC2A2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		2DE3EF581A9712BF008BC2A2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		2DE3EF721A971317008BC2A2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		2DE3EF731A971317008BC2A2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		2DE3EF501A9712BE008BC2A2 /* Build configuration list for PBXProject "VegaFEM.integratorSparse" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2DE3EF571A9712BF008BC2A2 /* Debug */,
+				2DE3EF581A9712BF008BC2A2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2DE3EF711A971317008BC2A2 /* Build configuration list for PBXLegacyTarget "libintegratorSparse" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2DE3EF721A971317008BC2A2 /* Debug */,
+				2DE3EF731A971317008BC2A2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 2DE3EF4D1A9712BE008BC2A2 /* Project object */;
+}

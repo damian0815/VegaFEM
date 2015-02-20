@@ -2,6 +2,7 @@
 *.a
 *.dylib
 .DS_Store
+xcuserdata/
 libraries/include
 libraries/lib
 utilities/volumetricMeshUtilities/generate*
