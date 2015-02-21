@@ -103,6 +103,7 @@ public:
 protected:
   SparseMatrix * rayleighDampingMatrix;
   SparseMatrix * tangentStiffnessMatrix;
+  // systemMatrix is the tangent-stiffness matrix with rows for constrained DOFs removed
   SparseMatrix * systemMatrix;
 
   double * bufferConstrained;

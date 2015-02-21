@@ -23,16 +23,16 @@
 		2DE3EF4C1A9712BE008BC2A2 = {
 			isa = PBXGroup;
 			children = (
-				2DE3EFAF1A971B4B008BC2A2 /* centralDifferencesSparse.h */,
-				2DE3EFB01A971B4B008BC2A2 /* eulerSparse.h */,
-				2DE3EFB11A971B4B008BC2A2 /* implicitBackwardEulerSparse.h */,
-				2DE3EFB21A971B4B008BC2A2 /* implicitNewmarkSparse.h */,
-				2DE3EFB31A971B4B008BC2A2 /* integratorBaseSparse.h */,
 				2DE3EFB41A971B4B008BC2A2 /* centralDifferencesSparse.cpp */,
+				2DE3EFAF1A971B4B008BC2A2 /* centralDifferencesSparse.h */,
 				2DE3EFB51A971B4B008BC2A2 /* eulerSparse.cpp */,
+				2DE3EFB01A971B4B008BC2A2 /* eulerSparse.h */,
 				2DE3EFB61A971B4B008BC2A2 /* implicitBackwardEulerSparse.cpp */,
+				2DE3EFB11A971B4B008BC2A2 /* implicitBackwardEulerSparse.h */,
 				2DE3EFB71A971B4B008BC2A2 /* implicitNewmarkSparse.cpp */,
+				2DE3EFB21A971B4B008BC2A2 /* implicitNewmarkSparse.h */,
 				2DE3EFB81A971B4B008BC2A2 /* integratorBaseSparse.cpp */,
+				2DE3EFB31A971B4B008BC2A2 /* integratorBaseSparse.h */,
 				2DE3EF561A9712BF008BC2A2 /* Products */,
 			);
 			sourceTree = "<group>";

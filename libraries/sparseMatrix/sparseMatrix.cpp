@@ -231,6 +231,11 @@ int SparseMatrixOutline::GetNumEntries() const
 	return num;
 }
 
+SparseMatrix::SparseMatrix()
+{
+    SparseMatrixOutline emptyOutline(1);
+    InitFromOutline(&emptyOutline);
+}
 
 SparseMatrix::SparseMatrix(const char * filename)
 {
@@ -961,6 +966,9 @@ void SparseMatrix::AddSparseEntry(int row, int denseJ)
 	int currentIndexCount = rowLength[row];
 	size_t insertionPoint=0;
 	for ( ; insertionPoint<currentIndexCount; insertionPoint++) {
+        if ( columnIndices[row][insertionPoint] == denseJ ) {
+            assert(false && "alreay have a sparse entry for this row/denseJ");
+        }
 		if ( columnIndices[row][insertionPoint] > denseJ ) {
 			break;
 		}
@@ -970,6 +978,7 @@ void SparseMatrix::AddSparseEntry(int row, int denseJ)
 	int newIndexCount = currentIndexCount+1;
 	columnIndices[row] = (int*) realloc(columnIndices[row], sizeof(int)*newIndexCount);
 	columnEntries[row] = (double*) realloc(columnEntries[row], sizeof(int)*newIndexCount);
+    rowLength[row]++;
 	
 	// nudge entries over
 	for ( size_t i=insertionPoint; i<currentIndexCount; i++ ) {
@@ -989,10 +998,10 @@ void SparseMatrix::AddSparseEntry(int row, int denseJ)
 		transposedIndicesOutOfDate = true;
 	}
 	if (numSubMatrixIDs>0) {
-		subMatrixIndicesOutOfDate = true;
+		subMatricesOutOfDate = true;
 	}
 	if (superMatrixIndices) {
-		superMatrixIndicesOutOfDate = true;
+		superMatricesOutOfDate = true;
 	}
 }
 
@@ -1113,7 +1122,7 @@ void SparseMatrix::BuildSuperMatrixIndices(int numFixedRows, int * fixedRows, in
 	} 
 	
 	free(superColumns_);
-	superMatrixIndicesOutOfDate = false;
+	superMatricesOutOfDate = false;
 }
 
 void SparseMatrix::AssignSuperMatrix(SparseMatrix * superMatrix)
@@ -1128,8 +1137,14 @@ void SparseMatrix::AssignSuperMatrix(SparseMatrix * superMatrix)
 	}
 }
 
-void SparseMatrix::BuildSubMatrixIndices(SparseMatrix & submatrix, int subMatrixID)
+int SparseMatrix::BuildSubMatrixIndices(SparseMatrix & submatrix, int subMatrixID)
 {
+    if (subMatrixID==-1)
+    {
+        subMatrixID = numSubMatrixIDs;
+    }
+    
+    printf("%lx building submatrix indices for submatrix %i", (unsigned long)this, subMatrixID);
 	if (subMatrixID >= numSubMatrixIDs)
 	{
 		subMatrixIndices = (int***) realloc (subMatrixIndices, sizeof(int**) * (subMatrixID + 1));
@@ -1171,15 +1186,13 @@ void SparseMatrix::BuildSubMatrixIndices(SparseMatrix & submatrix, int subMatrix
 			}
 		}
 	}
+    
+    return subMatrixID;
 }
 
 void SparseMatrix::FreeSubMatrixIndices(int subMatrixID)
 {
-	if (subMatrixID >= numSubMatrixIDs)
-	{
-		printf("Warning: attempted to free submatrix index that does not exist.\n");
-		return;
-	}
+	assert(subMatrixID < numSubMatrixIDs && "Warning: attempted to free submatrix index that does not exist.");
 	
 	if (subMatrixIndices[subMatrixID] != NULL)
 	{
@@ -1190,6 +1203,10 @@ void SparseMatrix::FreeSubMatrixIndices(int subMatrixID)
 		subMatrixIndices[subMatrixID] = NULL;
 		subMatrixIndexLengths[subMatrixID] = NULL;
 	}
+    else
+    {
+        printf("Warning: attempt to FreeSubMatrixIndices on already-freed submatrix %i", subMatrixID);
+    }
 	
 	// check if this was the largest index
 	for(int i=numSubMatrixIDs-1; i>=0; i--)
@@ -1217,6 +1234,8 @@ void SparseMatrix::FreeSubMatrixIndices(int subMatrixID)
 SparseMatrix & SparseMatrix::AddSubMatrix(double factor, SparseMatrix & submatrix, int subMatrixID)
 {
 	assert(!subMatricesOutOfDate && "submatrix indices are out of date, please rebuild");
+    assert(subMatrixID<numSubMatrixIDs && "subMatrixID out of bounds");
+    assert(subMatrixIndices[subMatrixID] != NULL && "subMatrixID has been freed");
 	for(int i=0; i<numRows; i++)
 	{
 		int * indices = subMatrixIndices[subMatrixID][i];

@@ -153,6 +153,7 @@ class SparseMatrix
 {
 public:
 	
+    SparseMatrix();
 	SparseMatrix(const char * filename); // load from text file (same text file format as SparseMatrixOutline)
 	SparseMatrix(SparseMatrixOutline * sparseMatrixOutline); // create it from the outline
 	SparseMatrix(const SparseMatrix & source); // copy constructor
@@ -302,7 +303,7 @@ public:
 	// Build submatrix indices is used for pair of matrices where the sparsity of one matrix is a subset of another matrix (for example, mass matrix and 
 	// stiffness matrix). Also, the two matrics have to have the same dimensions (i.e., number of rows and columns).
 	// Call this once to establish the correspondence:
-	void BuildSubMatrixIndices(SparseMatrix & submatrix, int subMatrixID=0);
+	int BuildSubMatrixIndices(SparseMatrix & submatrix, int subMatrixID=-1);
 	void FreeSubMatrixIndices(int subMatrixID=0);
 	// add a matrix to the current matrix, whose elements are a subset of the elements of the current matrix
 	// += factor * mat2
