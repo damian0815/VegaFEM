@@ -309,6 +309,7 @@ public:
 	// += factor * mat2
 	// returns *this
 	SparseMatrix & AddSubMatrix(double factor, SparseMatrix & submatrix, int subMatrixID=0);
+	SparseMatrix & AssignSubMatrix(double factor, SparseMatrix & submatrix, int subMatrixID=0);
 	
 	// Build supermatrix indices is used for pair of matrices with rows/columns removed.
 	// oneIndexed: tells whether the fixed rows and columns are specified 1-indexed or 0-indexed
@@ -332,7 +333,7 @@ public:
 	// ASSUMES the sparse matrix is diagonal !
 	// result is overwritten into rhs
 	// (to solve non-diagonal linear systems, you need to use an external library; or you can use the CGSolver class, or you can use the Gauss-Seidel iteration below)
-	void DiagonalSolve(double * rhs) const;
+	void DiagonalSolve(double * rhs) const; 
 	
 	// performs one Gauss-Seidel iteration of solving the system A * x = b
 	// updates vector x in place, b is not modified
@@ -376,7 +377,7 @@ protected:
 	 length(subMatrixIndices[subMatrixID][rowIndex]) ==
 	 subMatrixIndexLengths[subMatrixID][rowIndex]
 	 */
-	bool subMatricesOutOfDate;
+	bool * subMatricesOutOfDate;
 	
 	int numSubMatrixIDs;
 	int *** subMatrixIndices;

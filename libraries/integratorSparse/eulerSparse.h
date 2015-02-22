@@ -26,7 +26,7 @@
  *                                                                       *
  *************************************************************************/
 
-/*
+/* 
   A class to timestep large sparse dynamics using standard Euler, or symplectic Euler.
 
   standard Euler:

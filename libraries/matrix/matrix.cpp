@@ -160,7 +160,7 @@ const Matrix<real> Matrix<real>::operator* (const Matrix<real> & mtx2) const
 template<class real>
 const Matrix<real> Matrix<real>::MultiplyT(const Matrix & mtx2) const
 {
-  if (m != mtx2.Getm())
+  if (m != mtx2.Getn() || n != mtx2.Getm() )
   {
     printf("Matrix size mismatch in Matrix::MultiplyT . m = %d, n = %d, mtx2.m = %d, mtx2.n = %d\n",
       m, n, mtx2.Getm(), mtx2.Getn());
