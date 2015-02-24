@@ -157,6 +157,7 @@ public:
 	SparseMatrix(const char * filename); // load from text file (same text file format as SparseMatrixOutline)
 	SparseMatrix(SparseMatrixOutline * sparseMatrixOutline); // create it from the outline
 	SparseMatrix(const SparseMatrix & source); // copy constructor
+	void InitFromOutline(SparseMatrixOutline * sparseMatrixOutline);
 	~SparseMatrix();
 	
 	int Save(const char * filename, int oneIndexed=0) const; // save matrix to a disk text file 
@@ -388,7 +389,6 @@ protected:
 	int ** superMatrixIndices;
 	int * superRows;
 	
-	void InitFromOutline(SparseMatrixOutline * sparseMatrixOutline);
 	void Allocate();
 	void BuildRenumberingVector(int nConstrained, int nSuper, int numFixedDOFs, int * fixedDOFs, int ** superDOFs, int oneIndexed=0);
 };
