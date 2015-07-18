@@ -206,7 +206,7 @@ void StVKStiffnessMatrix::AddQuadraticTermsContribution(double * vertexDisplacem
   void * elIter;
   precomputedIntegrals->AllocateElementIterator(&elIter);
 
-  double ** dataHandle = sparseMatrix->GetDataHandle();
+  vector<vector<double> >& dataHandle = sparseMatrix->GetDataHandle();
 
   for(int el=elementLow; el < elementHigh; el++)
   {
@@ -282,7 +282,7 @@ void StVKStiffnessMatrix::AddCubicTermsContribution(double * vertexDisplacements
   void * elIter;
   precomputedIntegrals->AllocateElementIterator(&elIter);
 
-  double ** dataHandle = sparseMatrix->GetDataHandle();
+  vector<vector<double> >& dataHandle = sparseMatrix->GetDataHandle();
 
   for(int el=elementLow; el < elementHigh; el++)
   {

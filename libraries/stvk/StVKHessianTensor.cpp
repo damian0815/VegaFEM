@@ -535,7 +535,7 @@ void StVKHessianTensor::AddQuadraticTermsContribution(double * u, double * du, S
   void * elIter;
   precomputedIntegrals->AllocateElementIterator(&elIter);
 
-  double ** dataHandle = dK->GetDataHandle();
+  vector<vector<double> >& dataHandle = dK->GetDataHandle();
 
   for(int el=elementLow; el < elementHigh; el++)
   {
@@ -612,7 +612,7 @@ void StVKHessianTensor::AddCubicTermsContribution(double * u, double * du, Spars
   void * elIter;
   precomputedIntegrals->AllocateElementIterator(&elIter);
 
-  double ** dataHandle = dK->GetDataHandle();
+  vector<vector<double> >& dataHandle = dK->GetDataHandle();
 
   for(int el=elementLow; el < elementHigh; el++)
   {

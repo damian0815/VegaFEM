@@ -43,9 +43,9 @@ using namespace std;
 
 void SparseMatrixMT::MultiplyVector(const SparseMatrix * A, const double * input, double * result, int numThreads)
 {
-  int ** indices = A->GetColumnIndices();
-  double ** entries = A->GetEntries();
-  int * rowLengths = A->GetRowLengths();
+	const vector<vector<int> >& indices = A->GetColumnIndices();
+	const vector<vector<double> >& entries = A->GetEntries();
+	const vector<int>& rowLengths = A->GetRowLengths();
   int n = A->GetNumRows();
   if (numThreads < 0)
   #ifdef USE_OPENMP
