@@ -44,21 +44,21 @@ This class supports two damping modes:
 2. Tangential Rayleigh model (default)
   D = dampingMassCoef * M + dampingStiffnessCoef * K(q)
      where K is the tangential stiffness matrix in the CURRENT deformed configuration q
-
-Mode 1. is computationally faster as it does not require system updates (i.e., 
-matrix inversion). Mode 1. is useful, for example, if you want to timestep 
-linear modal analysis simulations (stiffness matrix is constant in that case).
-
-Mode 2. gives a better damping model for large deformations, but because the
-system matrix changes, requires factoring a linear system anew at each timestep.
-
-In order to use this class, you need to set the timestep very small, or 
-else the explicit integrator will go unstable. Roughly speaking, the timestep 
-must resolve the highest frequency present in your simulation. 
-
-See also integratorBase.h .
-
-*/
+ 
+ Mode 1. is computationally faster as it does not require system updates (i.e., 
+ matrix inversion). Mode 1. is useful, for example, if you want to timestep 
+ linear modal analysis simulations (stiffness matrix is constant in that case).
+ 
+ Mode 2. gives a better damping model for large deformations, but because the
+ system matrix changes, requires factoring a linear system anew at each timestep.
+ 
+ In order to use this class, you need to set the timestep very small, or 
+ else the explicit integrator will go unstable. Roughly speaking, the timestep 
+ must resolve the highest frequency present in your simulation. 
+ 
+ See also integratorBase.h .
+ 
+ */
 
 #ifndef _CENTRALDIFFERENCESSPARSE_H_
 #define _CENTRALDIFFERENCESSPARSE_H_
@@ -67,64 +67,68 @@ See also integratorBase.h .
 #include "integratorSolverSelection.h"
 
 #ifdef PARDISO
-  #include "sparseSolvers.h"
+#include "sparseSolvers.h"
 #endif
 #ifdef SPOOLES
-  #include "sparseSolvers.h"
+#include "sparseSolvers.h"
 #endif
 #ifdef PCG
-  #include "CGSolver.h"
+#include "CGSolver.h"
 #endif
 
 class CentralDifferencesSparse : public IntegratorBaseSparse
 {
 public:
-  CentralDifferencesSparse(int numDOFs, double timestep, SparseMatrix * massMatrix, ForceModel * forceModel, int numConstrainedDOFs=0, int * constrainedDOFs=NULL, double dampingMassCoef=0.0, double dampingStiffnessCoef=0.0, int tangentialDampingMode=1, int numSolverThreads=0);
-
-  virtual ~CentralDifferencesSparse();
-
-  inline virtual void SetTimestep(double timestep) { this->timestep = timestep; DecomposeSystemMatrix(); }
-
-  // performs one timestep of simulation
-  virtual int DoTimestep(); 
-
-  // sets q, and (optionally) qvel 
-  // returns 0 
-  virtual int SetState(double * q, double * qvel=NULL);
-
-  // tangentialDampingMode: 
-  // 0 = no updates of the damping matrix under deformations (not recommended for large deformations)
-  // 1 = update at every timestep (default)
-  // k>1 = update every kth timestep
-  inline void SetTangentialDampingMode(int tangentialDampingMode) { this->tangentialDampingMode = tangentialDampingMode; }
-
-  virtual void SetInternalForceScalingFactor(double internalForceScalingFactor);
-
-  virtual void ResetToRest();
-
+    CentralDifferencesSparse(int numDOFs, double timestep, SparseMatrix * massMatrix, ForceModel * forceModel, int numConstrainedDOFs=0, int * constrainedDOFs=NULL, double dampingMassCoef=0.0, double dampingStiffnessCoef=0.0, int tangentialDampingMode=1, int numSolverThreads=0);
+    
+    virtual ~CentralDifferencesSparse();
+    
+    inline virtual void SetTimestep(double timestep) { this->timestep = timestep; DecomposeSystemMatrix(); }
+    
+    // performs one timestep of simulation
+    virtual int DoTimestep(); 
+    
+    // sets q, and (optionally) qvel 
+    // returns 0 
+    virtual int SetState(double * q, double * qvel=NULL);
+    
+    // tangentialDampingMode: 
+    // 0 = no updates of the damping matrix under deformations (not recommended for large deformations)
+    // 1 = update at every timestep (default)
+    // k>1 = update every kth timestep
+    inline void SetTangentialDampingMode(int tangentialDampingMode) { this->tangentialDampingMode = tangentialDampingMode; }
+    
+    virtual void SetInternalForceScalingFactor(double internalForceScalingFactor);
+    
+    virtual void ResetToRest();
+    
 protected:
-  double * rhs;
-  double * rhsConstrained;
-  SparseMatrix * rayleighDampingMatrix;
-  SparseMatrix * tangentStiffnessMatrix;
-  SparseMatrix * systemMatrix;
-  int tangentialDampingMode;
-  int numSolverThreads;
-  int timestepIndex;
-
-  void DecomposeSystemMatrix();
-
-  #ifdef PARDISO
+    double * rhs;
+    double * rhsConstrained;
+    shared_ptr<SparseMatrix> rayleighDampingMatrix;
+    shared_ptr<SparseSubMatrixLinkage> rayleighDampingMatrixToMassSubMatrixLinkage;
+    
+    shared_ptr<SparseMatrix> tangentStiffnessMatrix;
+    shared_ptr<SparseSubMatrixLinkage> tangentStiffnessMatrixToMassSubMatrixLinkage;
+    
+    shared_ptr<SparseMatrix> systemMatrix;
+    int tangentialDampingMode;
+    int numSolverThreads;
+    int timestepIndex;
+    
+    void DecomposeSystemMatrix();
+    
+#ifdef PARDISO
     PardisoSolver * pardisoSolver;
-  #endif
-
-  #ifdef SPOOLES
+#endif
+    
+#ifdef SPOOLES
     LinearSolver * spoolesSolver;
-  #endif
-
-  #ifdef PCG
+#endif
+    
+#ifdef PCG
     CGSolver * jacobiPreconditionedCGSolver;
-  #endif
+#endif
 };
 
 #endif

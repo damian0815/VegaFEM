@@ -27,24 +27,24 @@
  *************************************************************************/
 
 /*
-  A class to timestep large sparse dynamics using implicit Newmark.
-  E.g., unreduced nonlinear FEM deformable dynamics.
-
-  See also integratorBase.h .
-
-  This class either uses SPOOLES, PARDISO, or our own Jacobi-preconitioned 
-  CG to solve the large sparse linear systems.
-
-  You can switch between these solvers at compile time,
-  by modifying the file integratorSolverSelection.h (see below)
-  (run-time solver switching would be possible too with more coding).
-*/
+ A class to timestep large sparse dynamics using implicit Newmark.
+ E.g., unreduced nonlinear FEM deformable dynamics.
+ 
+ See also integratorBase.h .
+ 
+ This class either uses SPOOLES, PARDISO, or our own Jacobi-preconitioned 
+ CG to solve the large sparse linear systems.
+ 
+ You can switch between these solvers at compile time,
+ by modifying the file integratorSolverSelection.h (see below)
+ (run-time solver switching would be possible too with more coding).
+ */
 
 #ifndef _IMPLICITNEWMARKSPARSE_H_
 #define _IMPLICITNEWMARKSPARSE_H_
 
 #ifdef __APPLE__
-  #include "TargetConditionals.h"
+#include "TargetConditionals.h"
 #endif
 
 // This code supports three different solvers for sparse linear systems of equations:
@@ -60,71 +60,77 @@
 #include "integratorBaseSparse.h"
 
 #ifdef PARDISO
-  #include "sparseSolvers.h"
+#include "sparseSolvers.h"
 #endif
 #ifdef SPOOLES
-  #include "sparseSolvers.h"
+#include "sparseSolvers.h"
 #endif
 #ifdef PCG
-  #include "CGSolver.h"
+#include "CGSolver.h"
 #endif
+
+using std::shared_ptr;
 
 class ImplicitNewmarkSparse : public IntegratorBaseSparse
 {
 public:
-
-  // constrainedDOFs is an integer array of degrees of freedom that are to be fixed to zero (e.g., to permanently fix a vertex in a deformable simulation)
-  // constrainedDOFs are 0-indexed (separate DOFs for x,y,z), and must be pre-sorted (ascending)
-  // numThreads applies only to the PARDISO solver; if numThreads > 0, the sparse linear solves are multi-threaded; default: 0 (use single-threading)
-  ImplicitNewmarkSparse(int r, double timestep, SparseMatrix * massMatrix, ForceModel * forceModel, int positiveDefiniteSolver=0, int numConstrainedDOFs=0, int * constrainedDOFs=NULL, double dampingMassCoef=0.0, double dampingStiffnessCoef=0.0, int maxIterations = 1, double epsilon = 1E-6, double NewmarkBeta=0.25, double NewmarkGamma=0.5, int numSolverThreads=0); 
-
-  virtual ~ImplicitNewmarkSparse();
-
-  // damping matrix provides damping in addition to mass and stiffness damping (it does not replace it)
-  virtual void SetDampingMatrix(SparseMatrix * dampingMatrix);
-  inline virtual void SetTimestep(double timestep) { this->timestep = timestep; UpdateAlphas(); }
-
-  // sets q, qvel 
-  // automatically computes acceleration assuming zero external force
-  // returns 0 on succes, 1 if solver fails to converge
-  // note: there are also other state setting routines in the base class
-  virtual int SetState(double * q, double * qvel=NULL);
-
-  // performs one step of simulation (returns 0 on sucess, and 1 on failure)
-  // failure can occur, for example, if you are using the positive definite solver and the system matrix has negative eigenvalues
-  virtual int DoTimestep(); 
-
-  inline void SetNewmarkBeta(double NewmarkBeta) { this->NewmarkBeta = NewmarkBeta; UpdateAlphas(); }
-  inline void SetNewmarkGamma(double NewmarkGamma) { this->NewmarkGamma = NewmarkGamma; UpdateAlphas(); }
-
-  // dynamic solver is default (i.e. useStaticSolver=false)
-  virtual void UseStaticSolver(bool useStaticSolver);
-
+    
+    // constrainedDOFs is an integer array of degrees of freedom that are to be fixed to zero (e.g., to permanently fix a vertex in a deformable simulation)
+    // constrainedDOFs are 0-indexed (separate DOFs for x,y,z), and must be pre-sorted (ascending)
+    // numThreads applies only to the PARDISO solver; if numThreads > 0, the sparse linear solves are multi-threaded; default: 0 (use single-threading)
+    ImplicitNewmarkSparse(int r, double timestep, SparseMatrix * massMatrix, ForceModel * forceModel, int positiveDefiniteSolver=0, int numConstrainedDOFs=0, int * constrainedDOFs=NULL, double dampingMassCoef=0.0, double dampingStiffnessCoef=0.0, int maxIterations = 1, double epsilon = 1E-6, double NewmarkBeta=0.25, double NewmarkGamma=0.5, int numSolverThreads=0); 
+    
+    virtual ~ImplicitNewmarkSparse();
+    
+    // damping matrix provides damping in addition to mass and stiffness damping (it does not replace it)
+    virtual void SetDampingMatrix(shared_ptr<SparseMatrix> dampingMatrix);
+    inline virtual void SetTimestep(double timestep) { this->timestep = timestep; UpdateAlphas(); }
+    
+    // sets q, qvel 
+    // automatically computes acceleration assuming zero external force
+    // returns 0 on succes, 1 if solver fails to converge
+    // note: there are also other state setting routines in the base class
+    virtual int SetState(double * q, double * qvel=NULL);
+    
+    // performs one step of simulation (returns 0 on sucess, and 1 on failure)
+    // failure can occur, for example, if you are using the positive definite solver and the system matrix has negative eigenvalues
+    virtual int DoTimestep(); 
+    
+    inline void SetNewmarkBeta(double NewmarkBeta) { this->NewmarkBeta = NewmarkBeta; UpdateAlphas(); }
+    inline void SetNewmarkGamma(double NewmarkGamma) { this->NewmarkGamma = NewmarkGamma; UpdateAlphas(); }
+    
+    // dynamic solver is default (i.e. useStaticSolver=false)
+    virtual void UseStaticSolver(bool useStaticSolver);
+    
 protected:
-  SparseMatrix * rayleighDampingMatrix;
-  SparseMatrix * tangentStiffnessMatrix;
-  SparseMatrix * systemMatrix;
-
-  double * bufferConstrained;
-
-  // parameters for implicit Newmark
-  double NewmarkBeta,NewmarkGamma;
-  double alpha1, alpha2, alpha3, alpha4, alpha5, alpha6;
-  double epsilon; 
-  int maxIterations;
-
-  void UpdateAlphas();
-  bool useStaticSolver;
-
-  int positiveDefiniteSolver;
-  int numSolverThreads;
-  #ifdef PARDISO
+    shared_ptr<SparseMatrix> rayleighDampingMatrix;
+    shared_ptr<SparseSubMatrixLinkage> rayleighDampingMatrixToMassSubMatrixLinkage;
+    shared_ptr<SparseMatrix> tangentStiffnessMatrix;
+    shared_ptr<SparseSubMatrixLinkage> tangentStiffnessMatrixToDampingSubMatrixLinkage;
+    shared_ptr<SparseSubMatrixLinkage> tangentStiffnessMatrixToMassSubMatrixLinkage;
+    
+    SparseMatrix * systemMatrix;
+    
+    double * bufferConstrained;
+    
+    // parameters for implicit Newmark
+    double NewmarkBeta,NewmarkGamma;
+    double alpha1, alpha2, alpha3, alpha4, alpha5, alpha6;
+    double epsilon; 
+    int maxIterations;
+    
+    void UpdateAlphas();
+    bool useStaticSolver;
+    
+    int positiveDefiniteSolver;
+    int numSolverThreads;
+#ifdef PARDISO
     PardisoSolver * pardisoSolver;
-  #endif
-
-  #ifdef PCG
+#endif
+    
+#ifdef PCG
     CGSolver * jacobiPreconditionedCGSolver;
-  #endif
+#endif
 };
 
 #endif

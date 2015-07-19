@@ -30,7 +30,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <assert.h>
 #include "sparseMatrix.h"
+#include "sparseSubMatrixLinkage.h"
 using namespace std;
 
 SparseMatrix::SparseMatrix(const char * filename)
@@ -76,9 +78,10 @@ void SparseMatrix::Allocate(size_t numRows)
     // compressed row storage
     columnIndices.resize(numRows);
     columnEntries.resize(numRows);
+    /*
     numSubMatrixIDs = 0;
     subMatrixIndices = NULL;
-    subMatrixIndexLengths = NULL;
+    subMatrixIndexLengths = NULL;*/
     superMatrixIndices = NULL;
     superRows = NULL;
     diagonalIndices.resize(0);
@@ -88,12 +91,16 @@ void SparseMatrix::Allocate(size_t numRows)
 // destructor
 SparseMatrix::~SparseMatrix()
 {
+    subMatrixLinkages.clear();
+    
+    /*
     if (subMatrixIndices != NULL)
     {
         for(int i=numSubMatrixIDs-1; i>=0; i--)
             FreeSubMatrixIndices(i);
-    }
+    }*/
     
+     
     if (superRows != NULL)
     {
         for(int i=0; i<GetNumRows(); i++)
@@ -127,7 +134,13 @@ SparseMatrix::SparseMatrix(const SparseMatrix & source)
         }
     }
     
-    subMatrixIndices = NULL; 
+    for (int i=0; i<source.subMatrixLinkages.size(); i++)
+    {
+        AttachSubMatrix(source.subMatrixLinkages[i]);
+    }
+    
+    /*
+    subMatrixIndices = NULL;
     subMatrixIndexLengths = NULL;
     numSubMatrixIDs = source.numSubMatrixIDs;
     if (source.subMatrixIndices != NULL)
@@ -159,7 +172,7 @@ SparseMatrix::SparseMatrix(const SparseMatrix & source)
                 }
             }
         }
-    }
+    }*/
     
     superRows = NULL;
     superMatrixIndices = NULL;
@@ -872,6 +885,45 @@ void SparseMatrix::AssignSuperMatrix(SparseMatrix * superMatrix)
     }
 }
 
+shared_ptr<SparseSubMatrixLinkage> SparseMatrix::AttachSubMatrix(shared_ptr<SparseMatrix> subMatrix)
+{
+    assert(GetExistingSubMatrixLinkage(subMatrix) == nullptr && "already have a linkage for this submatrix");
+    
+    shared_ptr<SparseMatrix> super = shared_from_this();
+    auto linkage = std::make_shared<SparseSubMatrixLinkage>(super, subMatrix);
+    AttachSubMatrix(linkage);
+    return linkage;
+}
+
+void SparseMatrix::AttachSubMatrix(shared_ptr<SparseSubMatrixLinkage> link)
+{
+    subMatrixLinkages.push_back(link);
+}
+
+void SparseMatrix::DetachSubMatrix(shared_ptr<SparseSubMatrixLinkage> link)
+{
+    auto it = find(subMatrixLinkages.begin(), subMatrixLinkages.end(), link);
+    assert(it != subMatrixLinkages.end() && "submatrix linkage not found");
+    if (it != subMatrixLinkages.end())
+    {
+        subMatrixLinkages.erase(it);
+    }
+}
+
+shared_ptr<SparseSubMatrixLinkage> SparseMatrix::GetExistingSubMatrixLinkage(shared_ptr<SparseMatrix> subMatrix)
+{
+    for (auto link: subMatrixLinkages)
+    {
+        if (link->GetSubMatrix() == subMatrix)
+        {
+            return link;
+        }
+    }
+    
+    return nullptr;
+}
+
+/*
 void SparseMatrix::BuildSubMatrixIndices(SparseMatrix & submatrix, int subMatrixID)
 {
     if (subMatrixID >= numSubMatrixIDs)
@@ -958,9 +1010,22 @@ void SparseMatrix::FreeSubMatrixIndices(int subMatrixID)
         subMatrixIndexLengths = NULL;
     }
 }
+ */
 
-SparseMatrix & SparseMatrix::AddSubMatrix(double factor, SparseMatrix & submatrix, int subMatrixID)
+
+void SparseMatrix::AddSubMatrix(double factor, shared_ptr<SparseMatrix> subMatrix)
 {
+    auto linkage = GetExistingSubMatrixLinkage(subMatrix);
+    assert(nullptr != linkage && "No linkage to the submatrix exists");
+    AddSubMatrix(factor, linkage);
+}
+
+void SparseMatrix::AddSubMatrix(double factor, shared_ptr<SparseSubMatrixLinkage> link)
+{
+    assert(link->GetSuperMatrix().get() == this && "link is for a different super matrix");
+    link->AddSubMatrixToSuperMatrix(factor);
+    
+    /*
     for(int i=0; i<GetNumRows(); i++)
     {
         int * indices = subMatrixIndices[subMatrixID][i];
@@ -968,8 +1033,7 @@ SparseMatrix & SparseMatrix::AddSubMatrix(double factor, SparseMatrix & submatri
         for(int j=0; j < submatrixRowLength; j++)
             columnEntries[i][indices[j]] += factor * submatrix.columnEntries[i][j];
     }
-    
-    return *this;
+     */
 }
 
 int SparseMatrix::GetNumLowerTriangleEntries() const
@@ -1775,5 +1839,18 @@ vector<int> SparseMatrix::GetRowLengths() const
         result[i] = GetRowLength(i);
     }
     return result;
+}
+
+SparseMatrixOutline SparseMatrix::GenerateOutline() const
+{
+    SparseMatrixOutline outline(GetNumRows());
+    for (int row=0; row<GetNumRows(); row++)
+    {
+        for (int entry=0; entry<GetRowLength(row); entry++)
+        {
+            outline.AddEntry(row, GetColumnIndex(row, entry));
+        }
+    }
+    return outline;
 }
 

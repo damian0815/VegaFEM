@@ -7,5 +7,8 @@ libraries/lib
 utilities/volumetricMeshUtilities/generate*
 utilities/interactiveDeformableSimulator/interactiveDeformableSimulator
 utilities/bin
+xcuserdata
+project.xcworkspace
+
 
 

@@ -30,43 +30,38 @@
 #include <stdlib.h>
 #include <string.h>
 #include "integratorBaseSparse.h"
+#include "sparseMatrixOutline.h"
 
 IntegratorBaseSparse::IntegratorBaseSparse(int r, double timestep, SparseMatrix * massMatrix_, ForceModel * forceModel_, int numConstrainedDOFs_, int * constrainedDOFs_, double dampingMassCoef, double dampingStiffnessCoef): IntegratorBase(r, timestep, dampingMassCoef, dampingStiffnessCoef), massMatrix(massMatrix_), forceModel(forceModel_), numConstrainedDOFs(numConstrainedDOFs_)
 {
-  systemSolveTime = 0.0;
-  forceAssemblyTime = 0.0;
-
-  constrainedDOFs = (int*) malloc (sizeof(int) * numConstrainedDOFs);
-  memcpy(constrainedDOFs, constrainedDOFs_, sizeof(int) * numConstrainedDOFs);
-
-  ownDampingMatrix = 1;
-  SparseMatrixOutline outline(r);
-  dampingMatrix = new SparseMatrix(&outline);
+    systemSolveTime = 0.0;
+    forceAssemblyTime = 0.0;
+    
+    constrainedDOFs = (int*) malloc (sizeof(int) * numConstrainedDOFs);
+    memcpy(constrainedDOFs, constrainedDOFs_, sizeof(int) * numConstrainedDOFs);
+    
+    SparseMatrixOutline outline(r);
+    auto outlinePtr = &outline;
+    dampingMatrix = std::make_shared<SparseMatrix>(outlinePtr);
 }
 
 IntegratorBaseSparse::~IntegratorBaseSparse()
 {
-  free(constrainedDOFs);
-  if (ownDampingMatrix)
-    delete(dampingMatrix);
+    free(constrainedDOFs);
 }
 
-void IntegratorBaseSparse::SetDampingMatrix(SparseMatrix * dampingMatrix_)
+void IntegratorBaseSparse::SetDampingMatrix(std::shared_ptr<SparseMatrix> dampingMatrix_)
 {
-  if (ownDampingMatrix)
-    delete(dampingMatrix);
-
-  dampingMatrix = dampingMatrix_;
-  ownDampingMatrix = 0;
+    dampingMatrix = dampingMatrix_;
 }
 
 double IntegratorBaseSparse::GetKineticEnergy()
 {
-  return 0.5 * massMatrix->QuadraticForm(qvel);
+    return 0.5 * massMatrix->QuadraticForm(qvel);
 }
 
 double IntegratorBaseSparse::GetTotalMass()
 {
-  return massMatrix->SumEntries();
+    return massMatrix->SumEntries();
 }
 

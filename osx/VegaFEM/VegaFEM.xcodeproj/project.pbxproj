@@ -1,0 +1,277 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXFileReference section */
+		2DAE42CF1B5BAE610034BE8B /* camera */ = {isa = PBXFileReference; lastKnownFileType = folder; name = camera; path = ../../libraries/camera; sourceTree = "<group>"; };
+		2DAE42D01B5BAE610034BE8B /* clothBW */ = {isa = PBXFileReference; lastKnownFileType = folder; name = clothBW; path = ../../libraries/clothBW; sourceTree = "<group>"; };
+		2DAE42D11B5BAE610034BE8B /* configFile */ = {isa = PBXFileReference; lastKnownFileType = folder; name = configFile; path = ../../libraries/configFile; sourceTree = "<group>"; };
+		2DAE42D21B5BAE610034BE8B /* corotationalLinearFEM */ = {isa = PBXFileReference; lastKnownFileType = folder; name = corotationalLinearFEM; path = ../../libraries/corotationalLinearFEM; sourceTree = "<group>"; };
+		2DAE42D31B5BAE610034BE8B /* elasticForceModel */ = {isa = PBXFileReference; lastKnownFileType = folder; name = elasticForceModel; path = ../../libraries/elasticForceModel; sourceTree = "<group>"; };
+		2DAE42D41B5BAE610034BE8B /* forceModel */ = {isa = PBXFileReference; lastKnownFileType = folder; name = forceModel; path = ../../libraries/forceModel; sourceTree = "<group>"; };
+		2DAE42D51B5BAE610034BE8B /* getopts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = getopts; path = ../../libraries/getopts; sourceTree = "<group>"; };
+		2DAE42D61B5BAE610034BE8B /* glslPhong */ = {isa = PBXFileReference; lastKnownFileType = folder; name = glslPhong; path = ../../libraries/glslPhong; sourceTree = "<group>"; };
+		2DAE42D71B5BAE610034BE8B /* glui */ = {isa = PBXFileReference; lastKnownFileType = folder; name = glui; path = ../../libraries/glui; sourceTree = "<group>"; };
+		2DAE42D81B5BAE610034BE8B /* graph */ = {isa = PBXFileReference; lastKnownFileType = folder; name = graph; path = ../../libraries/graph; sourceTree = "<group>"; };
+		2DAE42D91B5BAE610034BE8B /* hashTable */ = {isa = PBXFileReference; lastKnownFileType = folder; name = hashTable; path = ../../libraries/hashTable; sourceTree = "<group>"; };
+		2DAE42DA1B5BAE610034BE8B /* imageIO */ = {isa = PBXFileReference; lastKnownFileType = folder; name = imageIO; path = ../../libraries/imageIO; sourceTree = "<group>"; };
+		2DAE42DB1B5BAE610034BE8B /* insertRows */ = {isa = PBXFileReference; lastKnownFileType = folder; name = insertRows; path = ../../libraries/insertRows; sourceTree = "<group>"; };
+		2DAE42DC1B5BAE610034BE8B /* integrator */ = {isa = PBXFileReference; lastKnownFileType = folder; name = integrator; path = ../../libraries/integrator; sourceTree = "<group>"; };
+		2DAE42DD1B5BAE610034BE8B /* integratorDense */ = {isa = PBXFileReference; lastKnownFileType = folder; name = integratorDense; path = ../../libraries/integratorDense; sourceTree = "<group>"; };
+		2DAE42DE1B5BAE610034BE8B /* integratorSparse */ = {isa = PBXFileReference; lastKnownFileType = folder; name = integratorSparse; path = ../../libraries/integratorSparse; sourceTree = "<group>"; };
+		2DAE42DF1B5BAE610034BE8B /* isotropicHyperelasticFEM */ = {isa = PBXFileReference; lastKnownFileType = folder; name = isotropicHyperelasticFEM; path = ../../libraries/isotropicHyperelasticFEM; sourceTree = "<group>"; };
+		2DAE42E01B5BAE610034BE8B /* lighting */ = {isa = PBXFileReference; lastKnownFileType = folder; name = lighting; path = ../../libraries/lighting; sourceTree = "<group>"; };
+		2DAE42E11B5BAE610034BE8B /* loadList */ = {isa = PBXFileReference; lastKnownFileType = folder; name = loadList; path = ../../libraries/loadList; sourceTree = "<group>"; };
+		2DAE42E21B5BAE610034BE8B /* massSpringSystem */ = {isa = PBXFileReference; lastKnownFileType = folder; name = massSpringSystem; path = ../../libraries/massSpringSystem; sourceTree = "<group>"; };
+		2DAE42E31B5BAE610034BE8B /* matrix */ = {isa = PBXFileReference; lastKnownFileType = folder; name = matrix; path = ../../libraries/matrix; sourceTree = "<group>"; };
+		2DAE42E41B5BAE610034BE8B /* matrixIO */ = {isa = PBXFileReference; lastKnownFileType = folder; name = matrixIO; path = ../../libraries/matrixIO; sourceTree = "<group>"; };
+		2DAE42E51B5BAE610034BE8B /* minivector */ = {isa = PBXFileReference; lastKnownFileType = folder; name = minivector; path = ../../libraries/minivector; sourceTree = "<group>"; };
+		2DAE42E61B5BAE610034BE8B /* modalMatrix */ = {isa = PBXFileReference; lastKnownFileType = folder; name = modalMatrix; path = ../../libraries/modalMatrix; sourceTree = "<group>"; };
+		2DAE42E71B5BAE610034BE8B /* objMesh */ = {isa = PBXFileReference; lastKnownFileType = folder; name = objMesh; path = ../../libraries/objMesh; sourceTree = "<group>"; };
+		2DAE42E81B5BAE610034BE8B /* objMeshGPUDeformer */ = {isa = PBXFileReference; lastKnownFileType = folder; name = objMeshGPUDeformer; path = ../../libraries/objMeshGPUDeformer; sourceTree = "<group>"; };
+		2DAE42E91B5BAE610034BE8B /* openGLHelper */ = {isa = PBXFileReference; lastKnownFileType = folder; name = openGLHelper; path = ../../libraries/openGLHelper; sourceTree = "<group>"; };
+		2DAE42EA1B5BAE610034BE8B /* performanceCounter */ = {isa = PBXFileReference; lastKnownFileType = folder; name = performanceCounter; path = ../../libraries/performanceCounter; sourceTree = "<group>"; };
+		2DAE42EB1B5BAE610034BE8B /* polarDecomposition */ = {isa = PBXFileReference; lastKnownFileType = folder; name = polarDecomposition; path = ../../libraries/polarDecomposition; sourceTree = "<group>"; };
+		2DAE42EC1B5BAE610034BE8B /* quaternion */ = {isa = PBXFileReference; lastKnownFileType = folder; name = quaternion; path = ../../libraries/quaternion; sourceTree = "<group>"; };
+		2DAE42ED1B5BAE610034BE8B /* reducedElasticForceModel */ = {isa = PBXFileReference; lastKnownFileType = folder; name = reducedElasticForceModel; path = ../../libraries/reducedElasticForceModel; sourceTree = "<group>"; };
+		2DAE42EE1B5BAE610034BE8B /* reducedForceModel */ = {isa = PBXFileReference; lastKnownFileType = folder; name = reducedForceModel; path = ../../libraries/reducedForceModel; sourceTree = "<group>"; };
+		2DAE42EF1B5BAE610034BE8B /* reducedStvk */ = {isa = PBXFileReference; lastKnownFileType = folder; name = reducedStvk; path = ../../libraries/reducedStvk; sourceTree = "<group>"; };
+		2DAE42F01B5BAE610034BE8B /* renderVolumetricMesh */ = {isa = PBXFileReference; lastKnownFileType = folder; name = renderVolumetricMesh; path = ../../libraries/renderVolumetricMesh; sourceTree = "<group>"; };
+		2DAE42F11B5BAE610034BE8B /* rigidBodyDynamics */ = {isa = PBXFileReference; lastKnownFileType = folder; name = rigidBodyDynamics; path = ../../libraries/rigidBodyDynamics; sourceTree = "<group>"; };
+		2DAE42F21B5BAE620034BE8B /* sceneObject */ = {isa = PBXFileReference; lastKnownFileType = folder; name = sceneObject; path = ../../libraries/sceneObject; sourceTree = "<group>"; };
+		2DAE42F31B5BAE620034BE8B /* sceneObjectReduced */ = {isa = PBXFileReference; lastKnownFileType = folder; name = sceneObjectReduced; path = ../../libraries/sceneObjectReduced; sourceTree = "<group>"; };
+		2DAE42F41B5BAE620034BE8B /* sparseMatrix */ = {isa = PBXFileReference; lastKnownFileType = folder; name = sparseMatrix; path = ../../libraries/sparseMatrix; sourceTree = "<group>"; };
+		2DAE42F51B5BAE620034BE8B /* sparseSolver */ = {isa = PBXFileReference; lastKnownFileType = folder; name = sparseSolver; path = ../../libraries/sparseSolver; sourceTree = "<group>"; };
+		2DAE42F61B5BAE620034BE8B /* stvk */ = {isa = PBXFileReference; lastKnownFileType = folder; name = stvk; path = ../../libraries/stvk; sourceTree = "<group>"; };
+		2DAE42F71B5BAE620034BE8B /* volumetricMesh */ = {isa = PBXFileReference; lastKnownFileType = folder; name = volumetricMesh; path = ../../libraries/volumetricMesh; sourceTree = "<group>"; };
+		2DAE42FB1B5BE76C0034BE8B /* interactiveDeformableSimulator */ = {isa = PBXFileReference; lastKnownFileType = folder; name = interactiveDeformableSimulator; path = ../../utilities/interactiveDeformableSimulator; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		2DAE42C21B5BAB010034BE8B = {
+			isa = PBXGroup;
+			children = (
+				2DAE42FA1B5BE75E0034BE8B /* utilities */,
+				2DAE42CE1B5BAE330034BE8B /* libraries */,
+			);
+			sourceTree = "<group>";
+		};
+		2DAE42CE1B5BAE330034BE8B /* libraries */ = {
+			isa = PBXGroup;
+			children = (
+				2DAE42CF1B5BAE610034BE8B /* camera */,
+				2DAE42D01B5BAE610034BE8B /* clothBW */,
+				2DAE42D11B5BAE610034BE8B /* configFile */,
+				2DAE42D21B5BAE610034BE8B /* corotationalLinearFEM */,
+				2DAE42D31B5BAE610034BE8B /* elasticForceModel */,
+				2DAE42D41B5BAE610034BE8B /* forceModel */,
+				2DAE42D51B5BAE610034BE8B /* getopts */,
+				2DAE42D61B5BAE610034BE8B /* glslPhong */,
+				2DAE42D71B5BAE610034BE8B /* glui */,
+				2DAE42D81B5BAE610034BE8B /* graph */,
+				2DAE42D91B5BAE610034BE8B /* hashTable */,
+				2DAE42DA1B5BAE610034BE8B /* imageIO */,
+				2DAE42DB1B5BAE610034BE8B /* insertRows */,
+				2DAE42DC1B5BAE610034BE8B /* integrator */,
+				2DAE42DD1B5BAE610034BE8B /* integratorDense */,
+				2DAE42DE1B5BAE610034BE8B /* integratorSparse */,
+				2DAE42DF1B5BAE610034BE8B /* isotropicHyperelasticFEM */,
+				2DAE42E01B5BAE610034BE8B /* lighting */,
+				2DAE42E11B5BAE610034BE8B /* loadList */,
+				2DAE42E21B5BAE610034BE8B /* massSpringSystem */,
+				2DAE42E31B5BAE610034BE8B /* matrix */,
+				2DAE42E41B5BAE610034BE8B /* matrixIO */,
+				2DAE42E51B5BAE610034BE8B /* minivector */,
+				2DAE42E61B5BAE610034BE8B /* modalMatrix */,
+				2DAE42E71B5BAE610034BE8B /* objMesh */,
+				2DAE42E81B5BAE610034BE8B /* objMeshGPUDeformer */,
+				2DAE42E91B5BAE610034BE8B /* openGLHelper */,
+				2DAE42EA1B5BAE610034BE8B /* performanceCounter */,
+				2DAE42EB1B5BAE610034BE8B /* polarDecomposition */,
+				2DAE42EC1B5BAE610034BE8B /* quaternion */,
+				2DAE42ED1B5BAE610034BE8B /* reducedElasticForceModel */,
+				2DAE42EE1B5BAE610034BE8B /* reducedForceModel */,
+				2DAE42EF1B5BAE610034BE8B /* reducedStvk */,
+				2DAE42F01B5BAE610034BE8B /* renderVolumetricMesh */,
+				2DAE42F11B5BAE610034BE8B /* rigidBodyDynamics */,
+				2DAE42F21B5BAE620034BE8B /* sceneObject */,
+				2DAE42F31B5BAE620034BE8B /* sceneObjectReduced */,
+				2DAE42F41B5BAE620034BE8B /* sparseMatrix */,
+				2DAE42F51B5BAE620034BE8B /* sparseSolver */,
+				2DAE42F61B5BAE620034BE8B /* stvk */,
+				2DAE42F71B5BAE620034BE8B /* volumetricMesh */,
+			);
+			name = libraries;
+			sourceTree = "<group>";
+		};
+		2DAE42FA1B5BE75E0034BE8B /* utilities */ = {
+			isa = PBXGroup;
+			children = (
+				2DAE42FB1B5BE76C0034BE8B /* interactiveDeformableSimulator */,
+			);
+			name = utilities;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXLegacyTarget section */
+		2DAE42C71B5BAB010034BE8B /* VegaFEM */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 2DAE42CA1B5BAB010034BE8B /* Build configuration list for PBXLegacyTarget "VegaFEM" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = /Users/damian/2.current/clengine/CLEngine/src/3rdparty/VegaFEM/utilities/interactiveDeformableSimulator;
+			dependencies = (
+			);
+			name = VegaFEM;
+			passBuildSettingsInEnvironment = 1;
+			productName = VegaFEM;
+		};
+/* End PBXLegacyTarget section */
+
+/* Begin PBXProject section */
+		2DAE42C31B5BAB010034BE8B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0510;
+				ORGANIZATIONNAME = "Damian Stewart";
+			};
+			buildConfigurationList = 2DAE42C61B5BAB010034BE8B /* Build configuration list for PBXProject "VegaFEM" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 2DAE42C21B5BAB010034BE8B;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				2DAE42C71B5BAB010034BE8B /* VegaFEM */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin XCBuildConfiguration section */
+		2DAE42C81B5BAB010034BE8B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		2DAE42C91B5BAB010034BE8B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		2DAE42CB1B5BAB010034BE8B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		2DAE42CC1B5BAB010034BE8B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		2DAE42C61B5BAB010034BE8B /* Build configuration list for PBXProject "VegaFEM" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2DAE42C81B5BAB010034BE8B /* Debug */,
+				2DAE42C91B5BAB010034BE8B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2DAE42CA1B5BAB010034BE8B /* Build configuration list for PBXLegacyTarget "VegaFEM" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2DAE42CB1B5BAB010034BE8B /* Debug */,
+				2DAE42CC1B5BAB010034BE8B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 2DAE42C31B5BAB010034BE8B /* Project object */;
+}

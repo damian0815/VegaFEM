@@ -99,11 +99,15 @@
 
 #include <string.h>
 #include <vector>
-#include "sparseMatrixOutline.h"
 using std::vector;
+using std::shared_ptr;
 #include <map>
 
-class SparseMatrix
+#include "sparseMatrixOutline.h"
+
+class SparseSubMatrixLinkage;
+
+class SparseMatrix: public std::enable_shared_from_this<SparseMatrix>
 {
 public:
     
@@ -111,6 +115,8 @@ public:
     SparseMatrix(SparseMatrixOutline * sparseMatrixOutline); // create it from the outline
     SparseMatrix(const SparseMatrix & source); // copy constructor
     virtual ~SparseMatrix();
+    
+    SparseMatrixOutline GenerateOutline() const; // create an outline for the topology of this matrix
     
     int Save(const char * filename, int oneIndexed=0) const; // save matrix to a disk text file 
     
@@ -251,15 +257,24 @@ public:
     void AddDiagonalMatrix(double * diagonalMatrix);
     void AddDiagonalMatrix(double constDiagonalElement);
     
-    // Build submatrix indices is used for pair of matrices where the sparsity of one matrix is a subset of another matrix (for example, mass matrix and 
+    
+    
+    // Build submatrix indices is used for pair of matrices where the sparsity of one matrix is a subset of another matrix (for example, mass matrix and
     // stiffness matrix). Also, the two matrics have to have the same dimensions (i.e., number of rows and columns).
+    
     // Call this once to establish the correspondence:
-    void BuildSubMatrixIndices(SparseMatrix & submatrix, int subMatrixID=0);
-    void FreeSubMatrixIndices(int subMatrixID=0);
+    shared_ptr<SparseSubMatrixLinkage> AttachSubMatrix(shared_ptr<SparseMatrix> subMatrix);
+    void DetachSubMatrix(shared_ptr<SparseSubMatrixLinkage> linkage);
+    shared_ptr<SparseSubMatrixLinkage> GetExistingSubMatrixLinkage(shared_ptr<SparseMatrix> subMatrix);
+    
+
+    //void BuildSubMatrixIndices(SparseMatrix & submatrix, int subMatrixID=0);
+    //void FreeSubMatrixIndices(int subMatrixID=0);
     // add a matrix to the current matrix, whose elements are a subset of the elements of the current matrix
     // += factor * mat2
-    // returns *this
-    SparseMatrix & AddSubMatrix(double factor, SparseMatrix & submatrix, int subMatrixID=0);
+    void AddSubMatrix(double factor, shared_ptr<SparseSubMatrixLinkage> subMatrixLinkage);
+    // subMatrix must have been attached via AttachSubMatrix
+    void AddSubMatrix(double factor, shared_ptr<SparseMatrix> subMatrix);
     
     // Build supermatrix indices is used for pair of matrices with rows/columns removed.
     // oneIndexed: tells whether the fixed rows and columns are specified 1-indexed or 0-indexed
@@ -306,13 +321,13 @@ public:
 protected:
     
     // compressed row storage
-    std::vector<std::vector<int> > columnIndices; // indices of columns of non-zero entries in each row
-    std::vector<std::vector<double> > columnEntries; // values of non-zero entries in each row
+    vector<vector<int> > columnIndices; // indices of columns of non-zero entries in each row
+    vector<vector<double> > columnEntries; // values of non-zero entries in each row
     
     bool HasCachedDiagonalIndices() { return diagonalIndices.size() > 0; }
-    std::vector<int> diagonalIndices;
+    vector<int> diagonalIndices;
     bool HasCachedTransposedIndices() { return transposedIndices.size() > 0; }
-    std::vector<std::vector<int> > transposedIndices;
+    vector<vector<int> > transposedIndices;
     
     /*
      numSubMatrixIDs specifies how many sub-matrix relationships we have
@@ -324,9 +339,14 @@ protected:
      length(subMatrixIndices[subMatrixID][rowIndex]) ==
      subMatrixIndexLengths[subMatrixID][rowIndex]
      */
+    void AttachSubMatrix(shared_ptr<SparseSubMatrixLinkage> linkage);
+    vector<shared_ptr<SparseSubMatrixLinkage> > subMatrixLinkages;
+    
+    /*
     int numSubMatrixIDs;
     int *** subMatrixIndices;
     int ** subMatrixIndexLengths;
+     */
     
     int ** superMatrixIndices;
     int * superRows;

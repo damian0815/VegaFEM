@@ -8,6 +8,8 @@ endif
 include ../../Makefile-headers/Makefile-header
 R ?= ../..
 
+EXTRACXXFLAGS=-Wno-error=overloaded-virtual
+
 # the object files to be compiled for this utility
 SIMULATOR_OBJECTS=interactiveDeformableSimulator.o initGraphics.o
 
@@ -33,7 +35,7 @@ $(R)/utilities/interactiveDeformableSimulator/interactiveDeformableSimulator: $(
 	$(CXXLD) $(LDFLAGS) $(SIMULATOR_OBJECTS) $(SIMULATOR_LINK) -Wl,-rpath,$(CURRENT_DIR)/$(GLUI_DIR)/lib -o $@; cp $@ $(R)/utilities/bin/
 
 $(SIMULATOR_OBJECTS_FILENAMES): %.o: %.cpp $(SIMULATOR_LIB_FILENAMES) $(SIMULATOR_HEADER_FILENAMES)
-	$(CXX) $(CXXFLAGS) -c $(INCLUDE) $(GLUI_INCLUDE) $< -o $@
+	$(CXX) $(CXXFLAGS) $(EXTRACXXFLAGS) -c $(INCLUDE) $(GLUI_INCLUDE) $< -o $@
 
 ifeq ($(CLEANFOLDER), SIMULATOR)
 clean: cleaninteractiveDeformableSimulator
