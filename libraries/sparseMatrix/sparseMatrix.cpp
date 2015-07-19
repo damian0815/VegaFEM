@@ -35,13 +35,13 @@ using namespace std;
 
 SparseMatrix::SparseMatrix(const char * filename)
 {
-  SparseMatrixOutline sparseMatrixOutline(filename);
-  InitFromOutline(&sparseMatrixOutline);
+    SparseMatrixOutline sparseMatrixOutline(filename);
+    InitFromOutline(&sparseMatrixOutline);
 }
 
 SparseMatrix::SparseMatrix(SparseMatrixOutline * sparseMatrixOutline)
 {
-  InitFromOutline(sparseMatrixOutline);
+    InitFromOutline(sparseMatrixOutline);
 }
 
 // construct matrix from the outline
@@ -51,9 +51,9 @@ void SparseMatrix::InitFromOutline(SparseMatrixOutline * sparseMatrixOutline)
     
     for(size_t i=0; i<GetNumRows(); i++)
     {
-        rowLength[i] = (int)sparseMatrixOutline->columnEntries[i].size();
-        columnEntries[i].resize(rowLength[i]);
-        columnIndices[i].resize(rowLength[i]);
+        int rowLength = (int)sparseMatrixOutline->columnEntries[i].size();
+        columnEntries[i].resize(rowLength);
+        columnIndices[i].resize(rowLength);
         
         map<int,double>::iterator pos;
         int j = 0;
@@ -74,7 +74,6 @@ void SparseMatrix::InitFromOutline(SparseMatrixOutline * sparseMatrixOutline)
 void SparseMatrix::Allocate(size_t numRows)
 {
     // compressed row storage
-    rowLength.resize(numRows);
     columnIndices.resize(numRows);
     columnEntries.resize(numRows);
     numSubMatrixIDs = 0;
@@ -117,11 +116,11 @@ SparseMatrix::SparseMatrix(const SparseMatrix & source)
     
     for(int i=0; i<numRows; i++)
     {
-        rowLength[i] = source.rowLength[i];
-        columnIndices[i].resize(rowLength[i]);
-        columnEntries[i].resize(rowLength[i]);
+        int rowLength = source.GetRowLength(i);
+        columnIndices[i].resize(rowLength);
+        columnEntries[i].resize(rowLength);
         
-        for(int j=0; j < rowLength[i]; j++)
+        for(int j=0; j < rowLength; j++)
         {
             columnIndices[i][j] = source.columnIndices[i][j];
             columnEntries[i][j] = source.columnEntries[i][j];
@@ -171,8 +170,9 @@ SparseMatrix::SparseMatrix(const SparseMatrix & source)
         for(int i=0; i<numRows; i++)
         {
             superRows[i] = source.superRows[i];
-            superMatrixIndices[i] = (int*) malloc(sizeof(int) * rowLength[i]);
-            for(int j=0; j < rowLength[i]; j++)
+            int rowLength = GetRowLength(i);
+            superMatrixIndices[i] = (int*) malloc(sizeof(int) * rowLength);
+            for(int j=0; j < rowLength; j++)
             {
                 superMatrixIndices[i][j] = source.superMatrixIndices[i][j];
             }
@@ -190,248 +190,295 @@ SparseMatrix::SparseMatrix(const SparseMatrix & source)
         transposedIndices.resize(numRows);
         for(int i=0; i<numRows; i++)
         {
-            transposedIndices[i].resize(rowLength[i]);
-            memcpy(&transposedIndices[i][0], &source.transposedIndices[i][0], sizeof(transposedIndices[i][0]) * rowLength[i]);
+            int rowLength = GetRowLength(i);
+            transposedIndices[i].resize(rowLength);
+            memcpy(&transposedIndices[i][0], &source.transposedIndices[i][0], sizeof(transposedIndices[i][0]) * rowLength);
         }
     }
 }
 
 void SparseMatrix::MultiplyVector(int startRow, int endRow, const double * vector, double * result) const // result = A(startRow:endRow-1,:) * vector
 {
-  for(int i=startRow; i<endRow; i++)
-  {
-    result[i-startRow] = 0;
-    for(int j=0; j < rowLength[i]; j++)
-      result[i-startRow] += vector[columnIndices[i][j]] * columnEntries[i][j];
-  }
+    for(int i=startRow; i<endRow; i++)
+    {
+        int rowLength = GetRowLength(i);
+        result[i-startRow] = 0;
+        for(int j=0; j < rowLength; j++)
+            result[i-startRow] += vector[columnIndices[i][j]] * columnEntries[i][j];
+    }
 }
 
 void SparseMatrix::MultiplyVector(const double * vector, double * result) const
 {
-  for(int i=0; i<GetNumRows(); i++)
-  {
-    result[i] = 0;
-    for(int j=0; j < rowLength[i]; j++)
-      result[i] += vector[columnIndices[i][j]] * columnEntries[i][j];
-  }
+    for(int i=0; i<GetNumRows(); i++)
+    {
+        int rowLength = GetRowLength(i);
+        result[i] = 0;
+        for(int j=0; j < rowLength; j++)
+            result[i] += vector[columnIndices[i][j]] * columnEntries[i][j];
+    }
 }
 
 void SparseMatrix::MultiplyVectorAdd(const double * vector, double * result) const
 {
-  for(int i=0; i<GetNumRows(); i++)
-    for(int j=0; j < rowLength[i]; j++)
-      result[i] += vector[columnIndices[i][j]] * columnEntries[i][j];
+    for(int i=0; i<GetNumRows(); i++)
+    {
+        int rowLength = GetRowLength(i);
+        for(int j=0; j < rowLength; j++)
+            result[i] += vector[columnIndices[i][j]] * columnEntries[i][j];
+    }
 }
 
 void SparseMatrix::TransposeMultiplyVector(const double * vector, int resultLength, double * result) const
 {
-  for(int i=0; i<resultLength; i++)
-    result[i] = 0;
-
-  for(int i=0; i<GetNumRows(); i++)
-    for(int j=0; j < rowLength[i]; j++)
-      result[columnIndices[i][j]] += vector[i] * columnEntries[i][j];
+    for(int i=0; i<resultLength; i++)
+        result[i] = 0;
+    
+    for(int i=0; i<GetNumRows(); i++)
+    {
+        int rowLength = GetRowLength(i);
+        for(int j=0; j < rowLength; j++)
+            result[columnIndices[i][j]] += vector[i] * columnEntries[i][j];
+    }
 }
 
 void SparseMatrix::TransposeMultiplyVectorAdd(const double * vector, double * result) const
 {
-  for(int i=0; i<GetNumRows(); i++)
-  {
-    for(int j=0; j < rowLength[i]; j++)
+    for(int i=0; i<GetNumRows(); i++)
     {
-      result[columnIndices[i][j]] += vector[i] * columnEntries[i][j];
+        int rowLength = GetRowLength(i);
+        for(int j=0; j < rowLength; j++)
+        {
+            result[columnIndices[i][j]] += vector[i] * columnEntries[i][j];
+        }
     }
-  }
 }
 
 void SparseMatrix::MultiplyMatrix(int numDenseRows, int numDenseColumns, const double * denseMatrix, double * result) const
 {
-  for(int column=0; column<numDenseColumns; column++)
-    MultiplyVector(&denseMatrix[numDenseRows * column], &result[GetNumRows() * column]);
+    for(int column=0; column<numDenseColumns; column++)
+        MultiplyVector(&denseMatrix[numDenseRows * column], &result[GetNumRows() * column]);
 }
 
 void SparseMatrix::MultiplyMatrixAdd(int numDenseRows, int numDenseColumns, const double * denseMatrix, double * result) const
 {
-  for(int column=0; column<numDenseColumns; column++)
-    MultiplyVectorAdd(&denseMatrix[numDenseRows * column], &result[GetNumRows() * column]);
+    for(int column=0; column<numDenseColumns; column++)
+        MultiplyVectorAdd(&denseMatrix[numDenseRows * column], &result[GetNumRows() * column]);
 }
 
 // result = A * trans(denseMatrix) 
 // trans(denseMatrix) is a dense matrix with 'numDenseColumns' columns, result is a numRows x numDenseColumns dense matrix
 void SparseMatrix::MultiplyMatrixTranspose(int numDenseColumns, const double * denseMatrix, double * result) const
 {
-  memset(result, 0, sizeof(double) * GetNumRows() * numDenseColumns);
-  for(int column=0; column<numDenseColumns; column++)
-    for(int i=0; i<GetNumRows(); i++)
-      for(int j=0; j < rowLength[i]; j++)
-        result[GetNumRows() * column + i] += denseMatrix[numDenseColumns * columnIndices[i][j] + column] * columnEntries[i][j];
+    memset(result, 0, sizeof(double) * GetNumRows() * numDenseColumns);
+    for(int column=0; column<numDenseColumns; column++)
+    {
+        for(int i=0; i<GetNumRows(); i++)
+        {
+            int rowLength = GetRowLength(i);
+            for(int j=0; j < rowLength; j++)
+                result[GetNumRows() * column + i] += denseMatrix[numDenseColumns * columnIndices[i][j] + column] * columnEntries[i][j];
+        }
+    }
 }
 
 double SparseMatrix::QuadraticForm(const double * vector) const
 {
-  double result = 0;
-  for(int i=0; i<GetNumRows(); i++)
-  {
-    for(int j=0; j < rowLength[i]; j++)
+    double result = 0;
+    for(int i=0; i<GetNumRows(); i++)
     {
-      int index = columnIndices[i][j];
-      if (index < i)
-        continue;
-      if (index == i)
-        result += columnEntries[i][j] * vector[i] * vector[index];
-      else
-        result += 2.0 * columnEntries[i][j] * vector[i] * vector[index];
+        int rowLength = GetRowLength(i);
+        for(int j=0; j < rowLength; j++)
+        {
+            int index = columnIndices[i][j];
+            if (index < i)
+                continue;
+            if (index == i)
+                result += columnEntries[i][j] * vector[i] * vector[index];
+            else
+                result += 2.0 * columnEntries[i][j] * vector[i] * vector[index];
+        }
     }
-  }
-  
-  return result;
+    
+    return result;
 } 
 
 void SparseMatrix::NormalizeVector(double * vector) const
 {
-  double norm = sqrt(QuadraticForm(vector));
-  for(int i=0; i<GetNumRows(); i++)
-    vector[i] /= norm;
+    double norm = sqrt(QuadraticForm(vector));
+    for(int i=0; i<GetNumRows(); i++)
+        vector[i] /= norm;
 }
 
 SparseMatrix SparseMatrix::operator+(const SparseMatrix & mat2) const
 {
-  SparseMatrix result(*this);
-  for(int i=0; i<GetNumRows(); i++)
-    for(int j=0; j < rowLength[i]; j++)
-      result.columnEntries[i][j] += mat2.columnEntries[i][j];
-  return result;
+    SparseMatrix result(*this);
+    for(int i=0; i<GetNumRows(); i++)
+    {
+        int rowLength = GetRowLength(i);
+        for(int j=0; j < rowLength; j++)
+            result.columnEntries[i][j] += mat2.columnEntries[i][j];
+    }
+    return result;
 }
 
 SparseMatrix SparseMatrix::operator-(const SparseMatrix & mat2) const
 {
-  SparseMatrix result(*this);
-  for(int i=0; i<GetNumRows(); i++)
-    for(int j=0; j < rowLength[i]; j++)
-      result.columnEntries[i][j] -= mat2.columnEntries[i][j];
-  return result;
+    SparseMatrix result(*this);
+    for(int i=0; i<GetNumRows(); i++)
+    {
+        int rowLength = GetRowLength(i);
+        for(int j=0; j < rowLength; j++)
+            result.columnEntries[i][j] -= mat2.columnEntries[i][j];
+    }
+    return result;
 }
 
 SparseMatrix operator* (const double alpha, const SparseMatrix & mat2)
 {
-  SparseMatrix result(mat2);
-  for(int i=0; i<result.GetNumRows(); i++)
-    for(int j=0; j < result.rowLength[i]; j++)
-      result.columnEntries[i][j] *= alpha;
-  return result;
+    SparseMatrix result(mat2);
+    for(int i=0; i<result.GetNumRows(); i++)
+    {
+        int rowLength = result.GetRowLength(i);
+        for(int j=0; j < rowLength; j++)
+            result.columnEntries[i][j] *= alpha;
+    }
+    return result;
 }
 
 SparseMatrix & SparseMatrix::operator*=(const double alpha)
 {
-  for(int i=0; i<GetNumRows(); i++)
-    for(int j=0; j < rowLength[i]; j++)
-      columnEntries[i][j] *= alpha;
-  return *this;
+    for(int i=0; i<GetNumRows(); i++)
+    {
+        int rowLength = GetRowLength(i);
+        for(int j=0; j < rowLength; j++)
+            columnEntries[i][j] *= alpha;
+    }
+    return *this;
 }
 
 SparseMatrix & SparseMatrix::operator+=(const SparseMatrix & mat2)
 {   
-  for(int i=0; i<GetNumRows(); i++)
-    for(int j=0; j < rowLength[i]; j++)
-      columnEntries[i][j] += mat2.columnEntries[i][j];
-  return *this;
+    for(int i=0; i<GetNumRows(); i++)
+    {
+        int rowLength = GetRowLength(i);
+        for(int j=0; j < rowLength; j++)
+            columnEntries[i][j] += mat2.columnEntries[i][j];
+    }
+    return *this;
 }
 
 SparseMatrix & SparseMatrix::operator-=(const SparseMatrix & mat2)
 {  
-  for(int i=0; i<GetNumRows(); i++)
-    for(int j=0; j < rowLength[i]; j++)
-      columnEntries[i][j] -= mat2.columnEntries[i][j]; 
-  return *this;
+    for(int i=0; i<GetNumRows(); i++)
+    {
+        int rowLength = GetRowLength(i);
+        for(int j=0; j < rowLength; j++)
+            columnEntries[i][j] -= mat2.columnEntries[i][j];
+    }
+    return *this;
 }
 
 SparseMatrix & SparseMatrix::operator=(const SparseMatrix & source)
 {
-  for(int i=0; i<GetNumRows(); i++)
-  {
-    for(int j=0; j < rowLength[i]; j++)
-      columnEntries[i][j] = source.columnEntries[i][j];
-  }
-
-  return *this;
+    for(int i=0; i<GetNumRows(); i++)
+    {
+        int rowLength = GetRowLength(i);
+        for(int j=0; j < rowLength; j++)
+            columnEntries[i][j] = source.columnEntries[i][j];
+    }
+    
+    return *this;
 }
 
 void SparseMatrix::ScalarMultiply(const double alpha, SparseMatrix * dest)
 {
-  if (dest == NULL)
-    dest = this;
-
-  for(int i=0; i<GetNumRows(); i++)
-    for(int j=0; j < rowLength[i]; j++)
-      dest->columnEntries[i][j] = columnEntries[i][j] * alpha;
+    if (dest == NULL)
+        dest = this;
+    
+    for(int i=0; i<GetNumRows(); i++)
+    {
+        int rowLength = GetRowLength(i);
+        for(int j=0; j < rowLength; j++)
+            dest->columnEntries[i][j] = columnEntries[i][j] * alpha;
+    }
 }
 
 void SparseMatrix::ScalarMultiplyAdd(const double alpha, SparseMatrix * dest)
 {
-  if (dest == NULL)
-    dest = this;
-
-  for(int i=0; i<GetNumRows(); i++)
-    for(int j=0; j < rowLength[i]; j++)
-      dest->columnEntries[i][j] += columnEntries[i][j] * alpha;
+    if (dest == NULL)
+        dest = this;
+    
+    for(int i=0; i<GetNumRows(); i++)
+    {
+        int rowLength = GetRowLength(i);
+        for(int j=0; j < rowLength; j++)
+            dest->columnEntries[i][j] += columnEntries[i][j] * alpha;
+    }
 }
 
 void SparseMatrix::ResetToZero()
 {
-  for(int i=0; i<GetNumRows(); i++)
-      ResetRowToZero(i);
+    for(int i=0; i<GetNumRows(); i++)
+        ResetRowToZero(i);
 }
 
 void SparseMatrix::ResetRowToZero(int row)
 {
-    columnEntries[row].assign(rowLength[row], 0);
+    int rowLength = GetRowLength(row);
+    columnEntries[row].assign(rowLength, 0);
 }
 
-void SparseMatrix::Print(int sparsePrint) const
+void SparseMatrix::Print(bool sparsePrint) const
 {
-  if (sparsePrint)
-  {
-    for (int i=0; i<GetNumRows(); i++)
-      for(int j=0; j< rowLength[i]; j++)
-        printf("%d %d %G\n", i, columnIndices[i][j], columnEntries[i][j]);
-  }
-  else
-  {
-    int numColumns = GetNumColumns();
-    for (int i=0; i<GetNumRows(); i++)
+    if (sparsePrint)
     {
-      int index = 0;
-      for(int j=0; j< rowLength[i]; j++)
-      {
-        while (index < columnIndices[i][j])
+        for (int i=0; i<GetNumRows(); i++)
         {
-          index++;
-          printf("%f,",0.0);
+            int rowLength = GetRowLength(i);
+            for(int j=0; j< rowLength; j++)
+                printf("%d %d %G\n", i, columnIndices[i][j], columnEntries[i][j]);
         }
-        printf("%f,",columnEntries[i][j]);
-        index++;
-      }
-
-      while (index < numColumns)
-      {
-        index++;
-        printf("%f,",0.0);
-      }
-    
-      printf("\n");
-    } 
-  }
+    }
+    else
+    {
+        int numColumns = GetNumColumns();
+        for (int i=0; i<GetNumRows(); i++)
+        {
+            int index = 0;
+            int rowLength = GetRowLength(i);
+            for(int j=0; j< rowLength; j++)
+            {
+                while (index < columnIndices[i][j])
+                {
+                    index++;
+                    printf("%f,",0.0);
+                }
+                printf("%f,",columnEntries[i][j]);
+                index++;
+            }
+            
+            while (index < numColumns)
+            {
+                index++;
+                printf("%f,",0.0);
+            }
+            
+            printf("\n");
+        } 
+    }
 }
 
 // seeks the element in column jDense (in row "row")
 // if not found, returns -1
 int SparseMatrix::GetInverseIndex(int row, int jDense) const
 {
-  for(int j=0; j < rowLength[row]; j++)
-    if (columnIndices[row][j] == jDense)
-      return j;
-
-  return -1;
+    int rowLength = GetRowLength(row);
+    for(int j=0; j < rowLength; j++)
+        if (columnIndices[row][j] == jDense)
+            return j;
+    
+    return -1;
 }
 
 void SparseMatrix::BuildDiagonalIndices()
@@ -507,95 +554,106 @@ int SparseMatrix::GetNumEntries() const
 {
     int num = 0;
     for(int i=0; i<GetNumRows(); i++)
-        num += rowLength[i];
+    {
+        num += GetRowLength(i);
+    }
     
     return num;
 }
 
 double SparseMatrix::SumEntries() const
 {
-  double sum=0;
-  for(int i=0; i<GetNumRows(); i++)
-    for(int j=0; j<rowLength[i]; j++)
-      sum += columnEntries[i][j];
-
-  return sum;
+    double sum=0;
+    for(int i=0; i<GetNumRows(); i++)
+    {
+        int rowLength = GetRowLength(i);
+        for(int j=0; j<rowLength; j++)
+            sum += columnEntries[i][j];
+    }
+    
+    return sum;
 }
 
 void SparseMatrix::SumRowEntries(double * rowSums) const
 {
-  for(int i=0; i<GetNumRows(); i++)
-  {
-    double sum=0;
-    for(int j=0; j<rowLength[i]; j++)
-      sum += columnEntries[i][j];
-    rowSums[i] = sum;
-  }
+    for(int i=0; i<GetNumRows(); i++)
+    {
+        double sum=0;
+        int rowLength = GetRowLength(i);
+        for(int j=0; j<rowLength; j++)
+            sum += columnEntries[i][j];
+        rowSums[i] = sum;
+    }
 }
 
 void SparseMatrix::MakeLinearDataArray(double * data) const
 {
-  int count=0;
-  for(int i=0; i<GetNumRows(); i++)
-  {
-    for(int j=0; j<rowLength[i]; j++)
+    int count=0;
+    for(int i=0; i<GetNumRows(); i++)
     {
-      data[count] = columnEntries[i][j];
-      count++;
-    }
-  }   
+        int rowLength = GetRowLength(i);
+        for(int j=0; j<rowLength; j++)
+        {
+            data[count] = columnEntries[i][j];
+            count++;
+        }
+    }   
 }
 
 void SparseMatrix::MakeLinearRowIndexArray(double * indices) const
 {
-  int count=0;
-  for(int i=0; i<GetNumRows(); i++)
-  {
-    for(int j=0; j<rowLength[i]; j++)
+    int count=0;
+    for(int i=0; i<GetNumRows(); i++)
     {
-      indices[count] = i;
-      count++;
-    }
-  }   
+        int rowLength = GetRowLength(i);
+        for(int j=0; j<rowLength; j++)
+        {
+            indices[count] = i;
+            count++;
+        }
+    }   
 }
 
 void SparseMatrix::MakeLinearColumnIndexArray(double * indices) const
 {
-  int count=0;
-  for(int i=0; i<GetNumRows(); i++)
-  {
-    for(int j=0; j<rowLength[i]; j++)
+    int count=0;
+    for(int i=0; i<GetNumRows(); i++)
     {
-      indices[count] = columnIndices[i][j];
-      count++;
-    }
-  }   
+        int rowLength = GetRowLength(i);
+        for(int j=0; j<rowLength; j++)
+        {
+            indices[count] = columnIndices[i][j];
+            count++;
+        }
+    }   
 }
 
 void SparseMatrix::MakeLinearRowIndexArray(int * indices) const
 {
-  int count=0;
-  for(int i=0; i<GetNumRows(); i++)
-  {
-    for(int j=0; j<rowLength[i]; j++)
+    int count=0;
+    for(int i=0; i<GetNumRows(); i++)
     {
-      indices[count] = i;
-      count++;
-    }
-  }   
+        int rowLength = GetRowLength(i);
+        for(int j=0; j<rowLength; j++)
+        {
+            indices[count] = i;
+            count++;
+        }
+    }   
 }
 
 void SparseMatrix::MakeLinearColumnIndexArray(int * indices) const
 {
-  int count=0;
-  for(int i=0; i<GetNumRows(); i++)
-  {
-    for(int j=0; j<rowLength[i]; j++)
+    int count=0;
+    for(int i=0; i<GetNumRows(); i++)
     {
-      indices[count] = columnIndices[i][j];
-      count++;
-    }
-  }   
+        int rowLength = GetRowLength(i);
+        for(int j=0; j<rowLength; j++)
+        {
+            indices[count] = columnIndices[i][j];
+            count++;
+        }
+    }   
 }
 
 void SparseMatrix::FreeTranspositionIndices()
@@ -605,17 +663,18 @@ void SparseMatrix::FreeTranspositionIndices()
 
 void SparseMatrix::BuildTranspositionIndices()
 {
-  if (HasCachedTransposedIndices())
-    return;
-
+    if (HasCachedTransposedIndices())
+        return;
+    
     transposedIndices.resize(GetNumRows());
     
     vector<int> buffer(GetNumColumns());
     
     for(int i=0; i<GetNumRows(); i++)
     {
-        transposedIndices[i].resize(rowLength[i]);
-        for(int j=0; j<rowLength[i]; j++)
+        int rowLength = GetRowLength(i);
+        transposedIndices[i].resize(rowLength);
+        for(int j=0; j<rowLength; j++)
         {
             transposedIndices[i][j] = buffer[columnIndices[i][j]];
             buffer[columnIndices[i][j]]++;
@@ -650,103 +709,106 @@ double SparseMatrix::SkewSymmetricCheck()
 
 void SparseMatrix::SymmetrizeMatrix()
 {
-  for(int i=0; i<GetNumRows(); i++)
-  {
-    for(int j=0; j<rowLength[i]; j++)
+    for(int i=0; i<GetNumRows(); i++)
     {
-      int jAbs = columnIndices[i][j];
-
-      if (jAbs >= i)
-        break; 
-
-      // copy elt (jAbs,i) into position (i,jAbs)
-      columnEntries[i][j] = columnEntries[jAbs][TransposedIndex(i,j)];
+        int rowLength = GetRowLength(i);
+        for(int j=0; j<rowLength; j++)
+        {
+            int jAbs = columnIndices[i][j];
+            
+            if (jAbs >= i)
+                break; 
+            
+            // copy elt (jAbs,i) into position (i,jAbs)
+            columnEntries[i][j] = columnEntries[jAbs][TransposedIndex(i,j)];
+        }
     }
-  }
 }
 
 double SparseMatrix::GetMaxAbsEntry() const
 {
-  double max = 0;
-  for(int i=0; i<GetNumRows(); i++)
-  {
-    for(int j=0; j<rowLength[i]; j++)
+    double max = 0;
+    for(int i=0; i<GetNumRows(); i++)
     {
-      double el = fabs(GetEntry(i,j));
-      if (el > max)
-        max = el;
+        int rowLength = GetRowLength(i);
+        for(int j=0; j<rowLength; j++)
+        {
+            double el = fabs(GetEntry(i,j));
+            if (el > max)
+                max = el;
+        }
     }
-  }
-  
-  return max;
+    
+    return max;
 }
 
 double SparseMatrix::GetRowNorm2(int row) const
 {
-  double norm2 = 0;
-  for(int j=0; j<rowLength[row]; j++)
-  {
-    double el = columnEntries[row][j];
-    norm2 += el * el;
-  }
-  return norm2;
+    double norm2 = 0;
+    int rowLength = GetRowLength(row);
+    for(int j=0; j<rowLength; j++)
+    {
+        double el = columnEntries[row][j];
+        norm2 += el * el;
+    }
+    return norm2;
 }
 
 // solve M * x = b
 // ASSUMES the sparse matrix is diagonal !!!
 void SparseMatrix::DiagonalSolve(double * rhs) const
 {
-  for(int i=0; i<GetNumRows(); i++)
-    rhs[i] /= columnEntries[i][0]; // the diagonal element
+    for(int i=0; i<GetNumRows(); i++)
+        rhs[i] /= columnEntries[i][0]; // the diagonal element
 }
 
 void SparseMatrix::BuildRenumberingVector(int nConstrained, int nSuper, int numFixedDOFs, int * fixedDOFs, int ** superDOFs, int oneIndexed)
 {
-  // superRows[i] is the row index in the super matrix corresponsing to row i of constrained matrix
-  (*superDOFs) = (int*) malloc (sizeof(int) * nConstrained);
-  int constrainedDOF = 0;
-  int superDOF = 0;
-  for(int i=0; i<numFixedDOFs; i++)
-  {
-    int nextSuperDOF = fixedDOFs[i];
-    nextSuperDOF -= oneIndexed;
-    if ( (nextSuperDOF >= nSuper) || (nextSuperDOF < 0) )
+    // superRows[i] is the row index in the super matrix corresponsing to row i of constrained matrix
+    (*superDOFs) = (int*) malloc (sizeof(int) * nConstrained);
+    int constrainedDOF = 0;
+    int superDOF = 0;
+    for(int i=0; i<numFixedDOFs; i++)
     {
-      printf("Error: invalid fixed super DOF %d specified.\n", nextSuperDOF);
-      exit(1);
+        int nextSuperDOF = fixedDOFs[i];
+        nextSuperDOF -= oneIndexed;
+        if ( (nextSuperDOF >= nSuper) || (nextSuperDOF < 0) )
+        {
+            printf("Error: invalid fixed super DOF %d specified.\n", nextSuperDOF);
+            exit(1);
+        }
+        
+        while (superDOF < nextSuperDOF)
+        {
+            if (constrainedDOF >= nConstrained)
+            {
+                printf("Error: too many DOFs specified.\n");
+                exit(1);
+            }
+            (*superDOFs)[constrainedDOF] = superDOF; 
+            constrainedDOF++;
+            superDOF++;
+        }
+        
+        superDOF++; // skip the deselected DOF
     }
-
-    while (superDOF < nextSuperDOF)
+    while (superDOF < nSuper)
     {
-      if (constrainedDOF >= nConstrained)
-      {
-        printf("Error: too many DOFs specified.\n");
-        exit(1);
-      }
-      (*superDOFs)[constrainedDOF] = superDOF; 
-      constrainedDOF++;
-      superDOF++;
+        if (constrainedDOF >= nConstrained)
+        {
+            printf("Error: too many DOFs specified.\n");
+            exit(1);
+        }
+        (*superDOFs)[constrainedDOF] = superDOF; 
+        
+        constrainedDOF++;
+        superDOF++;
     }
-
-    superDOF++; // skip the deselected DOF
-  }
-  while (superDOF < nSuper)
-  {
-    if (constrainedDOF >= nConstrained)
-    {
-      printf("Error: too many DOFs specified.\n");
-      exit(1);
-    }
-    (*superDOFs)[constrainedDOF] = superDOF; 
-
-    constrainedDOF++;
-    superDOF++;
-  }
 }
 
 void SparseMatrix::BuildSuperMatrixIndices(int numFixedRowColumns, int * fixedRowColumns, SparseMatrix * superMatrix, int oneIndexed)
 {
-  BuildSuperMatrixIndices(numFixedRowColumns, fixedRowColumns, numFixedRowColumns, fixedRowColumns, superMatrix, oneIndexed); 
+    BuildSuperMatrixIndices(numFixedRowColumns, fixedRowColumns, numFixedRowColumns, fixedRowColumns, superMatrix, oneIndexed); 
 }
 
 void SparseMatrix::BuildSuperMatrixIndices(int numFixedRows, int * fixedRows, int numFixedColumns, int * fixedColumns, SparseMatrix * superMatrix, int oneIndexed)
@@ -775,8 +837,9 @@ void SparseMatrix::BuildSuperMatrixIndices(int numFixedRows, int * fixedRows, in
     superMatrixIndices = (int**) malloc (sizeof(int*) * GetNumRows());
     for(int i=0; i < GetNumRows(); i++)
     {
-        superMatrixIndices[i] = (int*) malloc (sizeof(int) *  rowLength[i]);
-        for(int j=0; j < rowLength[i]; j++)
+        int rowLength = GetRowLength(i);
+        superMatrixIndices[i] = (int*) malloc (sizeof(int) *  rowLength);
+        for(int j=0; j < rowLength; j++)
         {
             int iConstrained = i;
             int jConstrainedDense = columnIndices[iConstrained][j];
@@ -803,7 +866,8 @@ void SparseMatrix::AssignSuperMatrix(SparseMatrix * superMatrix)
     {
         const vector<double>& row = superMatrix->columnEntries[superRows[i]];
         int * indices = superMatrixIndices[i];
-        for(int j=0; j < rowLength[i]; j++)
+        int rowLength = GetRowLength(i);
+        for(int j=0; j < rowLength; j++)
             columnEntries[i][j] = row[indices[j]];
     }
 }
@@ -836,10 +900,11 @@ void SparseMatrix::BuildSubMatrixIndices(SparseMatrix & submatrix, int subMatrix
     
     for(int i=0; i<GetNumRows(); i++)
     {
-        subMatrixIndices[subMatrixID][i] = (int*) malloc (sizeof(int) * submatrix.rowLength[i]);
-        subMatrixIndexLengths[subMatrixID][i] = submatrix.rowLength[i];
+        int submatrixRowLength = submatrix.GetRowLength(i);
+        subMatrixIndices[subMatrixID][i] = (int*) malloc (sizeof(int) * submatrixRowLength);
+        subMatrixIndexLengths[subMatrixID][i] = submatrixRowLength;
         const vector<int>& indices = submatrix.columnIndices[i];
-        for(int j=0; j < submatrix.rowLength[i]; j++)
+        for(int j=0; j < submatrixRowLength; j++)
         {
             // finds the position in row i of element with column index jDense
             // int inverseIndex(int i, int jDense);
@@ -896,158 +961,164 @@ void SparseMatrix::FreeSubMatrixIndices(int subMatrixID)
 
 SparseMatrix & SparseMatrix::AddSubMatrix(double factor, SparseMatrix & submatrix, int subMatrixID)
 {
-  for(int i=0; i<GetNumRows(); i++)
-  {
-    int * indices = subMatrixIndices[subMatrixID][i];
-    for(int j=0; j < submatrix.rowLength[i]; j++)
-      columnEntries[i][indices[j]] += factor * submatrix.columnEntries[i][j];
-  }
-
-  return *this;
+    for(int i=0; i<GetNumRows(); i++)
+    {
+        int * indices = subMatrixIndices[subMatrixID][i];
+        int submatrixRowLength = submatrix.GetRowLength(i);
+        for(int j=0; j < submatrixRowLength; j++)
+            columnEntries[i][indices[j]] += factor * submatrix.columnEntries[i][j];
+    }
+    
+    return *this;
 }
 
 int SparseMatrix::GetNumLowerTriangleEntries() const
 {
-  int num = 0;
-  for(int i=0; i<GetNumRows(); i++)
-  {
-    for(int j=0; j < rowLength[i]; j++)
+    int num = 0;
+    for(int i=0; i<GetNumRows(); i++)
     {
-      if (columnIndices[i][j] <= i)
-        num++;
+        int rowLength = GetRowLength(i);
+        for(int j=0; j < rowLength; j++)
+        {
+            if (columnIndices[i][j] <= i)
+                num++;
+        }
     }
-  }
-  return num;
+    return num;
 }
 
 int SparseMatrix::GetNumUpperTriangleEntries() const
 {
-  int num = 0;
-  for(int i=0; i<GetNumRows(); i++)
-  {
-    for(int j=0; j < rowLength[i]; j++)
+    int num = 0;
+    for(int i=0; i<GetNumRows(); i++)
     {
-      if (columnIndices[i][j] >= i)
-        num++;
+        int rowLength = GetRowLength(i);
+        for(int j=0; j < rowLength; j++)
+        {
+            if (columnIndices[i][j] >= i)
+                num++;
+        }
     }
-  }
-  return num;
+    return num;
 }
 
 int SparseMatrix::GenerateNAGFormat(double * a, int * irow, int * icol, int * istr) const
 {
-  int num = 0;
-  for(int i=0; i<GetNumRows(); i++)
-  {
-    istr[i] = num; // starting address of row i
-    for(int j=0; j < rowLength[i]; j++)
+    int num = 0;
+    for(int i=0; i<GetNumRows(); i++)
     {
-      if (columnIndices[i][j] <= i) // over lower triangle
-      {
-        a[num] = columnEntries[i][j];
-        irow[num] = i+1; // NAG is 1-indexed
-        icol[num] = columnIndices[i][j]+1; // NAG is 1-indexed
-        num++;
-      }
+        int rowLength = GetRowLength(i);
+        istr[i] = num; // starting address of row i
+        for(int j=0; j < rowLength; j++)
+        {
+            if (columnIndices[i][j] <= i) // over lower triangle
+            {
+                a[num] = columnEntries[i][j];
+                irow[num] = i+1; // NAG is 1-indexed
+                icol[num] = columnIndices[i][j]+1; // NAG is 1-indexed
+                num++;
+            }
+        }
     }
-  }
-  
-  istr[GetNumRows()] = num;
-
-  return num;
+    
+    istr[GetNumRows()] = num;
+    
+    return num;
 } 
 
 void SparseMatrix::GenerateCompressedRowMajorFormat(double * a, int * ia, int * ja, int upperTriangleOnly, int oneIndexed) const
 {
-  int count = 0;
-  for(int row=0; row<GetNumRows(); row++)
-  {
-    if (ia != NULL)
-      ia[row] = count + oneIndexed;
-
-    int rowLength = GetRowLength(row);
-    for(int j=0; j< rowLength; j++)
+    int count = 0;
+    for(int row=0; row<GetNumRows(); row++)
     {
-      if ((!upperTriangleOnly) || (columnIndices[row][j] >= row))
-      {
-        if (a != NULL)
-          a[count] = columnEntries[row][j];         
-        if (ja != NULL)
-          ja[count] = columnIndices[row][j] + oneIndexed; 
-        count++;
-      }
+        if (ia != NULL)
+            ia[row] = count + oneIndexed;
+        
+        int rowLength = GetRowLength(row);
+        for(int j=0; j< rowLength; j++)
+        {
+            if ((!upperTriangleOnly) || (columnIndices[row][j] >= row))
+            {
+                if (a != NULL)
+                    a[count] = columnEntries[row][j];         
+                if (ja != NULL)
+                    ja[count] = columnIndices[row][j] + oneIndexed; 
+                count++;
+            }
+        }
     }
-  }
-
-  if (ia != NULL)
-    ia[GetNumRows()] = count + oneIndexed;
+    
+    if (ia != NULL)
+        ia[GetNumRows()] = count + oneIndexed;
 }
 
 void SparseMatrix::GenerateCompressedRowMajorFormat_four_array(double * values, int * columns, int * pointerB, int * pointerE, int upperTriangleOnly, int oneIndexed) const
 {
-  int count = 0;
-  for(int row=0; row<GetNumRows(); row++)
-  {
-    if (pointerB != NULL)
-      pointerB[row] = count + oneIndexed;
-
-    int rowLength = GetRowLength(row);
-    for(int j=0; j< rowLength; j++)
+    int count = 0;
+    for(int row=0; row<GetNumRows(); row++)
     {
-      if ((!upperTriangleOnly) || (columnIndices[row][j] >= row))
-      {
-        if (values != NULL)
-          values[count] = columnEntries[row][j];         
-        if (columns != NULL)
-          columns[count] = columnIndices[row][j] + oneIndexed; 
-        count++;
-      }
+        if (pointerB != NULL)
+            pointerB[row] = count + oneIndexed;
+        
+        int rowLength = GetRowLength(row);
+        for(int j=0; j< rowLength; j++)
+        {
+            if ((!upperTriangleOnly) || (columnIndices[row][j] >= row))
+            {
+                if (values != NULL)
+                    values[count] = columnEntries[row][j];         
+                if (columns != NULL)
+                    columns[count] = columnIndices[row][j] + oneIndexed; 
+                count++;
+            }
+        }
+        
+        if (pointerE != NULL)
+            pointerE[row] = count + oneIndexed;
     }
-
-    if (pointerE != NULL)
-      pointerE[row] = count + oneIndexed;
-  }
 }
 
 int SparseMatrix::Save(const char * filename, int oneIndexed) const
 {
-  FILE * fout = fopen(filename,"w");
-  if (!fout)
-    return 1;
-
-  fprintf(fout,"%d\n%d\n", GetNumRows(), GetNumColumns());
-  for(int i=0; i<GetNumRows(); i++)
-  {
-    for(int j=0; j < rowLength[i]; j++)
+    FILE * fout = fopen(filename,"w");
+    if (!fout)
+        return 1;
+    
+    fprintf(fout,"%d\n%d\n", GetNumRows(), GetNumColumns());
+    for(int i=0; i<GetNumRows(); i++)
     {
-      int index = columnIndices[i][j]; 
-      double entry = columnEntries[i][j];
-      fprintf(fout,"%d %d %.15G\n",i + oneIndexed, index + oneIndexed, entry);
+        int rowLength = GetRowLength(i);
+        for(int j=0; j < rowLength; j++)
+        {
+            int index = columnIndices[i][j]; 
+            double entry = columnEntries[i][j];
+            fprintf(fout,"%d %d %.15G\n",i + oneIndexed, index + oneIndexed, entry);
+        }
     }
-  }
-  fclose(fout);
-
-  return 0;
+    fclose(fout);
+    
+    return 0;
 }
 
 int SparseMatrix::SaveToMatlabFormat(const char * filename) const
 {
-  FILE * fout = fopen(filename,"w");
-  if (!fout)
-    return 1;
-
-  for(int i=0; i<GetNumRows(); i++)
-  {
-    for(int j=0; j < rowLength[i]; j++)
+    FILE * fout = fopen(filename,"w");
+    if (!fout)
+        return 1;
+    
+    for(int i=0; i<GetNumRows(); i++)
     {
-      int index = columnIndices[i][j]; 
-      double entry = columnEntries[i][j];
-      fprintf(fout,"%d %d %.15G\n",i + 1, index + 1, entry);
+        int rowLength = GetRowLength(i);
+        for(int j=0; j < rowLength; j++)
+        {
+            int index = columnIndices[i][j]; 
+            double entry = columnEntries[i][j];
+            fprintf(fout,"%d %d %.15G\n",i + 1, index + 1, entry);
+        }
     }
-  }
-  fclose(fout);
-
-  return 0;
+    fclose(fout);
+    
+    return 0;
 }
 
 void SparseMatrix::RemoveRowColumn(int index)
@@ -1055,13 +1126,13 @@ void SparseMatrix::RemoveRowColumn(int index)
     // remove row 'index'
     columnEntries.erase(columnEntries.begin()+index);
     columnIndices.erase(columnIndices.begin()+index);
-    rowLength.erase(rowLength.begin()+index);
     
     // remove column 'index'
     for(int i=0; i<GetNumRows(); i++)
     {
         // traverse all rows
-        for(int j=0; j<rowLength[i]; j++)
+        int cachedRowLength = GetRowLength(i);
+        for(int j=0; j<cachedRowLength; j++)
         {
             // seek for entry 'index'
             if (columnIndices[i][j] == index) // found
@@ -1069,17 +1140,17 @@ void SparseMatrix::RemoveRowColumn(int index)
                 // shift all elements ahead one step back
                 columnIndices[i].erase(columnIndices[i].begin()+j);
                 columnEntries[i].erase(columnEntries[i].begin()+j);
-                rowLength[i]--;
+                --cachedRowLength;
             }
         }
         
         // decrease indices for DOFs above index
-        for(int j=0; j<rowLength[i]; j++)
+        for(int j=0; j<cachedRowLength; j++)
         {
             if(columnIndices[i][j] > index)     
             {
                 // decrease index
-                columnIndices[i][j]--;
+                --columnIndices[i][j];
             }
         }   
     }
@@ -1128,7 +1199,7 @@ void SparseMatrix::RemoveRowsColumns(int numRemovedRowsColumns, int * removedRow
         }
         
         int targetIndex = 0;
-        for(int sourceIndex=0; sourceIndex<rowLength[sourceRow]; sourceIndex++)
+        for(int sourceIndex=0; sourceIndex<GetRowLength(sourceRow); sourceIndex++)
         {
             int oldIndex = columnIndices[sourceRow][sourceIndex];
             int newIndex = oldToNew[oldIndex];
@@ -1136,7 +1207,7 @@ void SparseMatrix::RemoveRowsColumns(int numRemovedRowsColumns, int * removedRow
                 continue;
             columnIndices[sourceRow][targetIndex] = newIndex;
             columnEntries[sourceRow][targetIndex] = columnEntries[sourceRow][sourceIndex];
-            targetIndex++;
+            ++targetIndex;
         }
         
         columnIndices[sourceRow].resize(targetIndex);
@@ -1145,14 +1216,12 @@ void SparseMatrix::RemoveRowsColumns(int numRemovedRowsColumns, int * removedRow
         // replace target row with source row, fast`
         columnIndices[targetRow].swap(columnIndices[sourceRow]);
         columnEntries[targetRow].swap(columnEntries[sourceRow]);
-        rowLength[targetRow] = targetIndex;
-        targetRow++;
+        ++targetRow;
     }
     
     int newRowCount = targetRow;
     columnEntries.resize(newRowCount);
     columnIndices.resize(newRowCount);
-    rowLength.resize(newRowCount);
 }
 
 void SparseMatrix::RemoveColumn(int index)
@@ -1161,28 +1230,29 @@ void SparseMatrix::RemoveColumn(int index)
     for(int i=0; i<GetNumRows(); i++)
     {
         // traverse all rows
-        for(int j=0; j<rowLength[i]; j++)
+        int cachedRowLength = GetRowLength(i);
+        for(int j=0; j<cachedRowLength; j++)
         {
             // seek for entry 'index'
             if (columnIndices[i][j] == index) // found
             {
                 // shift all elements ahead one step back
-                for(int k=j; k<rowLength[i]-1; k++)
+                for(int k=j; k<cachedRowLength-1; k++)
                 {
                     columnIndices[i][k] = columnIndices[i][k+1];
                     columnEntries[i][k] = columnEntries[i][k+1];
                 } 
-                rowLength[i]--;
+                --cachedRowLength;
             }
         }
         
         // decrease indices for DOFs above index
-        for(int j=0; j<rowLength[i]; j++)
+        for(int j=0; j<cachedRowLength; j++)
         {
             if(columnIndices[i][j] > index)     
             {
                 // decrease index
-                columnIndices[i][j]--;
+                --columnIndices[i][j];
             }
         }   
     }
@@ -1190,45 +1260,46 @@ void SparseMatrix::RemoveColumn(int index)
 
 void SparseMatrix::RemoveColumns(int numRemovedColumns, int * removedColumns, int oneIndexed)
 {
-  // the removed dofs must be pre-sorted
-  // build a map from old dofs to new ones
-  int numColumns = GetNumColumns();
-
-  // must increase numColumns to accommodate matrices with zero columns on the right
-  for(int i=0; i<numRemovedColumns; i++)
-  {
-    int removedColumn0Indexed = removedColumns[i] - oneIndexed;
-    int neededNumColumns = removedColumn0Indexed + 1;
-    if (neededNumColumns > numColumns)
-      numColumns = neededNumColumns;
-  }
-
-  vector<int> oldToNew(numColumns);
-  int dof = 0;
-  int dofCount = 0;
-  for(int i=0; i<numRemovedColumns; i++)
-  {
-    while (dof < removedColumns[i] - oneIndexed)
+    // the removed dofs must be pre-sorted
+    // build a map from old dofs to new ones
+    int numColumns = GetNumColumns();
+    
+    // must increase numColumns to accommodate matrices with zero columns on the right
+    for(int i=0; i<numRemovedColumns; i++)
     {
-      oldToNew[dof] = dofCount;
-      dofCount++;
-      dof++;
+        int removedColumn0Indexed = removedColumns[i] - oneIndexed;
+        int neededNumColumns = removedColumn0Indexed + 1;
+        if (neededNumColumns > numColumns)
+            numColumns = neededNumColumns;
     }
-    oldToNew[dof] = -1;
-    dof++;
-  }
-  while (dof < numColumns)
-  {
-    oldToNew[dof] = dofCount;
-    dofCount++;
-    dof++;
-  }
-
+    
+    vector<int> oldToNew(numColumns);
+    int dof = 0;
+    int dofCount = 0;
+    for(int i=0; i<numRemovedColumns; i++)
+    {
+        while (dof < removedColumns[i] - oneIndexed)
+        {
+            oldToNew[dof] = dofCount;
+            dofCount++;
+            dof++;
+        }
+        oldToNew[dof] = -1;
+        ++dof;
+    }
+    while (dof < numColumns)
+    {
+        oldToNew[dof] = dofCount;
+        ++dofCount;
+        ++dof;
+    }
+    
     // now, traverse all rows and renumber the entries
     for(int row = 0; row < GetNumRows(); row++)
     {
         int targetIndex = 0;
-        for(int sourceIndex=0; sourceIndex<rowLength[row]; sourceIndex++)
+        int cachedRowLength = GetRowLength(row);
+        for(int sourceIndex=0; sourceIndex<cachedRowLength; sourceIndex++)
         {
             int oldIndex = columnIndices[row][sourceIndex];
             int newIndex = oldToNew[oldIndex];
@@ -1236,20 +1307,19 @@ void SparseMatrix::RemoveColumns(int numRemovedColumns, int * removedColumns, in
                 continue;
             columnIndices[row][targetIndex] = newIndex;
             columnEntries[row][targetIndex] = columnEntries[row][sourceIndex];
-            targetIndex++;
+            ++targetIndex;
         }
         
         size_t newLength = targetIndex;
         columnIndices[row].resize(newLength);
         columnEntries[row].resize(newLength);
-        rowLength[row] = (int)newLength;
     }
 }
 
 void SparseMatrix::RemoveColumnsSlow(int numColumns, int * columns, int oneIndexed)
 {
-  for(int i=0; i<numColumns; i++)
-    RemoveColumn(columns[i]-i-oneIndexed);
+    for(int i=0; i<numColumns; i++)
+        RemoveColumn(columns[i]-i-oneIndexed);
 }
 
 void SparseMatrix::RemoveRow(int index)
@@ -1257,13 +1327,12 @@ void SparseMatrix::RemoveRow(int index)
     // remove row 'index'
     columnEntries.erase(columnEntries.begin()+index);
     columnIndices.erase(columnIndices.begin()+index);
-    rowLength.erase(rowLength.begin()+index);
 }
 
 void SparseMatrix::RemoveRowsSlow(int numRows, int * rows, int oneIndexed)
 {
-  for(int i=0; i<numRows; i++)
-    RemoveRow(rows[i]-i-oneIndexed);
+    for(int i=0; i<numRows; i++)
+        RemoveRow(rows[i]-i-oneIndexed);
 }
 
 void SparseMatrix::RemoveRows(int numRemovedRows, int * removedRows, int oneIndexed)
@@ -1282,13 +1351,13 @@ void SparseMatrix::RemoveRows(int numRemovedRows, int * removedRows, int oneInde
             dof++;
         }
         oldToNew[dof] = -1;
-        dof++;
+        ++dof;
     }
     while (dof < GetNumRows())
     {
         oldToNew[dof] = dofCount;
-        dofCount++;
-        dof++;
+        ++dofCount;
+        ++dof;
     }
     
     // now, traverse all rows and renumber the entries
@@ -1304,119 +1373,125 @@ void SparseMatrix::RemoveRows(int numRemovedRows, int * removedRows, int oneInde
         
         columnIndices[targetRow].swap(columnIndices[sourceRow]);
         columnEntries[targetRow].swap(columnEntries[sourceRow]);
-        rowLength[targetRow] = rowLength[sourceRow];
-        targetRow++;
+        ++targetRow;
     }
     
     int newRowCount = targetRow;
     columnEntries.resize(newRowCount);
     columnIndices.resize(newRowCount);
-    rowLength.resize(newRowCount);
 }
 
 double SparseMatrix::GetInfinityNorm() const
 {
-  double norm = 0.0;
-
-  for(int i=0; i<GetNumRows(); i++)
-  {
-    double absRowSum = 0;
-
-    for(int j=0; j<rowLength[i]; j++)
+    double norm = 0.0;
+    
+    for(int i=0; i<GetNumRows(); i++)
     {
-      absRowSum += fabs(columnEntries[i][j]);
+        double absRowSum = 0;
+        
+        int rowLength = GetRowLength(i);
+        for(int j=0; j<rowLength; j++)
+        {
+            absRowSum += fabs(columnEntries[i][j]);
+        }
+        
+        if (absRowSum > norm)
+            norm = absRowSum;
     }
-
-    if (absRowSum > norm)
-      norm = absRowSum;
-  }
-
-  return norm;
+    
+    return norm;
 }
 
 void SparseMatrix::DoOneGaussSeidelIteration(double * x, const double * b) const
 {
-  for(int i=0; i<GetNumRows(); i++)
-  {
-    double buffer = b[i];
-    int diagIndex = -1;
-    for(int j=0; j<rowLength[i]; j++)
+    for(int i=0; i<GetNumRows(); i++)
     {
-      int column = columnIndices[i][j];
-      if (column != i)
-        buffer -= columnEntries[i][j] * x[column];
-      else
-        diagIndex = j;
+        double buffer = b[i];
+        int diagIndex = -1;
+        
+        int rowLength = GetRowLength(i);
+        for(int j=0; j<rowLength; j++)
+        {
+            int column = columnIndices[i][j];
+            if (column != i)
+                buffer -= columnEntries[i][j] * x[column];
+            else
+                diagIndex = j;
+        }
+        x[i] = buffer / columnEntries[i][diagIndex];
     }
-    x[i] = buffer / columnEntries[i][diagIndex];
-  }
 }
 
 void SparseMatrix::ComputeResidual(const double * x, const double * b, double * residual) const
 {
-  MultiplyVector(x,residual);
-  for(int i=0; i<GetNumRows(); i++)
-    residual[i] -= b[i];
+    MultiplyVector(x,residual);
+    for(int i=0; i<GetNumRows(); i++)
+        residual[i] -= b[i];
 }
 
 double SparseMatrix::CheckLinearSystemSolution(const double * x, const double * b, int verbose, double * buffer) const
 {
-  double * bufferv = NULL;
-
-  if (buffer == NULL)
-  {
-    bufferv = (double*) malloc (sizeof(double) * GetNumRows());
-    buffer = bufferv;
-  }
-
-  MultiplyVector(x,buffer);
-
-  double inftyNorm = 0;
-  double inftyNorm_b = 0;
-  for(int i=0; i<GetNumRows(); i++)
-  {
-    if (fabs(buffer[i] - b[i]) > inftyNorm)
-      inftyNorm = fabs(buffer[i] - b[i]);
-
-    if (fabs(b[i]) > inftyNorm_b)
-      inftyNorm_b = fabs(b[i]);
-  }
-
-  if (verbose)
-  {
-    printf("Infinity residual norm ||Ax-b|| is %G. ||b|| is %G.\n", inftyNorm, inftyNorm_b);
-    printf("Relative infinity residual norm ||Ax-b||/||b|| is %G.\n", inftyNorm / inftyNorm_b);
-  }
-
-  free(bufferv);
-  
-  return inftyNorm / inftyNorm_b;
+    double * bufferv = NULL;
+    
+    if (buffer == NULL)
+    {
+        bufferv = (double*) malloc (sizeof(double) * GetNumRows());
+        buffer = bufferv;
+    }
+    
+    MultiplyVector(x,buffer);
+    
+    double inftyNorm = 0;
+    double inftyNorm_b = 0;
+    for(int i=0; i<GetNumRows(); i++)
+    {
+        if (fabs(buffer[i] - b[i]) > inftyNorm)
+            inftyNorm = fabs(buffer[i] - b[i]);
+        
+        if (fabs(b[i]) > inftyNorm_b)
+            inftyNorm_b = fabs(b[i]);
+    }
+    
+    if (verbose)
+    {
+        printf("Infinity residual norm ||Ax-b|| is %G. ||b|| is %G.\n", inftyNorm, inftyNorm_b);
+        printf("Relative infinity residual norm ||Ax-b||/||b|| is %G.\n", inftyNorm / inftyNorm_b);
+    }
+    
+    free(bufferv);
+    
+    return inftyNorm / inftyNorm_b;
 }
 
 void SparseMatrix::MakeDenseMatrix(double * denseMatrix) const
 {
-  memset(denseMatrix, 0, sizeof(double) * (GetNumRows() * GetNumColumns()));
-  for(int i=0; i< GetNumRows(); i++)
-    for(int j=0; j<rowLength[i]; j++)
-      denseMatrix[GetNumRows() * columnIndices[i][j] + i] = columnEntries[i][j];
+    memset(denseMatrix, 0, sizeof(double) * (GetNumRows() * GetNumColumns()));
+    for(int i=0; i< GetNumRows(); i++)
+    {
+        int rowLength = GetRowLength(i);
+        for(int j=0; j<rowLength; j++)
+            denseMatrix[GetNumRows() * columnIndices[i][j] + i] = columnEntries[i][j];
+    }
 }
 
 void SparseMatrix::MakeDenseMatrixTranspose(int numColumns, double * denseMatrix) const
 {
-  // note: we cannot use GetNumColumns() here because the rightmost columns of the sparse matrix can be zero and the GetNumColumns() will not be accurate
-  memset(denseMatrix, 0, sizeof(double) * (GetNumRows() * numColumns));
-  for(int i=0; i<GetNumRows(); i++)
-  {
-    int offset = i * numColumns;
-    for(int j=0; j<rowLength[i]; j++)
-      denseMatrix[offset + columnIndices[i][j]] = columnEntries[i][j];
-  }
+    // note: we cannot use GetNumColumns() here because the rightmost columns of the sparse matrix can be zero and the GetNumColumns() will not be accurate
+    memset(denseMatrix, 0, sizeof(double) * (GetNumRows() * numColumns));
+    for(int i=0; i<GetNumRows(); i++)
+    {
+        int offset = i * numColumns;
+        int rowLength = GetRowLength(i);
+        for(int j=0; j<rowLength; j++)
+            denseMatrix[offset + columnIndices[i][j]] = columnEntries[i][j];
+    }
 }
 
 void SparseMatrix::MultiplyRow(int row, double scalar) // multiplies all elements in row 'row' with scalar 'scalar'
 {
-  for(int j=0; j<rowLength[row]; j++)
-    columnEntries[row][j] *= scalar;
+    int rowLength = GetRowLength(row);
+    for(int j=0; j<rowLength; j++)
+        columnEntries[row][j] *= scalar;
 }
 
 int SparseMatrix::GetNumColumns() const 
@@ -1424,7 +1499,8 @@ int SparseMatrix::GetNumColumns() const
     int numColumns = -1;
     for(int i=0; i<GetNumRows(); i++)
     {
-        for(int j=0; j<rowLength[i]; j++)
+        int rowLength = GetRowLength(i);
+        for(int j=0; j<rowLength; j++)
         {
             numColumns = std::max(columnIndices[i][j], numColumns);
         }
@@ -1436,164 +1512,177 @@ void SparseMatrix::IncreaseNumRows(int numAddedRows)
 {
     int newn = GetNumRows() + numAddedRows;
     
-    rowLength.resize(newn);
     columnIndices.resize(newn);
     columnEntries.resize(newn);
 }
 
 SparseMatrix SparseMatrix::ConjugateMatrix(SparseMatrix & U, int verbose)
 {
-  SparseMatrixOutline outline(U.GetNumColumns());
-
-  for(int i=0; i<GetNumRows(); i++)
-  {
-    if (verbose)
+    SparseMatrixOutline outline(U.GetNumColumns());
+    
+    for(int i=0; i<GetNumRows(); i++)
     {
-      if (i % 100 == 1)
-        printf("Processing row %d / %d...\n", i, GetNumRows());
-    }
-    for(int j=0; j<rowLength[i]; j++)
-    {
-      int I = i;
-      int J = columnIndices[i][j];
-      double scalar = columnEntries[i][j];
-
-      // compute tensor product of rows I and J of U
-      for(int k=0; k<U.rowLength[I]; k++)
-        for(int l=0; l<U.rowLength[J]; l++)
+        if (verbose)
         {
-          int K = U.columnIndices[I][k];
-          int L = U.columnIndices[J][l];
-
-          // there is an entry at (I, K), and another entry at (J, L); compute their contribution to tensor product:
-          outline.AddEntry(K, L, scalar * U.columnEntries[I][k] * U.columnEntries[J][l]);
+            if (i % 100 == 1)
+                printf("Processing row %d / %d...\n", i, GetNumRows());
+        }
+        int rowLength = GetRowLength(i);
+        for(int j=0; j<rowLength; j++)
+        {
+            int I = i;
+            int J = columnIndices[i][j];
+            double scalar = columnEntries[i][j];
+            
+            // compute tensor product of rows I and J of U
+            int URowLengthI = U.GetRowLength(I);
+            for(int k=0; k<URowLengthI; k++)
+            {
+                int URowLengthJ = U.GetRowLength(J);
+                for(int l=0; l<URowLengthJ; l++)
+                {
+                    int K = U.columnIndices[I][k];
+                    int L = U.columnIndices[J][l];
+                    
+                    // there is an entry at (I, K), and another entry at (J, L); compute their contribution to tensor product:
+                    outline.AddEntry(K, L, scalar * U.columnEntries[I][k] * U.columnEntries[J][l]);
+                }
+            }
         }
     }
-  }
-
-  if (verbose)
-    printf("Creating sparse matrix from outline...\n");
- 
-  return SparseMatrix(&outline);
+    
+    if (verbose)
+        printf("Creating sparse matrix from outline...\n");
+    
+    return SparseMatrix(&outline);
 }
 
 void SparseMatrix::BuildConjugationIndices(SparseMatrix & U, SparseMatrix & MTilde, precomputedIndicesType * precomputedIndices)
 {
-  typedef pair< pair<int,int>, pair<int, int> > fourTuple;
-  typedef vector<fourTuple> listOfFourTuples;
-  typedef map<int, listOfFourTuples> rowMap;
-  vector<rowMap> rowMaps;
-  for(int i=0; i<MTilde.GetNumRows(); i++)
-    rowMaps.push_back(rowMap());
-
-  for(int i=0; i<GetNumRows(); i++)
-  {
-    for(int j=0; j<rowLength[i]; j++)
+    typedef pair< pair<int,int>, pair<int, int> > fourTuple;
+    typedef vector<fourTuple> listOfFourTuples;
+    typedef map<int, listOfFourTuples> rowMap;
+    vector<rowMap> rowMaps;
+    for(int i=0; i<MTilde.GetNumRows(); i++)
+        rowMaps.push_back(rowMap());
+    
+    for(int i=0; i<GetNumRows(); i++)
     {
-      int I = i;
-      int J = columnIndices[i][j];
-
-      // compute tensor product of rows I and J of U
-      for(int k=0; k<U.rowLength[I]; k++)
-        for(int l=0; l<U.rowLength[J]; l++)
+        int rowLength = GetRowLength(i);
+        for(int j=0; j<rowLength; j++)
         {
-          int K = U.columnIndices[I][k];
-          int L = U.columnIndices[J][l];
-          //outline.AddEntry(K, L, scalar * U.columnEntries[I][k] * U.columnEntries[J][l]);
-
-          fourTuple tuple(make_pair(make_pair(i,j), make_pair(k,l)));
-
-          rowMap::iterator iter = rowMaps[K].find(L);
-          if (iter == rowMaps[K].end())
-          {
-            listOfFourTuples singletonList;
-            singletonList.push_back(tuple);            
-            rowMaps[K].insert(make_pair(L, singletonList));
-          }
-          else
-          {
-            (iter->second).push_back(tuple);
-          }
+            int I = i;
+            int J = columnIndices[i][j];
+            
+            // compute tensor product of rows I and J of U
+            int URowLengthI = U.GetRowLength(I);
+            for(int k=0; k<URowLengthI; k++)
+            {
+                int URowLengthJ = U.GetRowLength(J);
+                for(int l=0; l<URowLengthJ; l++)
+                {
+                    int K = U.columnIndices[I][k];
+                    int L = U.columnIndices[J][l];
+                    //outline.AddEntry(K, L, scalar * U.columnEntries[I][k] * U.columnEntries[J][l]);
+                    
+                    fourTuple tuple(make_pair(make_pair(i,j), make_pair(k,l)));
+                    
+                    rowMap::iterator iter = rowMaps[K].find(L);
+                    if (iter == rowMaps[K].end())
+                    {
+                        listOfFourTuples singletonList;
+                        singletonList.push_back(tuple);            
+                        rowMaps[K].insert(make_pair(L, singletonList));
+                    }
+                    else
+                    {
+                        (iter->second).push_back(tuple);
+                    }
+                }
+            }
         }
     }
-  }
-
-  // copy map to precomputedIndices
-  (*precomputedIndices) = (int***) malloc (sizeof(int**) * MTilde.GetNumRows());
-  for(int i=0; i<MTilde.GetNumRows(); i++)
-  {
-    (*precomputedIndices)[i] = (int**) malloc (sizeof(int*) * rowMaps[i].size());
-    int j = 0;
-    for(rowMap::iterator iter = rowMaps[i].begin(); iter != rowMaps[i].end(); iter++)
+    
+    // copy map to precomputedIndices
+    (*precomputedIndices) = (int***) malloc (sizeof(int**) * MTilde.GetNumRows());
+    for(int i=0; i<MTilde.GetNumRows(); i++)
     {
-      (*precomputedIndices)[i][j] = (int*) malloc (sizeof(int) * (4 * ((iter->second).size()) + 1));
-      ((*precomputedIndices)[i][j])[0] = (iter->second).size();
-      for(int k=0; k<((*precomputedIndices)[i][j])[0]; k++)
-      {
-        ((*precomputedIndices)[i][j])[1+4*k+0] = ((iter->second)[k]).first.first;
-        ((*precomputedIndices)[i][j])[1+4*k+1] = ((iter->second)[k]).first.second;
-        ((*precomputedIndices)[i][j])[1+4*k+2] = ((iter->second)[k]).second.first;
-        ((*precomputedIndices)[i][j])[1+4*k+3] = ((iter->second)[k]).second.second;
-      }
-      j++;
+        (*precomputedIndices)[i] = (int**) malloc (sizeof(int*) * rowMaps[i].size());
+        int j = 0;
+        for(rowMap::iterator iter = rowMaps[i].begin(); iter != rowMaps[i].end(); iter++)
+        {
+            (*precomputedIndices)[i][j] = (int*) malloc (sizeof(int) * (4 * ((iter->second).size()) + 1));
+            ((*precomputedIndices)[i][j])[0] = (int)(iter->second).size();
+            for(int k=0; k<((*precomputedIndices)[i][j])[0]; k++)
+            {
+                ((*precomputedIndices)[i][j])[1+4*k+0] = ((iter->second)[k]).first.first;
+                ((*precomputedIndices)[i][j])[1+4*k+1] = ((iter->second)[k]).first.second;
+                ((*precomputedIndices)[i][j])[1+4*k+2] = ((iter->second)[k]).second.first;
+                ((*precomputedIndices)[i][j])[1+4*k+3] = ((iter->second)[k]).second.second;
+            }
+            j++;
+        }
     }
-  }
 }
 
 void SparseMatrix::ConjugateMatrix(precomputedIndicesType precomputedIndices, SparseMatrix & U, SparseMatrix & MTilde)
 {
-  MTilde.ResetToZero();
-  for(int row=0; row<MTilde.GetNumRows(); row++)
-  {
-    int ** rowIndices = precomputedIndices[row];
-    for(int j=0; j<MTilde.rowLength[row]; j++)
+    MTilde.ResetToZero();
+    for(int row=0; row<MTilde.GetNumRows(); row++)
     {
-      int * entryIndices = rowIndices[j];
-      int numSummationTerms = entryIndices[0];
-      for(int k=0; k<numSummationTerms; k++)
-      {
-        int * entryIndex = &entryIndices[4*k+1];
-        int rowOfM = entryIndex[0];
-        int columnIndexOfM = entryIndex[1];
-        int columnOfM = columnIndices[rowOfM][columnIndexOfM];
-        int columnIndexofU_for_MTilde_row = entryIndex[2];
-        int columnIndexofU_for_MTilde_column = entryIndex[3];
-        (MTilde.columnEntries)[row][j] += columnEntries[rowOfM][columnIndexOfM] * U.columnEntries[row][columnIndexofU_for_MTilde_row] * U.columnEntries[columnOfM][columnIndexofU_for_MTilde_column];
-      }
+        int ** rowIndices = precomputedIndices[row];
+        int MTildeRowLength = MTilde.GetRowLength(row);
+        for(int j=0; j<MTildeRowLength; j++)
+        {
+            int * entryIndices = rowIndices[j];
+            int numSummationTerms = entryIndices[0];
+            for(int k=0; k<numSummationTerms; k++)
+            {
+                int * entryIndex = &entryIndices[4*k+1];
+                int rowOfM = entryIndex[0];
+                int columnIndexOfM = entryIndex[1];
+                int columnOfM = columnIndices[rowOfM][columnIndexOfM];
+                int columnIndexofU_for_MTilde_row = entryIndex[2];
+                int columnIndexofU_for_MTilde_column = entryIndex[3];
+                (MTilde.columnEntries)[row][j] += columnEntries[rowOfM][columnIndexOfM] * U.columnEntries[row][columnIndexofU_for_MTilde_row] * U.columnEntries[columnOfM][columnIndexofU_for_MTilde_column];
+            }
+        }
     }
-  }
 }
 
 void SparseMatrix::ConjugateMatrix(double * U, int r, double * UTilde)
 {
-  double * MU = (double*) malloc (sizeof(double) * GetNumRows() * r);
-  MultiplyMatrix(GetNumRows(), r, U, MU);
-
-  // compute U^T * MU
-  for(int i=0; i<r; i++)
-    for(int j=0; j<r; j++)
-    {
-      double entry = 0.0;
-      for(int k=0; k<GetNumRows(); k++)
-        entry += U[i * GetNumRows() + k] * MU[j * GetNumRows() + k];
-      UTilde[j * r + i] = entry;
-    }
-
-  free(MU);
+    double * MU = (double*) malloc (sizeof(double) * GetNumRows() * r);
+    MultiplyMatrix(GetNumRows(), r, U, MU);
+    
+    // compute U^T * MU
+    for(int i=0; i<r; i++)
+        for(int j=0; j<r; j++)
+        {
+            double entry = 0.0;
+            for(int k=0; k<GetNumRows(); k++)
+                entry += U[i * GetNumRows() + k] * MU[j * GetNumRows() + k];
+            UTilde[j * r + i] = entry;
+        }
+    
+    free(MU);
 }
 
 SparseMatrix * SparseMatrix::Transpose(int numColumns)
 {
-  if (numColumns < 0)
-    numColumns = GetNumColumns();
-
-  SparseMatrixOutline outline(numColumns);
-
-  for(int i=0; i<GetNumRows(); i++)
-    for(int j=0; j<rowLength[i]; j++)
-      outline.AddEntry(columnIndices[i][j], i, columnEntries[i][j]);
- 
-  return new SparseMatrix(&outline);;
+    if (numColumns < 0)
+        numColumns = GetNumColumns();
+    
+    SparseMatrixOutline outline(numColumns);
+    
+    for(int i=0; i<GetNumRows(); i++)
+    {
+        int rowLength = GetRowLength(i);
+        for(int j=0; j<rowLength; j++)
+            outline.AddEntry(columnIndices[i][j], i, columnEntries[i][j]);
+    }
+    
+    return new SparseMatrix(&outline);;
 }
 
 void SparseMatrix::SetRows(SparseMatrix * source, int startRow, int startColumn) 
@@ -1605,10 +1694,9 @@ void SparseMatrix::SetRows(SparseMatrix * source, int startRow, int startColumn)
             return;
         
         int newRowLength = source->GetRowLength(i);
-        rowLength[row] = newRowLength;
         columnIndices[row].resize(newRowLength);
         columnEntries[row].resize(newRowLength);
-        for(int j=0; j<rowLength[row]; j++)
+        for(int j=0; j<newRowLength; j++)
         {
             columnIndices[row][j] = startColumn + source->columnIndices[i][j];
             columnEntries[row][j] = source->columnEntries[i][j];
@@ -1618,12 +1706,13 @@ void SparseMatrix::SetRows(SparseMatrix * source, int startRow, int startColumn)
 
 void SparseMatrix::AppendRowsColumns(SparseMatrix * source)
 {
-    vector<int> oldRowLength = rowLength;
+    vector<int> oldRowLength = GetRowLengths();
+    vector<int> rowLength = GetRowLengths();
     
     int oldNumRows = GetNumRows();
     IncreaseNumRows(source->GetNumRows());
     SetRows(source, oldNumRows);
-
+    
     // add transpose of rows:
     
     // first, establish new column lengths
@@ -1632,7 +1721,7 @@ void SparseMatrix::AppendRowsColumns(SparseMatrix * source)
         for(int j=0; j<source->GetRowLength(row); j++)
         {
             int column = source->GetColumnIndex(row, j);
-            rowLength[column]++;
+            ++rowLength[column];
         }
     }
     
@@ -1670,11 +1759,21 @@ void SparseMatrix::AppendRowsColumns(SparseMatrix * source)
 
 SparseMatrix * SparseMatrix::CreateIdentityMatrix(int numRows)
 {
-  SparseMatrixOutline * outline = new SparseMatrixOutline(numRows);
-  for (int row=0; row<numRows; row++)
-    outline->AddEntry(row, row, 1.0);
-  SparseMatrix * mat = new SparseMatrix(outline);
-  delete outline;
-  return mat;
+    SparseMatrixOutline * outline = new SparseMatrixOutline(numRows);
+    for (int row=0; row<numRows; row++)
+        outline->AddEntry(row, row, 1.0);
+    SparseMatrix * mat = new SparseMatrix(outline);
+    delete outline;
+    return mat;
+}
+
+vector<int> SparseMatrix::GetRowLengths() const
+{
+    vector<int> result(GetNumRows());
+    for (int i=0; i<GetNumRows(); i++)
+    {
+        result[i] = GetRowLength(i);
+    }
+    return result;
 }
 
