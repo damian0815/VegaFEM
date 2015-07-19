@@ -33,6 +33,7 @@
 #include <assert.h>
 #include "sparseMatrix.h"
 #include "sparseSubMatrixLinkage.h"
+#include "sparseSuperMatrixLinkage.h"
 using namespace std;
 
 SparseMatrix::SparseMatrix(const char * filename)
@@ -780,115 +781,6 @@ void SparseMatrix::DiagonalSolve(double * rhs) const
         rhs[i] /= columnEntries[i][0]; // the diagonal element
 }
 
-void SparseMatrix::BuildRenumberingVector(int nConstrained, int nSuper, int numFixedDOFs, int * fixedDOFs, int ** superDOFs, int oneIndexed)
-{
-    // superRows[i] is the row index in the super matrix corresponsing to row i of constrained matrix
-    (*superDOFs) = (int*) malloc (sizeof(int) * nConstrained);
-    int constrainedDOF = 0;
-    int superDOF = 0;
-    for(int i=0; i<numFixedDOFs; i++)
-    {
-        int nextSuperDOF = fixedDOFs[i];
-        nextSuperDOF -= oneIndexed;
-        if ( (nextSuperDOF >= nSuper) || (nextSuperDOF < 0) )
-        {
-            printf("Error: invalid fixed super DOF %d specified.\n", nextSuperDOF);
-            exit(1);
-        }
-        
-        while (superDOF < nextSuperDOF)
-        {
-            if (constrainedDOF >= nConstrained)
-            {
-                printf("Error: too many DOFs specified.\n");
-                exit(1);
-            }
-            (*superDOFs)[constrainedDOF] = superDOF; 
-            constrainedDOF++;
-            superDOF++;
-        }
-        
-        superDOF++; // skip the deselected DOF
-    }
-    while (superDOF < nSuper)
-    {
-        if (constrainedDOF >= nConstrained)
-        {
-            printf("Error: too many DOFs specified.\n");
-            exit(1);
-        }
-        (*superDOFs)[constrainedDOF] = superDOF; 
-        
-        constrainedDOF++;
-        superDOF++;
-    }
-}
-
-void SparseMatrix::BuildSuperMatrixIndices(int numFixedRowColumns, int * fixedRowColumns, SparseMatrix * superMatrix, int oneIndexed)
-{
-    BuildSuperMatrixIndices(numFixedRowColumns, fixedRowColumns, numFixedRowColumns, fixedRowColumns, superMatrix, oneIndexed); 
-}
-
-void SparseMatrix::BuildSuperMatrixIndices(int numFixedRows, int * fixedRows, int numFixedColumns, int * fixedColumns, SparseMatrix * superMatrix, int oneIndexed)
-{
-    int numSuperColumns = superMatrix->GetNumColumns();
-    int numColumns = numSuperColumns - numFixedColumns;
-    
-    if ((GetNumRows() + numFixedRows != superMatrix->GetNumRows()) || (GetNumColumns() + numFixedColumns > numSuperColumns) )
-    {
-        printf("Error in BuildSuperMatrixIndices: number of constrained DOFs does not match the size of the two matrices.\n");
-        printf("num rows: %d num fixed rows in super matrix: %d num rows in super matrix: %d\n", GetNumRows(), numFixedRows, superMatrix->GetNumRows());
-        printf("num columns: %d num fixed columns in super matrix: %d num columns in super matrix: %d\n", numColumns, numFixedColumns, numSuperColumns);
-        exit(1);
-    }
-    
-    // build row renumbering function:
-    BuildRenumberingVector(GetNumRows(), superMatrix->GetNumRows(), numFixedRows, fixedRows, &superRows, oneIndexed);
-    // build column renumbering function:
-    int * superColumns_;
-    BuildRenumberingVector(numColumns, numSuperColumns, numFixedColumns, fixedColumns, &superColumns_, oneIndexed);
-    
-    // superRows[i] is the row index in the super matrix corresponsing to row i of constrained matrix
-    // superColumns_[i] is the dense column index in the super matrix corresponsing to the dense column i of constrained matrix
-    
-    // build column indices
-    superMatrixIndices = (int**) malloc (sizeof(int*) * GetNumRows());
-    for(int i=0; i < GetNumRows(); i++)
-    {
-        int rowLength = GetRowLength(i);
-        superMatrixIndices[i] = (int*) malloc (sizeof(int) *  rowLength);
-        for(int j=0; j < rowLength; j++)
-        {
-            int iConstrained = i;
-            int jConstrainedDense = columnIndices[iConstrained][j];
-            int iSuper = superRows[iConstrained];
-            int jSuperDense = superColumns_[jConstrainedDense];
-            int jSuper = superMatrix->GetInverseIndex(iSuper, jSuperDense);
-            if (jSuper < 0)
-            {
-                printf("Error in BuildSuperMatrixIndices: failed to compute inverse index.\n");
-                printf("i=%d j=%d iConstrained=%d jConstrainedDense=%d iSuper=%d jSuperDense=%d jSuper=%d\n", i, j, iConstrained, jConstrainedDense, iSuper, jSuperDense, jSuper);
-                fflush(NULL);
-                exit(1);
-            }
-            superMatrixIndices[i][j] = jSuper;
-        }
-    } 
-    
-    free(superColumns_);
-}
-
-void SparseMatrix::AssignSuperMatrix(SparseMatrix * superMatrix)
-{
-    for(int i=0; i<GetNumRows(); i++)
-    {
-        const vector<double>& row = superMatrix->columnEntries[superRows[i]];
-        int * indices = superMatrixIndices[i];
-        int rowLength = GetRowLength(i);
-        for(int j=0; j < rowLength; j++)
-            columnEntries[i][j] = row[indices[j]];
-    }
-}
 
 shared_ptr<SparseSubMatrixLinkage> SparseMatrix::AttachSubMatrix(shared_ptr<SparseMatrix> subMatrix)
 {
@@ -928,95 +820,6 @@ shared_ptr<SparseSubMatrixLinkage> SparseMatrix::GetExistingSubMatrixLinkage(sha
     return nullptr;
 }
 
-/*
-void SparseMatrix::BuildSubMatrixIndices(SparseMatrix & submatrix, int subMatrixID)
-{
-    if (subMatrixID >= numSubMatrixIDs)
-    {
-        subMatrixIndices = (int***) realloc (subMatrixIndices, sizeof(int**) * (subMatrixID + 1));
-        subMatrixIndexLengths = (int**) realloc (subMatrixIndexLengths, sizeof(int*) * (subMatrixID + 1));
-        for(int i=numSubMatrixIDs; i <= subMatrixID; i++)
-        {
-            subMatrixIndices[i] = NULL;
-            subMatrixIndexLengths[i] = NULL;
-        }
-        numSubMatrixIDs = subMatrixID + 1;
-    }
-    
-    if ((subMatrixIndices[subMatrixID] != NULL) || (subMatrixIndexLengths[subMatrixID] != NULL))
-    {
-        free(subMatrixIndices[subMatrixID]);
-        free(subMatrixIndexLengths[subMatrixID]);
-        subMatrixIndices[subMatrixID] = NULL;
-        subMatrixIndexLengths[subMatrixID] = NULL;
-        //printf("Warning: old submatrix indices (matrixID %d) have not been de-allocated.\n", subMatrixID);
-    }
-    
-    subMatrixIndices[subMatrixID] = (int**) malloc (sizeof(int*) * GetNumRows());
-    subMatrixIndexLengths[subMatrixID] = (int*) malloc (sizeof(int) * GetNumRows());
-    
-    for(int i=0; i<GetNumRows(); i++)
-    {
-        int submatrixRowLength = submatrix.GetRowLength(i);
-        subMatrixIndices[subMatrixID][i] = (int*) malloc (sizeof(int) * submatrixRowLength);
-        subMatrixIndexLengths[subMatrixID][i] = submatrixRowLength;
-        const vector<int>& indices = submatrix.columnIndices[i];
-        for(int j=0; j < submatrixRowLength; j++)
-        {
-            // finds the position in row i of element with column index jDense
-            // int inverseIndex(int i, int jDense);
-            subMatrixIndices[subMatrixID][i][j] = GetInverseIndex(i, indices[j]);
-            if (subMatrixIndices[subMatrixID][i][j] == -1)
-            {
-                printf("Error (BuildSubMatrixIndices): given matrix is not a submatrix of this matrix. The following index does not exist in this matrix: (%d,%d)\n", i, indices[j]);
-                exit(1);
-            }
-        }
-    }
-}
-
-void SparseMatrix::FreeSubMatrixIndices(int subMatrixID)
-{
-    if (subMatrixID >= numSubMatrixIDs)
-    {
-        printf("Warning: attempted to free submatrix index that does not exist.\n");
-        return;
-    }
-    
-    if (subMatrixIndices[subMatrixID] != NULL)
-    {
-        for(int i=0; i<GetNumRows(); i++)
-            free(subMatrixIndices[subMatrixID][i]); 
-        free(subMatrixIndices[subMatrixID]);
-        free(subMatrixIndexLengths[subMatrixID]);
-        subMatrixIndices[subMatrixID] = NULL;
-        subMatrixIndexLengths[subMatrixID] = NULL;
-    }
-    
-    // check if this was the largest index
-    for(int i=numSubMatrixIDs-1; i>=0; i--)
-    {
-        if (subMatrixIndices[i] != NULL)
-        {
-            numSubMatrixIDs = i + 1;
-            subMatrixIndices = (int***) realloc (subMatrixIndices, sizeof(int**) * numSubMatrixIDs);
-            subMatrixIndexLengths = (int**) realloc (subMatrixIndexLengths, sizeof(int*) * numSubMatrixIDs);
-            break;
-        }
-        
-        numSubMatrixIDs = i;
-    }
-    
-    if (numSubMatrixIDs == 0)
-    {
-        free(subMatrixIndices);
-        free(subMatrixIndexLengths);
-        subMatrixIndices = NULL;
-        subMatrixIndexLengths = NULL;
-    }
-}
- */
-
 
 void SparseMatrix::AddSubMatrix(double factor, shared_ptr<SparseMatrix> subMatrix)
 {
@@ -1029,17 +832,27 @@ void SparseMatrix::AddSubMatrix(double factor, shared_ptr<SparseSubMatrixLinkage
 {
     assert(link->GetSuperMatrix().get() == this && "link is for a different super matrix");
     link->AddSubMatrixToSuperMatrix(factor);
-    
-    /*
-    for(int i=0; i<GetNumRows(); i++)
-    {
-        int * indices = subMatrixIndices[subMatrixID][i];
-        int submatrixRowLength = submatrix.GetRowLength(i);
-        for(int j=0; j < submatrixRowLength; j++)
-            columnEntries[i][indices[j]] += factor * submatrix.columnEntries[i][j];
-    }
-     */
 }
+
+void SparseMatrix::AttachSuperMatrix(const vector<int>& fixedRowsColumns, shared_ptr<SparseMatrix> superMatrix, bool oneIndexed)
+{
+    AttachSuperMatrix(fixedRowsColumns, fixedRowsColumns, superMatrix, oneIndexed);
+}
+
+void SparseMatrix::AttachSuperMatrix(const vector<int>& fixedRows, const vector<int>& fixedColumns, shared_ptr<SparseMatrix> superMatrix, bool oneIndexed)
+{
+    auto linkage = make_shared<SparseSuperMatrixLinkage>(shared_from_this(), fixedRows, fixedColumns, superMatrix, oneIndexed);
+    superMatrixLinkages.push_back(linkage);
+}
+
+
+void SparseMatrix::AssignFromSuperMatrix(shared_ptr<SparseMatrix> superMatrix)
+{
+    auto linkage = std::find_if(superMatrixLinkages.begin(), superMatrixLinkages.end(), [superMatrix] (const shared_ptr<SparseSuperMatrixLinkage>& link) { return superMatrix == link->GetSuperMatrix(); });
+    (*linkage)->AssignFromSuperMatrix();
+}
+
+
 
 int SparseMatrix::GetNumLowerTriangleEntries() const
 {

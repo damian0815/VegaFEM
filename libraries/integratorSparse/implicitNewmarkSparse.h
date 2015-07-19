@@ -109,7 +109,7 @@ protected:
     shared_ptr<SparseSubMatrixLinkage> tangentStiffnessMatrixToDampingSubMatrixLinkage;
     shared_ptr<SparseSubMatrixLinkage> tangentStiffnessMatrixToMassSubMatrixLinkage;
     
-    SparseMatrix * systemMatrix;
+    shared_ptr<SparseMatrix> systemMatrix;
     
     double * bufferConstrained;
     

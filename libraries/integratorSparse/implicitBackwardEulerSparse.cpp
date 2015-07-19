@@ -207,7 +207,7 @@ int ImplicitBackwardEulerSparse::DoTimestep()
         if (errorQuotient < epsilon * epsilon)
             break;
         
-        systemMatrix->AssignSuperMatrix(tangentStiffnessMatrix.get());
+        systemMatrix->AssignFromSuperMatrix(tangentStiffnessMatrix);
         
         // solve: systemMatrix * buffer = bufferConstrained
         

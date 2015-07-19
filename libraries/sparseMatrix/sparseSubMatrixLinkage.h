@@ -30,6 +30,9 @@ private:
     shared_ptr<SparseMatrix> superMatrix;
     shared_ptr<SparseMatrix> subMatrix;
     
+       /*
+     length(subMatrixIndices) == number of rows
+     */
     vector<vector<int> > subMatrixIndices;
     
 };

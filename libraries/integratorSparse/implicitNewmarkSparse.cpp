@@ -68,9 +68,9 @@ ImplicitNewmarkSparse::ImplicitNewmarkSparse(int r, double timestep, shared_ptr<
     
     bufferConstrained = (double*) malloc (sizeof(double) * (r - numConstrainedDOFs));
     
-    systemMatrix = new SparseMatrix(*tangentStiffnessMatrix);
+    systemMatrix = std::make_shared<SparseMatrix>(*tangentStiffnessMatrix);
     systemMatrix->RemoveRowsColumns(numConstrainedDOFs, constrainedDOFs);
-    systemMatrix->BuildSuperMatrixIndices(numConstrainedDOFs, constrainedDOFs, tangentStiffnessMatrix.get());
+    systemMatrix->AttachSuperMatrix(vector<int>(constrainedDOFs, constrainedDOFs+numConstrainedDOFs), tangentStiffnessMatrix);
     
 #ifdef PARDISO
     printf("Creating Pardiso solver. Positive-definite solver: %d. Num threads: %d\n", positiveDefiniteSolver, numSolverThreads);
@@ -78,7 +78,7 @@ ImplicitNewmarkSparse::ImplicitNewmarkSparse(int r, double timestep, shared_ptr<
 #endif
     
 #ifdef PCG
-    jacobiPreconditionedCGSolver = new CGSolver(systemMatrix);
+    jacobiPreconditionedCGSolver = new CGSolver(systemMatrix.get());
 #endif
 }
 
@@ -86,7 +86,7 @@ ImplicitNewmarkSparse::~ImplicitNewmarkSparse()
 {
     tangentStiffnessMatrix = nullptr;
     rayleighDampingMatrix = nullptr;
-    delete(systemMatrix);
+    systemMatrix = nullptr;
     free(bufferConstrained);
 #ifdef PARDISO
     delete(pardisoSolver);
@@ -150,7 +150,7 @@ int ImplicitNewmarkSparse::SetState(double * q_, double * qvel_)
     tangentStiffnessMatrix->ResetToZero();
     tangentStiffnessMatrix->AddSubMatrix(1.0, massMatrix);
     tangentStiffnessMatrix->AddSubMatrix(1.0, dampingMatrix);
-    systemMatrix->AssignSuperMatrix(tangentStiffnessMatrix.get()); // must go via a matrix with tangentStiffnessMatrix's topology, because the AssignSuperMatrix indices were computed with respect to such topology
+    systemMatrix->AssignFromSuperMatrix(tangentStiffnessMatrix); // must go via a matrix with tangentStiffnessMatrix's topology, because the AssignFromSuperMatrix indices were computed with respect to such topology
     
     memset(buffer, 0, sizeof(double) * r);
     
@@ -309,7 +309,7 @@ int ImplicitNewmarkSparse::DoTimestep()
         
         //tangentStiffnessMatrix->Save("Keff");
         RemoveRows(r, bufferConstrained, qdelta, numConstrainedDOFs, constrainedDOFs);
-        systemMatrix->AssignSuperMatrix(tangentStiffnessMatrix.get());
+        systemMatrix->AssignFromSuperMatrix(tangentStiffnessMatrix);
         
         // solve: systemMatrix * buffer = bufferConstrained
         

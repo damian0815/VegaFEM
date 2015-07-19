@@ -106,6 +106,7 @@ using std::shared_ptr;
 #include "sparseMatrixOutline.h"
 
 class SparseSubMatrixLinkage;
+class SparseSuperMatrixLinkage;
 
 class SparseMatrix: public std::enable_shared_from_this<SparseMatrix>
 {
@@ -277,14 +278,21 @@ public:
     // subMatrix must have been attached via AttachSubMatrix
     void AddSubMatrix(double factor, shared_ptr<SparseMatrix> subMatrix);
     
+    
+    /*
     // Build supermatrix indices is used for pair of matrices with rows/columns removed.
     // oneIndexed: tells whether the fixed rows and columns are specified 1-indexed or 0-indexed
     // First, call BuildSuperMatrixIndices once to inialize (all fixed rows and columns are indexed with respect the superMatrix):
     void BuildSuperMatrixIndices(int numFixedRowColumns, int * fixedRowColumns, SparseMatrix * superMatrix, int oneIndexed=0); // use this version if the indices of removed rows and columns are the same
-    void BuildSuperMatrixIndices(int numFixedRows, int * fixedRows, int numFixedColumns, int * fixedColumns, SparseMatrix * superMatrix, int oneIndexed=0); // allows arbitrary row and column indices
+    void BuildSuperMatrixIndices(int numFixedRows, int * fixedRows, int numFixedColumns, int * fixedColumns, SparseMatrix * superMatrix, int oneIndexed=0); // allows arbitrary row and column indices*/
     // Then, call this (potentially many times) to quickly assign the values at the appropriate places in the submatrix.
     // For example, you can use this to copy data from a matrix into a submatrix obtained by a previous call to RemoveRowColumns.
-    void AssignSuperMatrix(SparseMatrix * superMatrix);
+    
+    void AttachSuperMatrix(const vector<int>& fixedRowsColumns, shared_ptr<SparseMatrix> superMatrix, bool oneIndex=false);
+    void AttachSuperMatrix(const vector<int>& fixedRows, const vector<int>& fixedColumns, shared_ptr<SparseMatrix>superMatrix, bool oneIndexed=false);
+    
+    void AssignFromSuperMatrix(std::shared_ptr<SparseMatrix> superMatrix);
+
     
     // returns the total number of non-zero entries in the lower triangle (including diagonal)
     int GetNumLowerTriangleEntries() const;
@@ -330,16 +338,7 @@ protected:
     bool HasCachedTransposedIndices() { return transposedIndices.size() > 0; }
     vector<vector<int> > transposedIndices;
     
-    /*
-     numSubMatrixIDs specifies how many sub-matrix relationships we have
-     length(subMatrixIndices) == length(subMatrixIndexLengths) == (numSubMatrixIDs + 1)
-     
-     length(subMatrixIndexLengths[subMatrixID]) ==
-     length(subMatrixIndices[subMatrixID]) == number of rows = numRows
-     
-     length(subMatrixIndices[subMatrixID][rowIndex]) ==
-     subMatrixIndexLengths[subMatrixID][rowIndex]
-     */
+
     void AttachSubMatrix(shared_ptr<SparseSubMatrixLinkage> linkage);
     vector<shared_ptr<SparseSubMatrixLinkage> > subMatrixLinkages;
     
@@ -349,12 +348,12 @@ protected:
     int ** subMatrixIndexLengths;
      */
     
+    vector<shared_ptr<SparseSuperMatrixLinkage> > superMatrixLinkages;
     int ** superMatrixIndices;
     int * superRows;
     
     void InitFromOutline(const SparseMatrixOutline& sparseMatrixOutline);
     void Allocate(size_t numRows);
-    void BuildRenumberingVector(int nConstrained, int nSuper, int numFixedDOFs, int * fixedDOFs, int ** superDOFs, int oneIndexed=0);
 };
 
 #endif

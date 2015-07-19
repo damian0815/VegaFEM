@@ -49,12 +49,16 @@
 		2DAE42F61B5BAE620034BE8B /* stvk */ = {isa = PBXFileReference; lastKnownFileType = folder; name = stvk; path = ../../libraries/stvk; sourceTree = "<group>"; };
 		2DAE42F71B5BAE620034BE8B /* volumetricMesh */ = {isa = PBXFileReference; lastKnownFileType = folder; name = volumetricMesh; path = ../../libraries/volumetricMesh; sourceTree = "<group>"; };
 		2DAE42FB1B5BE76C0034BE8B /* interactiveDeformableSimulator */ = {isa = PBXFileReference; lastKnownFileType = folder; name = interactiveDeformableSimulator; path = ../../utilities/interactiveDeformableSimulator; sourceTree = "<group>"; };
+		2DAE430F1B5C00B00034BE8B /* sparseSuperMatrixLinkage.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = sparseSuperMatrixLinkage.cpp; path = ../../libraries/sparseMatrix/sparseSuperMatrixLinkage.cpp; sourceTree = "<group>"; };
+		2DAE43101B5C00B00034BE8B /* sparseSuperMatrixLinkage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = sparseSuperMatrixLinkage.h; path = ../../libraries/sparseMatrix/sparseSuperMatrixLinkage.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
 		2DAE42C21B5BAB010034BE8B = {
 			isa = PBXGroup;
 			children = (
+				2DAE430F1B5C00B00034BE8B /* sparseSuperMatrixLinkage.cpp */,
+				2DAE43101B5C00B00034BE8B /* sparseSuperMatrixLinkage.h */,
 				2DAE42FA1B5BE75E0034BE8B /* utilities */,
 				2DAE42CE1B5BAE330034BE8B /* libraries */,
 			);

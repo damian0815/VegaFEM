@@ -10,13 +10,13 @@ R ?= ../..
 
 
 # the object files to be compiled for this library
-SPARSEMATRIX_OBJECTS=sparseMatrix.o sparseMatrixMT.o sparseMatrixOutline.o sparseSubMatrixLinkage.o
+SPARSEMATRIX_OBJECTS=sparseMatrix.o sparseMatrixMT.o sparseMatrixOutline.o sparseSubMatrixLinkage.o sparseSuperMatrixLinkage.o
 
 # the libraries this library depends on
 SPARSEMATRIX_LIBS=
 
 # the headers in this library
-SPARSEMATRIX_HEADERS=sparseMatrix.h sparseMatrixMT.h sparseMatrixOutline.h sparseSubMatrixLinkage.h
+SPARSEMATRIX_HEADERS=sparseMatrix.h sparseMatrixMT.h sparseMatrixOutline.h sparseSubMatrixLinkage.h sparseSuperMatrixLinkage.h
 
 
 SPARSEMATRIX_OBJECTS_FILENAMES=$(addprefix $(L)/sparseMatrix/, $(SPARSEMATRIX_OBJECTS))

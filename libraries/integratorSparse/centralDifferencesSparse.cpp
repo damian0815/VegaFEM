@@ -58,7 +58,7 @@ CentralDifferencesSparse::CentralDifferencesSparse(int numDOFs, double timestep,
     
     systemMatrix = shared_ptr<SparseMatrix>(new SparseMatrix(*tangentStiffnessMatrix));
     systemMatrix->RemoveRowsColumns(numConstrainedDOFs, constrainedDOFs);
-    systemMatrix->BuildSuperMatrixIndices(numConstrainedDOFs, constrainedDOFs, tangentStiffnessMatrix.get());
+    systemMatrix->AttachSuperMatrix(vector<int>(constrainedDOFs, constrainedDOFs+numConstrainedDOFs), tangentStiffnessMatrix);
     
 #ifdef PARDISO
     printf("Creating Pardiso solver for central differences.\n");
@@ -114,7 +114,7 @@ void CentralDifferencesSparse::DecomposeSystemMatrix()
     // system matrix = mass matrix + 0.5 * timestep * damping matrix (and remove constrained rows and columns)
     rayleighDampingMatrix->ScalarMultiply(0.5 * timestep, tangentStiffnessMatrix.get());
     tangentStiffnessMatrix->AddSubMatrix(1.0, tangentStiffnessMatrixToMassSubMatrixLinkage);
-    systemMatrix->AssignSuperMatrix(tangentStiffnessMatrix.get());
+    systemMatrix->AssignFromSuperMatrix(tangentStiffnessMatrix);
     
     //systemMatrix->SaveToMatlabFormat("system.mat");
     
