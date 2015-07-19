@@ -47,9 +47,9 @@ public:
   StVKStiffnessMatrix(StVKInternalForces *  stVKInternalForces);
   virtual ~StVKStiffnessMatrix();
 
-  // generates a zero matrix with the same pattern of non-zero entries as the tangent stiffness matrix
+  // generates topology of the same pattern of non-zero entries as the tangent stiffness matrix
   // note: sparsity pattern does not depend on the deformable configuration
-  void GetStiffnessMatrixTopology(SparseMatrix ** stiffnessMatrixTopology); 
+  SparseMatrixOutline GetStiffnessMatrixTopology();
 
   // evaluates the tangent stiffness matrix in the given deformation configuration
   // "vertexDisplacements" is an array of vertex deformations, of length 3*n, where n is the total number of mesh vertices

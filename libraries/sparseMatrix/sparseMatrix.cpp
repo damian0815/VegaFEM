@@ -38,29 +38,34 @@ using namespace std;
 SparseMatrix::SparseMatrix(const char * filename)
 {
     SparseMatrixOutline sparseMatrixOutline(filename);
-    InitFromOutline(&sparseMatrixOutline);
+    InitFromOutline(sparseMatrixOutline);
 }
 
-SparseMatrix::SparseMatrix(SparseMatrixOutline * sparseMatrixOutline)
+SparseMatrix::SparseMatrix(const SparseMatrixOutline * sparseMatrixOutline)
+: SparseMatrix(*sparseMatrixOutline)
+{
+}
+
+SparseMatrix::SparseMatrix(const SparseMatrixOutline& sparseMatrixOutline)
 {
     InitFromOutline(sparseMatrixOutline);
 }
 
 // construct matrix from the outline
-void SparseMatrix::InitFromOutline(SparseMatrixOutline * sparseMatrixOutline)
+void SparseMatrix::InitFromOutline(const SparseMatrixOutline& sparseMatrixOutline)
 {
-    Allocate(sparseMatrixOutline->GetNumRows());
+    Allocate(sparseMatrixOutline.GetNumRows());
     
     for(size_t i=0; i<GetNumRows(); i++)
     {
-        int rowLength = (int)sparseMatrixOutline->columnEntries[i].size();
+        int rowLength = (int)sparseMatrixOutline.columnEntries[i].size();
         columnEntries[i].resize(rowLength);
         columnIndices[i].resize(rowLength);
         
-        map<int,double>::iterator pos;
+        map<int,double>::const_iterator pos;
         int j = 0;
         int prev = -1;
-        for(pos = sparseMatrixOutline->columnEntries[i].begin(); pos != sparseMatrixOutline->columnEntries[i].end(); pos++)
+        for(pos = sparseMatrixOutline.columnEntries[i].begin(); pos != sparseMatrixOutline.columnEntries[i].end(); pos++)
         {
             columnIndices[i][j] = pos->first;
             if (columnIndices[i][j] <= prev)
@@ -1841,7 +1846,7 @@ vector<int> SparseMatrix::GetRowLengths() const
     return result;
 }
 
-SparseMatrixOutline SparseMatrix::GenerateOutline() const
+SparseMatrixOutline SparseMatrix::GetTopology() const
 {
     SparseMatrixOutline outline(GetNumRows());
     for (int row=0; row<GetNumRows(); row++)

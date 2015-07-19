@@ -31,8 +31,7 @@
 
 StVKStiffnessMatrixMT::StVKStiffnessMatrixMT(StVKInternalForces *  stVKInternalForces, int numThreads_): StVKStiffnessMatrix(stVKInternalForces), numThreads(numThreads_) 
 {
-  SparseMatrix * stiffnessMatrixSkeleton;
-  GetStiffnessMatrixTopology(&stiffnessMatrixSkeleton);
+  SparseMatrix * stiffnessMatrixSkeleton = new SparseMatrix(GetStiffnessMatrixTopology());
 
   // generate skeleton matrices
   sparseMatrixBuffer = (SparseMatrix**) malloc (sizeof(SparseMatrix*) * numThreads);

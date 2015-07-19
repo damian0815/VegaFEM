@@ -539,7 +539,7 @@ void MassSpringSystem::AddForce(double * u, double * f, int startEdge, int endEd
   }
 }
 
-void MassSpringSystem::GetStiffnessMatrixTopology(SparseMatrix ** stiffnessMatrixTopology)
+SparseMatrixOutline MassSpringSystem::GetStiffnessMatrixTopology()
 {
   SparseMatrixOutline KOutline(3*numParticles);
 
@@ -577,7 +577,7 @@ void MassSpringSystem::GetStiffnessMatrixTopology(SparseMatrix ** stiffnessMatri
       }
   }
 
-  *stiffnessMatrixTopology = new SparseMatrix(&KOutline);
+    return KOutline;
 }
 
 void MassSpringSystem::ComputeStiffnessMatrix(double * u, SparseMatrix * K, bool addMatrix)

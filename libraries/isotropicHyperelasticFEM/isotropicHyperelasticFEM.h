@@ -78,8 +78,8 @@ public:
   // i.e., the computed internal forces are negatives of the actual physical internal forces acting on the material
   void ComputeForces(double * u, double * internalForces);
 
-  // allocate memory for the non-zero entries of the stiffness matrix
-  void GetStiffnessMatrixTopology(SparseMatrix ** tangentStiffnessMatrix);
+  // get topology of the non-zero entries of the stiffness matrix
+    SparseMatrixOutline GetStiffnessMatrixTopology();
   // get the nonlinear stiffness matrix given the vertex displacement vector u
   void GetTangentStiffnessMatrix(double * u, SparseMatrix * tangentStiffnessMatrix);
   // get both nonlinear internal forces and nonlinear stiffness matrix

@@ -99,7 +99,7 @@ public:
   // compute the damping force (it damps any relative velocities along each edge)
   virtual void ComputeDampingForce(double * uvel, double * f, bool addForce=false); 
   // compute the tangent stiffness matrix
-  void GetStiffnessMatrixTopology(SparseMatrix ** stiffnessMatrixTopology); // call once to establish the location of sparse entries of the stiffness matrix
+  SparseMatrixOutline GetStiffnessMatrixTopology(); // call once to establish the location of sparse entries of the stiffness matrix
   virtual void ComputeStiffnessMatrix(double * u, SparseMatrix * K, bool addMatrix=false);
   // computes an approximation to dK, using the Hessian of internal forces, assuming the deformations change from u to u + du
   virtual void ComputeStiffnessMatrixCorrection(double * u, double * du, SparseMatrix * dK, bool addMatrix=false);

@@ -40,9 +40,9 @@ void CorotationalLinearFEMForceModel::GetInternalForce(double * u, double * inte
   corotationalLinearFEM->ComputeForceAndStiffnessMatrix(u, internalForces, NULL, warp);
 }
 
-void CorotationalLinearFEMForceModel::GetTangentStiffnessMatrixTopology(SparseMatrix ** tangentStiffnessMatrix)
+SparseMatrixOutline CorotationalLinearFEMForceModel::GetTangentStiffnessMatrixTopology()
 {
-  corotationalLinearFEM->GetStiffnessMatrixTopology(tangentStiffnessMatrix);
+    return corotationalLinearFEM->GetStiffnessMatrixTopology();
 }
 
 void CorotationalLinearFEMForceModel::GetTangentStiffnessMatrix(double * u, SparseMatrix * tangentStiffnessMatrix)

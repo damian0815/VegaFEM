@@ -7,7 +7,7 @@ OPENMPFLAG=
 #OPENMPFLAG=-fopenmp -DUSE_OPENMP
 
 CXX=g++ 
-CXXFLAGS=-Wall -Wno-write-strings -Wno-c++11-extensions -Werror=overloaded-virtual $(OPTIMIZATIONFLAG) $(OPENMPFLAG)
+CXXFLAGS=-std=c++11 -Wall -Wno-write-strings -Wno-c++11-extensions -Werror=overloaded-virtual $(OPTIMIZATIONFLAG) $(OPENMPFLAG)
 CXXLD=$(CXX)
 LDFLAGS=$(OPTIMIZATIONFLAG) $(OPENMPFLAG)
 

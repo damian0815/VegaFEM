@@ -91,8 +91,7 @@ void IsotropicHyperelasticFEMMT::Initialize()
   // generate skeleton matrices
   tangentStiffnessMatrixBuffer = (SparseMatrix**) malloc (sizeof(SparseMatrix*) * numThreads);
 
-  SparseMatrix * sparseMatrix;
-  GetStiffnessMatrixTopology(&sparseMatrix);
+  SparseMatrix * sparseMatrix = new SparseMatrix(GetStiffnessMatrixTopology());
   for(int i=0; i<numThreads; i++)
     tangentStiffnessMatrixBuffer[i] = new SparseMatrix(*sparseMatrix);
 

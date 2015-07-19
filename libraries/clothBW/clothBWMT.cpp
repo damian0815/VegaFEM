@@ -210,8 +210,7 @@ void ClothBWMT::Initialize()
   // generate skeleton matrices
   sparseMatrixBuffer = (SparseMatrix**) malloc (sizeof(SparseMatrix*) * numThreads);
   
-  SparseMatrix * sparseMatrix;
-  GenerateStiffnessMatrixTopology(&sparseMatrix);
+    SparseMatrix * sparseMatrix = new SparseMatrix(GenerateStiffnessMatrixTopology());
   for(int i=0; i<numThreads; i++)
     sparseMatrixBuffer[i] = new SparseMatrix(*sparseMatrix);
   

@@ -32,7 +32,7 @@
 LinearFEMForceModel::LinearFEMForceModel(StVKInternalForces * stVKInternalForces) 
 {
   StVKStiffnessMatrix * stVKStiffnessMatrix = new StVKStiffnessMatrix(stVKInternalForces);
-  stVKStiffnessMatrix->GetStiffnessMatrixTopology(&K);
+  K = new SparseMatrix(stVKStiffnessMatrix->GetStiffnessMatrixTopology());
   r = K->GetNumRows();
   double * zero = (double*) calloc (K->GetNumRows(), sizeof(double));
   stVKStiffnessMatrix->ComputeStiffnessMatrix(zero, K);
@@ -50,9 +50,9 @@ void LinearFEMForceModel::GetInternalForce(double * u, double * internalForces)
   K->MultiplyVector(u, internalForces);
 }
 
-void LinearFEMForceModel::GetTangentStiffnessMatrixTopology(SparseMatrix ** tangentStiffnessMatrix)
+SparseMatrixOutline LinearFEMForceModel::GetTangentStiffnessMatrixTopology()
 {
-  *tangentStiffnessMatrix = new SparseMatrix(*K);
+    return K->GetTopology();
 }
 
 void LinearFEMForceModel::GetTangentStiffnessMatrix(double * u, SparseMatrix * tangentStiffnessMatrix)

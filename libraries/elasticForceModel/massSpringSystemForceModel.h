@@ -42,7 +42,7 @@ public:
   MassSpringSystemForceModel(MassSpringSystem * massSpringSystem);
 
   virtual void GetInternalForce(double * u, double * internalForces);
-  virtual void GetTangentStiffnessMatrixTopology(SparseMatrix ** tangentStiffnessMatrix);
+    virtual SparseMatrixOutline GetTangentStiffnessMatrixTopology();
   virtual void GetTangentStiffnessMatrix(double * u, SparseMatrix * tangentStiffnessMatrix); 
 
 protected:

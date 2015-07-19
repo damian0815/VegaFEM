@@ -48,7 +48,7 @@ public:
     // constrainedDOFs is an integer array of degrees of freedom that are to be fixed to zero (e.g., to permanently fix a vertex in a deformable simulation)
     // constrainedDOFs are 0-indexed (separate DOFs for x,y,z), and must be pre-sorted (ascending)
     // damping matrix provides damping in addition to mass and stiffness damping
-    IntegratorBaseSparse(int r, double timestep, SparseMatrix * massMatrix, ForceModel * forceModel, int numConstrainedDOFs=0, int * constrainedDOFs=NULL, double dampingMassCoef=0.0, double dampingStiffnessCoef=0.0);
+    IntegratorBaseSparse(int r, double timestep, std::shared_ptr<SparseMatrix> massMatrix, ForceModel * forceModel, int numConstrainedDOFs=0, int * constrainedDOFs=NULL, double dampingMassCoef=0.0, double dampingStiffnessCoef=0.0);
     
     virtual ~IntegratorBaseSparse();
     

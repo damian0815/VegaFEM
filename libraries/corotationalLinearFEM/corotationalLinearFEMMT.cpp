@@ -87,8 +87,10 @@ void CorotationalLinearFEMMT::Initialize()
   // generate skeleton matrices
   stiffnessMatrixBuffer = (SparseMatrix**) malloc (sizeof(SparseMatrix*) * numThreads);
 
-  SparseMatrix * sparseMatrix;
-  GetStiffnessMatrixTopology(&sparseMatrix);
+    auto topology = GetStiffnessMatrixTopology();
+    auto sparseMatrix = new SparseMatrix(topology);
+    
+    
   for(int i=0; i<numThreads; i++)
     stiffnessMatrixBuffer[i] = new SparseMatrix(*sparseMatrix);
 

@@ -256,7 +256,7 @@ enum invertibleMaterialType { INV_STVK, INV_NEOHOOKEAN, INV_MOONEYRIVLIN, INV_NO
 enum solverType { IMPLICITNEWMARK, IMPLICITBACKWARDEULER, EULER, SYMPLECTICEULER, CENTRALDIFFERENCES, UNKNOWN } solver = UNKNOWN;
 MassSpringSystem * massSpringSystem = NULL;
 RenderSprings * renderMassSprings = NULL;
-SparseMatrix * massMatrix = NULL;
+shared_ptr<SparseMatrix> massMatrix;
 shared_ptr<SparseMatrix> LaplacianDampingMatrix;
 int n;
 double * u = NULL;
@@ -1144,7 +1144,11 @@ void initSimulation()
         
         // create the mass matrix
         int inflate3Dim = true; // necessary so that the returned matrix is 3n x 3n
-        GenerateMassMatrix::computeMassMatrix(volumetricMesh, &massMatrix, inflate3Dim);
+        
+        SparseMatrix* massMatrixPlaceholder;
+        GenerateMassMatrix::computeMassMatrix(volumetricMesh, &massMatrixPlaceholder, inflate3Dim);
+        massMatrix = shared_ptr<SparseMatrix>(massMatrixPlaceholder);
+        massMatrixPlaceholder = nullptr;
         
         // create the internal forces for STVK and linear FEM materials
         if (deformableObject == STVK || deformableObject == LINFEM)  // LINFEM is constructed from stVKInternalForces
@@ -1283,7 +1287,10 @@ void initSimulation()
         n = massSpringSystem->GetNumParticles();
         
         // create the mass matrix
-        massSpringSystem->GenerateMassMatrix(&massMatrix);
+        SparseMatrix* massMatrixPlaceholder;
+        massSpringSystem->GenerateMassMatrix(&massMatrixPlaceholder);
+        massMatrix = shared_ptr<SparseMatrix>(massMatrixPlaceholder);
+        massMatrixPlaceholder = nullptr;
         
         // create the mesh graph (used only for the distribution of user forces over neighboring vertices)
         meshGraph = new Graph(massSpringSystem->GetNumParticles(), massSpringSystem->GetNumEdges(), massSpringSystem->GetEdges());
@@ -1292,7 +1299,7 @@ void initSimulation()
     int scaleRows = 1;
     SparseMatrix* laplacianDummy;
     meshGraph->GetLaplacian(&laplacianDummy, scaleRows);
-    LaplacianDampingMatrix = std::shared_ptr<SparseMatrix>(laplacianDummy);
+    LaplacianDampingMatrix = shared_ptr<SparseMatrix>(laplacianDummy);
     laplacianDummy = nullptr;
     
     LaplacianDampingMatrix->ScalarMultiply(dampingLaplacianCoef);

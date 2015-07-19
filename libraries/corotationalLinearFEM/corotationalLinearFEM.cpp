@@ -75,10 +75,11 @@ CorotationalLinearFEM::CorotationalLinearFEM(TetMesh * tetMesh_) : tetMesh(tetMe
   }
 
   // build acceleration indices for fast writing to the global stiffness matrix
-  SparseMatrix * sparseMatrix;
-  GetStiffnessMatrixTopology(&sparseMatrix);
-  BuildRowColumnIndices(sparseMatrix);
-  delete(sparseMatrix);
+    SparseMatrix * sparseMatrix;
+    auto topology = GetStiffnessMatrixTopology();
+    sparseMatrix = new SparseMatrix(topology);
+    BuildRowColumnIndices(sparseMatrix);
+    delete(sparseMatrix);
 
   // compute stiffness matrices for all the elements in the undeformed configuration
   KElementUndeformed = (double**) malloc (sizeof(double*) * numElements);
@@ -239,9 +240,9 @@ CorotationalLinearFEM::~CorotationalLinearFEM()
   ClearRowColumnIndices();
 }
 
-void CorotationalLinearFEM::GetStiffnessMatrixTopology(SparseMatrix ** stiffnessMatrixTopology)
+SparseMatrixOutline CorotationalLinearFEM::GetStiffnessMatrixTopology()
 {
-  SparseMatrixOutline * emptyMatrix = new SparseMatrixOutline(3 * numVertices);
+  SparseMatrixOutline topology(3 * numVertices);
 
   int numElements = tetMesh->getNumElements();
   for (int el=0; el < numElements; el++)
@@ -256,12 +257,11 @@ void CorotationalLinearFEM::GetStiffnessMatrixTopology(SparseMatrix ** stiffness
         // add 3x3 block corresponding to pair of vertices (i,j)
         for(int k=0; k<3; k++)
           for(int l=0; l<3; l++)
-            emptyMatrix->AddEntry(3 * vtxIndex[i] + k, 3 * vtxIndex[j] + l, 0.0);
+            topology.AddEntry(3 * vtxIndex[i] + k, 3 * vtxIndex[j] + l, 0.0);
       }
   }
 
-  *stiffnessMatrixTopology = new SparseMatrix(emptyMatrix);
-  delete(emptyMatrix);
+    return topology;
 }
 
 // compute RK = R * K and RKRT = R * K * R^T (block-wise)

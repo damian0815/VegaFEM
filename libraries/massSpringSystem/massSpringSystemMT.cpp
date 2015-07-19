@@ -137,8 +137,7 @@ void MassSpringSystemMT::Initialize()
   // generate skeleton matrices
   sparseMatrixBuffer = (SparseMatrix**) malloc (sizeof(SparseMatrix*) * numThreads);
 
-  SparseMatrix * sparseMatrix;
-  GetStiffnessMatrixTopology(&sparseMatrix);
+  SparseMatrix* sparseMatrix = new SparseMatrix(GetStiffnessMatrixTopology());
   for(int i=0; i<numThreads; i++)
     sparseMatrixBuffer[i] = new SparseMatrix(*sparseMatrix);
 

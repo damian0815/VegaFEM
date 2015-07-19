@@ -43,7 +43,7 @@ public:
   virtual ~CorotationalLinearFEMForceModel(); 
 
   virtual void GetInternalForce(double * u, double * internalForces);
-  virtual void GetTangentStiffnessMatrixTopology(SparseMatrix ** tangentStiffnessMatrix);
+  virtual SparseMatrixOutline GetTangentStiffnessMatrixTopology();
   virtual void GetTangentStiffnessMatrix(double * u, SparseMatrix * tangentStiffnessMatrix); 
 
   virtual void GetForceAndMatrix(double * u, double * internalForces, SparseMatrix * tangentStiffnessMatrix);

@@ -38,9 +38,9 @@ void MassSpringSystemForceModel::GetInternalForce(double * u, double * internalF
   massSpringSystem->ComputeForce(u, internalForces);
 }
 
-void MassSpringSystemForceModel::GetTangentStiffnessMatrixTopology(SparseMatrix ** tangentStiffnessMatrix)
+SparseMatrixOutline MassSpringSystemForceModel::GetTangentStiffnessMatrixTopology()
 {
-  massSpringSystem->GetStiffnessMatrixTopology(tangentStiffnessMatrix);
+    return massSpringSystem->GetStiffnessMatrixTopology();
 }
 
 void MassSpringSystemForceModel::GetTangentStiffnessMatrix(double * u, SparseMatrix * tangentStiffnessMatrix)

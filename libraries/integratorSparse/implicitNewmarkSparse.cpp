@@ -35,7 +35,7 @@
 #include "implicitNewmarkSparse.h"
 #include "sparseSubMatrix.h"
 
-ImplicitNewmarkSparse::ImplicitNewmarkSparse(int r, double timestep, SparseMatrix * massMatrix_, ForceModel * forceModel_, int positiveDefiniteSolver_, int numConstrainedDOFs_, int * constrainedDOFs_, double dampingMassCoef, double dampingStiffnessCoef, int maxIterations, double epsilon, double NewmarkBeta, double NewmarkGamma, int numSolverThreads_): IntegratorBaseSparse(r, timestep, massMatrix_, forceModel_, numConstrainedDOFs_, constrainedDOFs_, dampingMassCoef, dampingStiffnessCoef), positiveDefiniteSolver(positiveDefiniteSolver_), numSolverThreads(numSolverThreads_)
+ImplicitNewmarkSparse::ImplicitNewmarkSparse(int r, double timestep, shared_ptr<SparseMatrix> massMatrix_, ForceModel * forceModel_, int positiveDefiniteSolver_, int numConstrainedDOFs_, int * constrainedDOFs_, double dampingMassCoef, double dampingStiffnessCoef, int maxIterations, double epsilon, double NewmarkBeta, double NewmarkGamma, int numSolverThreads_): IntegratorBaseSparse(r, timestep, massMatrix_, forceModel_, numConstrainedDOFs_, constrainedDOFs_, dampingMassCoef, dampingStiffnessCoef), positiveDefiniteSolver(positiveDefiniteSolver_), numSolverThreads(numSolverThreads_)
 {
     this->maxIterations = maxIterations; // maxIterations = 1 for semi-implicit
     this->epsilon = epsilon; 
@@ -46,10 +46,8 @@ ImplicitNewmarkSparse::ImplicitNewmarkSparse(int r, double timestep, SparseMatri
     
     UpdateAlphas();
     
-    SparseMatrix* tangentStiffnessMatrixPlaceholder;
-    forceModel->GetTangentStiffnessMatrixTopology(&tangentStiffnessMatrixPlaceholder);
-    tangentStiffnessMatrix = shared_ptr<SparseMatrix>(tangentStiffnessMatrixPlaceholder);
-    tangentStiffnessMatrixPlaceholder = nullptr;
+    auto topology = forceModel->GetTangentStiffnessMatrixTopology();
+    tangentStiffnessMatrix = std::make_shared<SparseMatrix>(topology);
     
     if (tangentStiffnessMatrix->Getn() != massMatrix->Getn())
     {

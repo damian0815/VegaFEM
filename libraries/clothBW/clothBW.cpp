@@ -860,7 +860,7 @@ void ClothBS_Sfunction( const Vec3d & in, Vec3d & out, int row, double scale )
   out[2] *= scale;
 }
 
-void ClothBW::GenerateStiffnessMatrixTopology(SparseMatrix **K)
+SparseMatrixOutline ClothBW::GenerateStiffnessMatrixTopology()
 {
   SparseMatrixOutline KOutline(3*numParticles);
   
@@ -973,7 +973,7 @@ void ClothBW::GenerateStiffnessMatrixTopology(SparseMatrix **K)
       }
   }
   
-  *K = new SparseMatrix(&KOutline);
+    return KOutline;
 }
 
 void ClothBW::ComputeStiffnessMatrix(double *u, SparseMatrix *K, bool addMatrix)

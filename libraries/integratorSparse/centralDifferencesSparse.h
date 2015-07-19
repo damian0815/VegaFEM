@@ -79,7 +79,7 @@ This class supports two damping modes:
 class CentralDifferencesSparse : public IntegratorBaseSparse
 {
 public:
-    CentralDifferencesSparse(int numDOFs, double timestep, SparseMatrix * massMatrix, ForceModel * forceModel, int numConstrainedDOFs=0, int * constrainedDOFs=NULL, double dampingMassCoef=0.0, double dampingStiffnessCoef=0.0, int tangentialDampingMode=1, int numSolverThreads=0);
+    CentralDifferencesSparse(int numDOFs, double timestep, std::shared_ptr<SparseMatrix> massMatrix, ForceModel * forceModel, int numConstrainedDOFs=0, int * constrainedDOFs=NULL, double dampingMassCoef=0.0, double dampingStiffnessCoef=0.0, int tangentialDampingMode=1, int numSolverThreads=0);
     
     virtual ~CentralDifferencesSparse();
     

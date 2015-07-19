@@ -62,7 +62,7 @@ public:
   // constrainedDOFs is an integer array of degrees of freedom that are to be fixed to zero (e.g., to permanently fix a vertex in a deformable simulation)
   // constrainedDOFs are 0-indexed (separate DOFs for x,y,z), and must be pre-sorted (ascending)
   // dampingMatrix is optional and provides damping (in addition to mass damping)
-  EulerSparse(int r, double timestep, SparseMatrix * massMatrix, ForceModel * forceModel, int symplectic=0, int numConstrainedDOFs=0, int * constrainedDOFs=NULL, double dampingMassCoef=0.0);
+    EulerSparse(int r, double timestep, std::shared_ptr<SparseMatrix> massMatrix, ForceModel * forceModel, int symplectic=0, int numConstrainedDOFs=0, int * constrainedDOFs=NULL, double dampingMassCoef=0.0);
 
   virtual ~EulerSparse();
 

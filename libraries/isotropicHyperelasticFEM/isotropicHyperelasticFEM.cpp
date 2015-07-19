@@ -80,8 +80,7 @@ IsotropicHyperelasticFEM::IsotropicHyperelasticFEM(TetMesh * tetMesh_, Isotropic
 
   // build stiffness matrix skeleton
   // (i.e., create memory space for the non-zero entries of the stiffness matrix)
-  SparseMatrix * stiffnessMatrixTopology;
-  GetStiffnessMatrixTopology(&stiffnessMatrixTopology);
+  SparseMatrix * stiffnessMatrixTopology = new SparseMatrix(GetStiffnessMatrixTopology());
 
   // build acceleration indices so that we can quickly write the element stiffness matrices into the global stiffness matrix
   row_ = (int**) malloc (sizeof(int*) * numElements);
@@ -196,37 +195,34 @@ void IsotropicHyperelasticFEM::ComputeForces(double * u, double * internalForces
   Note that this won't compute the actual values of the entries (they are set to zero).
   The sparsity structure does not change at runtime.
 */
-void IsotropicHyperelasticFEM::GetStiffnessMatrixTopology(SparseMatrix ** tangentStiffnessMatrix)
+SparseMatrixOutline IsotropicHyperelasticFEM::GetStiffnessMatrixTopology()
 {
-  int numVertices = tetMesh->getNumVertices();
-  int numElementVertices = tetMesh->getNumElementVertices(); // This will always be 4.
-  int * vertices = (int*) malloc (sizeof(int) * numElementVertices);
-
-  // build the non-zero locations of the tangent stiffness matrix
-  SparseMatrixOutline * emptyMatrix = new SparseMatrixOutline(3 * numVertices);
-  int numElements = tetMesh->getNumElements();
-  for (int el=0; el < numElements; el++)
-  {
-    for(int vertex=0; vertex<numElementVertices; vertex++)
-      vertices[vertex] = tetMesh->getVertexIndex(el, vertex);
-
-    for (int i=0; i<numElementVertices; i++)
-      for (int j=0; j<numElementVertices; j++)
-      {
-        for(int k=0; k<3; k++)
-          for(int l=0; l<3; l++)
-          {
-            // only add the entry if both vertices are free (non-fixed)
-            // the corresponding elt is in row 3*i+k, column 3*j+l
-            emptyMatrix->AddEntry( 3*vertices[i]+k, 3*vertices[j]+l, 0.0 );
-          }
-      }
-  }
-
-  *tangentStiffnessMatrix = new SparseMatrix(emptyMatrix);
-  delete(emptyMatrix);
-
-  free(vertices);
+    int numVertices = tetMesh->getNumVertices();
+    int numElementVertices = tetMesh->getNumElementVertices(); // This will always be 4.
+    vector<int> vertices(numElementVertices);
+    
+    // build the non-zero locations of the tangent stiffness matrix
+    SparseMatrixOutline topology(3 * numVertices);
+    int numElements = tetMesh->getNumElements();
+    for (int el=0; el < numElements; el++)
+    {
+        for(int vertex=0; vertex<numElementVertices; vertex++)
+            vertices[vertex] = tetMesh->getVertexIndex(el, vertex);
+        
+        for (int i=0; i<numElementVertices; i++)
+            for (int j=0; j<numElementVertices; j++)
+            {
+                for(int k=0; k<3; k++)
+                    for(int l=0; l<3; l++)
+                    {
+                        // only add the entry if both vertices are free (non-fixed)
+                        // the corresponding elt is in row 3*i+k, column 3*j+l
+                        topology.AddEntry( 3*vertices[i]+k, 3*vertices[j]+l, 0.0 );
+                    }
+            }
+    }
+    
+    return topology;
 }
 
 /*

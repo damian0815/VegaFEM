@@ -45,7 +45,7 @@ public:
   inline int Getr() { return r; }
 
   virtual void GetInternalForce(double * u, double * internalForces) = 0;
-  virtual void GetTangentStiffnessMatrixTopology(SparseMatrix ** tangentStiffnessMatrix) = 0;
+  virtual SparseMatrixOutline GetTangentStiffnessMatrixTopology() = 0;
   virtual void GetTangentStiffnessMatrix(double * u, SparseMatrix * tangentStiffnessMatrix) = 0; 
 
   // sometimes computation time can be saved if we know that we will need both internal forces and tangent stiffness matrices:

@@ -54,8 +54,7 @@ StVKStiffnessMatrix::StVKStiffnessMatrix(StVKInternalForces *  stVKInternalForce
   }
 
   // build stiffness matrix skeleton 
-  SparseMatrix * stiffnessMatrixTopology;
-  GetStiffnessMatrixTopology(&stiffnessMatrixTopology);
+  SparseMatrix * stiffnessMatrixTopology = new SparseMatrix(GetStiffnessMatrixTopology());
 
   // build acceleration indices
   row_ = (int**) malloc (sizeof(int*) * numElements);
@@ -80,40 +79,37 @@ StVKStiffnessMatrix::StVKStiffnessMatrix(StVKInternalForces *  stVKInternalForce
 
 }
 
-void StVKStiffnessMatrix::GetStiffnessMatrixTopology(SparseMatrix ** stiffnessMatrixTopology)
+SparseMatrixOutline StVKStiffnessMatrix::GetStiffnessMatrixTopology()
 {
-  int numVertices = volumetricMesh->getNumVertices();
-
-  int * vertices = (int*) malloc (sizeof(int) * numElementVertices);
-
-  // build skeleton of sparseMatrix
-  SparseMatrixOutline * emptyMatrix = new SparseMatrixOutline(3 * numVertices);
-  for (int el=0; el < volumetricMesh->getNumElements(); el++)
-  {
-    //if(el % 100 == 1)
-      //printf(".");
-
-    for(int ver=0; ver<numElementVertices; ver++)
-      vertices[ver] = volumetricMesh->getVertexIndex(el, ver);
-
-    for (int i=0; i<numElementVertices; i++)
-      for (int j=0; j<numElementVertices; j++)
-      {
-        for(int k=0; k<3; k++)
-          for(int l=0; l<3; l++)
-          {
-            // only add the entry if both vertices are free (non-fixed)
-            // the corresponding elt is in row 3*i+k, column 3*j+l
-            emptyMatrix->AddEntry( 3*vertices[i]+k, 3*vertices[j]+l, 0.0 );
-          }
-      }
-  }
-  //printf("\n");
-
-  *stiffnessMatrixTopology = new SparseMatrix(emptyMatrix);
-  delete(emptyMatrix);
-
-  free(vertices);
+    int numVertices = volumetricMesh->getNumVertices();
+    
+    vector<int> vertices(numElementVertices);
+    
+    // build skeleton of sparseMatrix
+    SparseMatrixOutline outline(3 * numVertices);
+    for (int el=0; el < volumetricMesh->getNumElements(); el++)
+    {
+        //if(el % 100 == 1)
+        //printf(".");
+        
+        for(int ver=0; ver<numElementVertices; ver++)
+            vertices[ver] = volumetricMesh->getVertexIndex(el, ver);
+        
+        for (int i=0; i<numElementVertices; i++)
+            for (int j=0; j<numElementVertices; j++)
+            {
+                for(int k=0; k<3; k++)
+                    for(int l=0; l<3; l++)
+                    {
+                        // only add the entry if both vertices are free (non-fixed)
+                        // the corresponding elt is in row 3*i+k, column 3*j+l
+                        outline.AddEntry( 3*vertices[i]+k, 3*vertices[j]+l, 0.0 );
+                    }
+            }
+    }
+    //printf("\n");
+    
+    return outline;
 }
 
 StVKStiffnessMatrix::~StVKStiffnessMatrix()

@@ -79,7 +79,7 @@ public:
   // note: the force has the sign of the left side of the dynamic equation, Mu'' + Du' + f_int(u) = f_ext(t), i.e., f_int(u), that is, **opposite** to an external force f_ext(t) acting on the body 
   virtual void ComputeForce(double * u, double * f, bool addForce=false); // if addForce is "true", f will be not be reset to zero prior to adding the forces
   // compute the tangent stiffness matrix of the elastic force
-  void GenerateStiffnessMatrixTopology(SparseMatrix ** K); // call once to establish the location of sparse entries of the stiffness matrix
+  SparseMatrixOutline GenerateStiffnessMatrixTopology(); // call once to establish the location of sparse entries of the stiffness matrix
   virtual void ComputeStiffnessMatrix(double * u, SparseMatrix * K, bool addMatrix=false);
     
   // compute the damping force

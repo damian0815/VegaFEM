@@ -40,9 +40,9 @@ void IsotropicHyperelasticFEMForceModel::GetInternalForce(double * u, double * i
   isotropicHyperelasticFEM->ComputeForces(u, internalForces);
 }
 
-void IsotropicHyperelasticFEMForceModel::GetTangentStiffnessMatrixTopology(SparseMatrix ** tangentStiffnessMatrix)
+SparseMatrixOutline IsotropicHyperelasticFEMForceModel::GetTangentStiffnessMatrixTopology()
 {
-  isotropicHyperelasticFEM->GetStiffnessMatrixTopology(tangentStiffnessMatrix);
+  return isotropicHyperelasticFEM->GetStiffnessMatrixTopology();
 }
 
 void IsotropicHyperelasticFEMForceModel::GetTangentStiffnessMatrix(double * u, SparseMatrix * tangentStiffnessMatrix)

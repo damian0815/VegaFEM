@@ -50,9 +50,9 @@ void StVKForceModel::GetInternalForce(double * u, double * internalForces)
   stVKInternalForces->ComputeForces(u, internalForces);
 }
 
-void StVKForceModel::GetTangentStiffnessMatrixTopology(SparseMatrix ** tangentStiffnessMatrix)
+SparseMatrixOutline StVKForceModel::GetTangentStiffnessMatrixTopology()
 {
-  stVKStiffnessMatrix->GetStiffnessMatrixTopology(tangentStiffnessMatrix);
+  return stVKStiffnessMatrix->GetStiffnessMatrixTopology();
 }
 
 void StVKForceModel::GetTangentStiffnessMatrix(double * u, SparseMatrix * tangentStiffnessMatrix)

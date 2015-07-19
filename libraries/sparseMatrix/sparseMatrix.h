@@ -112,11 +112,12 @@ class SparseMatrix: public std::enable_shared_from_this<SparseMatrix>
 public:
     
     SparseMatrix(const char * filename); // load from text file (same text file format as SparseMatrixOutline)
-    SparseMatrix(SparseMatrixOutline * sparseMatrixOutline); // create it from the outline
+    SparseMatrix(const SparseMatrixOutline * sparseMatrixOutline); // create it from the outline
+    SparseMatrix(const SparseMatrixOutline& sparseMatrixOutline); // create it from the outline
     SparseMatrix(const SparseMatrix & source); // copy constructor
     virtual ~SparseMatrix();
     
-    SparseMatrixOutline GenerateOutline() const; // create an outline for the topology of this matrix
+    SparseMatrixOutline GetTopology() const; // create an outline for the topology of this matrix
     
     int Save(const char * filename, int oneIndexed=0) const; // save matrix to a disk text file 
     
@@ -351,7 +352,7 @@ protected:
     int ** superMatrixIndices;
     int * superRows;
     
-    void InitFromOutline(SparseMatrixOutline * sparseMatrixOutline);
+    void InitFromOutline(const SparseMatrixOutline& sparseMatrixOutline);
     void Allocate(size_t numRows);
     void BuildRenumberingVector(int nConstrained, int nSuper, int numFixedDOFs, int * fixedDOFs, int ** superDOFs, int oneIndexed=0);
 };

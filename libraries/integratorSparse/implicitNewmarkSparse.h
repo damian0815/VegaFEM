@@ -78,7 +78,7 @@ public:
     // constrainedDOFs is an integer array of degrees of freedom that are to be fixed to zero (e.g., to permanently fix a vertex in a deformable simulation)
     // constrainedDOFs are 0-indexed (separate DOFs for x,y,z), and must be pre-sorted (ascending)
     // numThreads applies only to the PARDISO solver; if numThreads > 0, the sparse linear solves are multi-threaded; default: 0 (use single-threading)
-    ImplicitNewmarkSparse(int r, double timestep, SparseMatrix * massMatrix, ForceModel * forceModel, int positiveDefiniteSolver=0, int numConstrainedDOFs=0, int * constrainedDOFs=NULL, double dampingMassCoef=0.0, double dampingStiffnessCoef=0.0, int maxIterations = 1, double epsilon = 1E-6, double NewmarkBeta=0.25, double NewmarkGamma=0.5, int numSolverThreads=0); 
+    ImplicitNewmarkSparse(int r, double timestep, std::shared_ptr<SparseMatrix> massMatrix, ForceModel * forceModel, int positiveDefiniteSolver=0, int numConstrainedDOFs=0, int * constrainedDOFs=NULL, double dampingMassCoef=0.0, double dampingStiffnessCoef=0.0, int maxIterations = 1, double epsilon = 1E-6, double NewmarkBeta=0.25, double NewmarkGamma=0.5, int numSolverThreads=0);
     
     virtual ~ImplicitNewmarkSparse();
     

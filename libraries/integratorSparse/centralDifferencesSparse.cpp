@@ -38,15 +38,13 @@
 using std::shared_ptr;
 using std::dynamic_pointer_cast;
 
-CentralDifferencesSparse::CentralDifferencesSparse(int numDOFs, double timestep, SparseMatrix * massMatrix_, ForceModel * forceModel_, int numConstrainedDOFs, int * constrainedDOFs, double dampingMassCoef, double dampingStiffnessCoef, int tangentialDampingMode_, int numSolverThreads_): IntegratorBaseSparse(numDOFs, timestep, massMatrix_, forceModel_, numConstrainedDOFs, constrainedDOFs, dampingMassCoef, dampingStiffnessCoef), tangentialDampingMode(tangentialDampingMode_), numSolverThreads(numSolverThreads_), timestepIndex(0)
+CentralDifferencesSparse::CentralDifferencesSparse(int numDOFs, double timestep, std::shared_ptr<SparseMatrix> massMatrix_, ForceModel * forceModel_, int numConstrainedDOFs, int * constrainedDOFs, double dampingMassCoef, double dampingStiffnessCoef, int tangentialDampingMode_, int numSolverThreads_): IntegratorBaseSparse(numDOFs, timestep, massMatrix_, forceModel_, numConstrainedDOFs, constrainedDOFs, dampingMassCoef, dampingStiffnessCoef), tangentialDampingMode(tangentialDampingMode_), numSolverThreads(numSolverThreads_), timestepIndex(0)
 {
     rhs = (double*) malloc (sizeof(double) * r);
     rhsConstrained = (double*) malloc (sizeof(double) * (r - numConstrainedDOFs));
     
-    SparseMatrix* tangentStiffnessMatrixPlaceholder;
-    forceModel->GetTangentStiffnessMatrixTopology(&tangentStiffnessMatrixPlaceholder);
-    tangentStiffnessMatrix = shared_ptr<SparseMatrix>(tangentStiffnessMatrixPlaceholder);
-    tangentStiffnessMatrixPlaceholder = NULL;
+    auto outline = forceModel->GetTangentStiffnessMatrixTopology();
+    tangentStiffnessMatrix = std::make_shared<SparseMatrix>(outline);
     
     rayleighDampingMatrix = shared_ptr<SparseMatrix>(new SparseMatrix(*tangentStiffnessMatrix));
     rayleighDampingMatrixToMassSubMatrixLinkage = rayleighDampingMatrix->AttachSubMatrix(massMatrix);

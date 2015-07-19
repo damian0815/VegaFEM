@@ -58,7 +58,7 @@ public:
   CorotationalLinearFEM(TetMesh * tetMesh);
   virtual ~CorotationalLinearFEM();
 
-  void GetStiffnessMatrixTopology(SparseMatrix ** stiffnessMatrixTopology); // returns a zero matrix containing the locations of non-zero elements in the stiffness matrix
+  SparseMatrixOutline GetStiffnessMatrixTopology(); // returns a matrix outline containing the locations of non-zero elements in the stiffness matrix
 
   // computes the internal forces and (warped) stiffness matrix for the entire mesh
   // vertex displacements (input) and internal forces (output) must be (pre-allocated) vectors of length 3 * numVertices
