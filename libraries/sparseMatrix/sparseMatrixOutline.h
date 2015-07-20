@@ -50,8 +50,12 @@ public:
   inline int GetNumRows() const { return numRows; } // get number of rows
   int GetNumColumns() const; // get the number of columns (i.e., search for max column index)
   int GetNumEntries() const; // get total number of non-zero matrix elements
+	bool HasEntry(int i, int j) const;
   double GetEntry(int i, int j) const; // returns the matrix entry at location (i,j) in the matrix (or zero if entry has not been assigned)
   void Print() const;
+	
+	
+  void PrintTopology(int clusterSize=3) const; // clusterSize is the size of the square blocks that are assumed to compose the matrix; eg for 3x3 blocks (3d FEM matrix), use clusteSize=3
 
   // low-level routine which is rarely used
   inline const std::map<int,double> & GetRow(int i) const { return columnEntries[i]; }

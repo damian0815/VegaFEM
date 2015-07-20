@@ -178,6 +178,12 @@ double SparseMatrixOutline::GetEntry(int i, int j) const
         return 0;
 }
 
+bool SparseMatrixOutline::HasEntry(int i, int j) const
+{
+	auto pos = columnEntries[i].find(j);
+	return (pos != columnEntries[i].end());
+}
+
 int SparseMatrixOutline::GetNumColumns() const
 {
     int numColumns = -1;
@@ -220,6 +226,48 @@ void SparseMatrixOutline::Print() const
             printf("%f ",GetEntry(i,j));
         printf("\n");
     }
+}
+
+static void PrintMultiple(const char* toPrint, int count)
+{
+	for (int i=0; i<count; i++)
+	{
+		printf(toPrint);
+	}
+}
+
+void SparseMatrixOutline::PrintTopology(int clusterSize) const
+{
+	int numColumns = GetNumColumns();
+	
+	printf("+-");
+	PrintMultiple("-", (numColumns*2)/clusterSize);
+	printf("+");
+	printf("\n");
+	
+	for (int i=0; i<numRows; i+=clusterSize)
+	{
+		printf("| ");
+		for (int j=0; j<numColumns; j+=clusterSize)
+		{
+			if (HasEntry(i,j))
+			{
+				printf("* ");
+			}
+			else
+			{
+				printf("  ");
+			}
+		}
+		printf("|");
+		printf("\n");
+	}
+	
+	printf("+-");
+	PrintMultiple("-", (numColumns*2)/clusterSize);
+	printf("+");
+	
+	printf("\n");
 }
 
 int SparseMatrixOutline::GetNumEntries() const
