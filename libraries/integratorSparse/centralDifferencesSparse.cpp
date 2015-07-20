@@ -34,7 +34,6 @@
 #include "performanceCounter.h"
 #include "insertRows.h"
 #include "centralDifferencesSparse.h"
-#include "sparseSubMatrix.h"
 using std::shared_ptr;
 using std::dynamic_pointer_cast;
 

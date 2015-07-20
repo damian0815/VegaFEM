@@ -38,7 +38,6 @@
 #include "performanceCounter.h"
 #include "insertRows.h"
 #include "implicitBackwardEulerSparse.h"
-#include "sparseSubMatrix.h"
 
 ImplicitBackwardEulerSparse::ImplicitBackwardEulerSparse(int r, double timestep, shared_ptr<SparseMatrix> massMatrix_, ForceModel * forceModel_, int positiveDefiniteSolver_, int numConstrainedDOFs_, int * constrainedDOFs_, double dampingMassCoef, double dampingStiffnessCoef, int maxIterations, double epsilon, int numSolverThreads_): ImplicitNewmarkSparse(r, timestep, massMatrix_, forceModel_, positiveDefiniteSolver_, numConstrainedDOFs_, constrainedDOFs_, dampingMassCoef, dampingStiffnessCoef, maxIterations, epsilon, 0.25, 0.5, numSolverThreads_)
 {
