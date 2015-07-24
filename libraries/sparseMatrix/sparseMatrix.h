@@ -107,6 +107,7 @@ using std::shared_ptr;
 
 class SparseSubMatrixLinkage;
 class SparseSuperMatrixLinkage;
+class SparseMatrixIndexRemapper;
 
 class SparseMatrix: public std::enable_shared_from_this<SparseMatrix>
 {
@@ -288,6 +289,7 @@ public:
     // Then, call this (potentially many times) to quickly assign the values at the appropriate places in the submatrix.
     // For example, you can use this to copy data from a matrix into a submatrix obtained by a previous call to RemoveRowColumns.
     
+    shared_ptr<SparseMatrixIndexRemapper> AttachSuperMatrixRemapper(shared_ptr<SparseMatrix> superMatrix);
     void AttachSuperMatrix(const vector<int>& fixedRowsColumns, shared_ptr<SparseMatrix> superMatrix, bool oneIndex=false);
     void AttachSuperMatrix(const vector<int>& fixedRows, const vector<int>& fixedColumns, shared_ptr<SparseMatrix>superMatrix, bool oneIndexed=false);
     
@@ -351,6 +353,8 @@ protected:
     vector<shared_ptr<SparseSuperMatrixLinkage> > superMatrixLinkages;
     int ** superMatrixIndices;
     int * superRows;
+    
+    shared_ptr<SparseMatrixIndexRemapper> superMatrixIndexRemapper;
     
     void InitFromOutline(const SparseMatrixOutline& sparseMatrixOutline);
     void Allocate(size_t numRows);

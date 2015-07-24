@@ -8,15 +8,16 @@ endif
 include ../../Makefile-headers/Makefile-header
 R ?= ../..
 
+EXTRACXXFLAGS+=-Wno-format-security
 
 # the object files to be compiled for this library
-SPARSEMATRIX_OBJECTS=sparseMatrix.o sparseMatrixMT.o sparseMatrixOutline.o sparseSubMatrixLinkage.o sparseSuperMatrixLinkage.o
+SPARSEMATRIX_OBJECTS=sparseMatrix.o sparseMatrixMT.o sparseMatrixOutline.o sparseSubMatrixLinkage.o sparseSuperMatrixLinkage.o sparseMatrixIndexRemapper.o
 
 # the libraries this library depends on
 SPARSEMATRIX_LIBS=
 
 # the headers in this library
-SPARSEMATRIX_HEADERS=sparseMatrix.h sparseMatrixMT.h sparseMatrixOutline.h sparseSubMatrixLinkage.h sparseSuperMatrixLinkage.h
+SPARSEMATRIX_HEADERS=sparseMatrix.h sparseMatrixMT.h sparseMatrixOutline.h sparseSubMatrixLinkage.h sparseSuperMatrixLinkage.h sparseMatrixIndexRemapper.h
 
 
 SPARSEMATRIX_OBJECTS_FILENAMES=$(addprefix $(L)/sparseMatrix/, $(SPARSEMATRIX_OBJECTS))
@@ -32,7 +33,7 @@ $(L)/sparseMatrix/libsparseMatrix.a: $(SPARSEMATRIX_OBJECTS_FILENAMES)
 	ar r $@ $^; cp $@ $(L)/lib; cp $(L)/sparseMatrix/*.h $(L)/include
 
 $(SPARSEMATRIX_OBJECTS_FILENAMES): %.o: %.cpp $(SPARSEMATRIX_LIB_FILENAMES) $(SPARSEMATRIX_HEADER_FILENAMES)
-	$(CXX) $(CXXFLAGS) -c $(INCLUDE) $< -o $@
+	$(CXX) $(CXXFLAGS) $(EXTRACXXFLAGS) -c $(INCLUDE) $< -o $@
 
 ifeq ($(CLEANFOLDER), SPARSEMATRIX)
 clean: cleansparseMatrix

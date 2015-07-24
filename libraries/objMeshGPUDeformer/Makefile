@@ -8,6 +8,8 @@ endif
 include ../../Makefile-headers/Makefile-header
 R ?= ../..
 
+EXTRACXXFLAGS+=-Wno-deprecated-declarations
+
 # the object files to be compiled for this library
 OBJMESHGPUDEFORMER_OBJECTS=objMeshGPUDeformer.o objMeshGPUDeformer_coarseToFine.o objMeshGPUDeformer_coarseToFine_fbo.o objMeshGPUDeformer_uUq.o objMeshGPUDeformer_uUq_fbo.o objMeshGPUDeformer_uUq_pbuffer.o objMeshGPUDeformer_uUq_setLighting.o vbo.o
 
@@ -30,7 +32,7 @@ $(L)/objMeshGPUDeformer/libobjMeshGPUDeformer.a: $(OBJMESHGPUDEFORMER_OBJECTS_FI
 	ar r $@ $^; cp $@ $(L)/lib; cp $(L)/objMeshGPUDeformer/*.h $(L)/include
 
 $(OBJMESHGPUDEFORMER_OBJECTS_FILENAMES): %.o: %.cpp $(OBJMESHGPUDEFORMER_LIB_FILENAMES) $(OBJMESHGPUDEFORMER_HEADER_FILENAMES)
-	$(CXX) $(CXXFLAGS) -c $(INCLUDE) $(CG_INCLUDE) $< -o $@
+	$(CXX) $(CXXFLAGS) $(EXTRACXXFLAGS) -c $(INCLUDE) $(CG_INCLUDE) $< -o $@
 
 ifeq ($(CLEANFOLDER), OBJMESHGPUDEFORMER)
 clean: cleanobjMeshGPUDeformer

@@ -9,46 +9,27 @@
 #include "sparseSubMatrixLinkage.h"
 
 SparseSubMatrixLinkage::SparseSubMatrixLinkage(shared_ptr<SparseMatrix> matrix, shared_ptr<SparseMatrix> subMatrix_)
-: superMatrix(matrix), subMatrix(subMatrix_)
+: superMatrix(matrix), subMatrix(subMatrix_), indexRemapper(superMatrix, subMatrix)
 {
-    BuildSubMatrixIndices();
 }
 
-
-void SparseSubMatrixLinkage::BuildSubMatrixIndices()
-{
-    subMatrixIndices.clear();
-    subMatrixIndices.resize(superMatrix->GetNumRows());
-    
-    for(int i=0; i<superMatrix->GetNumRows(); i++)
-    {
-        int submatrixRowLength = subMatrix->GetRowLength(i);
-        subMatrixIndices[i].resize(submatrixRowLength);
-        const vector<int>& indices = subMatrix->GetColumnIndices()[i];
-        
-        for(int j=0; j < submatrixRowLength; j++)
-        {
-            // finds the position in row i of element with column index jDense
-            // int GetInverseIndex(int i, int jDense);
-            subMatrixIndices[i][j] = superMatrix->GetInverseIndex(i, indices[j]);
-            if (subMatrixIndices[i][j] == -1)
-            {
-                printf("Error (BuildSubMatrixIndices): given matrix is not a submatrix of this matrix. The following index does not exist in this matrix: (%d,%d)\n", i, indices[j]);
-                exit(1);
-            }
-        }
-    }
-}
 
 void SparseSubMatrixLinkage::AddSubMatrixToSuperMatrix(double factor)
 {
-    for(int i=0; i<superMatrix->GetNumRows(); i++)
+    //const auto& subToSuperIndicesAllRows = indexRemapper.GetsubMatrixSparseToSuperMatrixSparseColumnMaps();
+    auto& superColumnEntries = superMatrix->GetDataHandle();
+    const auto& subColumnEntries = subMatrix->GetDataHandle();
+    
+    for(int row=0; row<superMatrix->GetNumRows(); row++)
     {
-        const auto& indices = subMatrixIndices[i];
-        int subMatrixRowLength = subMatrix->GetRowLength(i);
-        auto& superColumnEntries = superMatrix->GetDataHandle();
-        const auto& subColumnEntries = subMatrix->GetDataHandle();
-        for(int j=0; j < subMatrixRowLength; j++)
-            superColumnEntries[i][indices[j]] += factor * subColumnEntries[i][j];
+        //const auto& subToSuperIndices = subToSuperIndicesAllRows[row];
+        //int subMatrixRowLength = subMatrix->GetRowLength(row);
+        int subMatrixRowLength = subMatrix->GetRowLength(row);
+        for(int sparseSubJ=0; sparseSubJ < subMatrixRowLength; sparseSubJ++)
+        {
+            int sparseSuperJ = indexRemapper.GetSuperMatrixSparseColumnForSubMatrixSparseColumn(row, sparseSubJ);
+            //int sparseSuperJ = subToSuperIndices[sparseSubJ];
+            superColumnEntries[row][sparseSuperJ] += factor * subColumnEntries[row][sparseSubJ];
+        }
     }
 }

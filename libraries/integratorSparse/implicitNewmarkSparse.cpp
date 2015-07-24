@@ -29,10 +29,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 #include "matrixIO.h"
 #include "performanceCounter.h"
 #include "insertRows.h"
 #include "implicitNewmarkSparse.h"
+#include "sparseSuperMatrixLinkage.h"
+#include "sparseMatrixIndexRemapper.h"
 
 ImplicitNewmarkSparse::ImplicitNewmarkSparse(int r, double timestep, shared_ptr<SparseMatrix> massMatrix_, ForceModel * forceModel_, int positiveDefiniteSolver_, int numConstrainedDOFs_, int * constrainedDOFs_, double dampingMassCoef, double dampingStiffnessCoef, int maxIterations, double epsilon, double NewmarkBeta, double NewmarkGamma, int numSolverThreads_): IntegratorBaseSparse(r, timestep, massMatrix_, forceModel_, numConstrainedDOFs_, constrainedDOFs_, dampingMassCoef, dampingStiffnessCoef), positiveDefiniteSolver(positiveDefiniteSolver_), numSolverThreads(numSolverThreads_)
 {
@@ -67,9 +70,25 @@ ImplicitNewmarkSparse::ImplicitNewmarkSparse(int r, double timestep, shared_ptr<
     
     bufferConstrained = (double*) malloc (sizeof(double) * (r - numConstrainedDOFs));
     
+    
     systemMatrix = std::make_shared<SparseMatrix>(*tangentStiffnessMatrix);
+    
+    auto testIndexRemapper = systemMatrix->AttachSuperMatrixRemapper(tangentStiffnessMatrix);
+    
     systemMatrix->RemoveRowsColumns(numConstrainedDOFs, constrainedDOFs);
-    systemMatrix->AttachSuperMatrix(vector<int>(constrainedDOFs, constrainedDOFs+numConstrainedDOFs), tangentStiffnessMatrix);
+    vector<int> rowsColumns(constrainedDOFs, constrainedDOFs+numConstrainedDOFs);
+    systemMatrix->AttachSuperMatrix(rowsColumns, tangentStiffnessMatrix);
+    
+    printf("tangent stiffness matrix:\n");
+    tangentStiffnessMatrix->GetTopology().PrintTopology(1);
+    printf("system matrix:\n");
+    systemMatrix->GetTopology().PrintTopology(1);
+    
+    //SparseSuperMatrixLinkage::RemoveRowsColumnsFromIndexRemapper(testIndexRemapper, rowsColumns, rowsColumns);
+    printf("\n\nAfter removing:\n"); 
+    testIndexRemapper->Print();
+    
+    
     
 #ifdef PARDISO
     printf("Creating Pardiso solver. Positive-definite solver: %d. Num threads: %d\n", positiveDefiniteSolver, numSolverThreads);

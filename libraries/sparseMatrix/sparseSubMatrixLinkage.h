@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include "sparseMatrix.h"
+#include "sparseMatrixIndexRemapper.h"
 
 using std::shared_ptr;
 
@@ -27,13 +28,15 @@ public:
 private:
     void BuildSubMatrixIndices();
     
+    
     shared_ptr<SparseMatrix> superMatrix;
     shared_ptr<SparseMatrix> subMatrix;
     
        /*
      length(subMatrixIndices) == number of rows
      */
-    vector<vector<int> > subMatrixIndices;
+    //vector<vector<int> > subMatrixIndices;
+    SparseMatrixIndexRemapper indexRemapper;
     
 };
 

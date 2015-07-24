@@ -8,6 +8,8 @@ endif
 include ../../Makefile-headers/Makefile-header
 R ?= ../..
 
+EXTRACXXFLAGS+=-Wno-deprecated-declarations
+
 # the object files to be compiled for this library
 OBJMESH_OBJECTS=objMeshBinaryLoader.o objMesh.o objMesh-disjointSet.o objMeshRender.o objMeshEncode.o objMeshOctree.o objMeshOffsetVoxels.o objMeshOrientable.o octree.o boundingBox.o simpleSphere.o triangle.o tribox3.o objMeshGraph.o objMeshClose.o
 
@@ -30,7 +32,7 @@ $(L)/objMesh/libobjMesh.a: $(OBJMESH_OBJECTS_FILENAMES)
 	ar r $@ $^; cp $@ $(L)/lib; cp $(L)/objMesh/*.h $(L)/include
 
 $(OBJMESH_OBJECTS_FILENAMES): %.o: %.cpp $(OBJMESH_LIB_FILENAMES) $(OBJMESH_HEADER_FILENAMES)
-	$(CXX) $(CXXFLAGS) -c $(INCLUDE) $< -o $@
+	$(CXX) $(CXXFLAGS) $(EXTRACXXFLAGS) -c $(INCLUDE) $< -o $@
 
 ifeq ($(CLEANFOLDER), OBJMESH)
 clean: cleanobjMesh

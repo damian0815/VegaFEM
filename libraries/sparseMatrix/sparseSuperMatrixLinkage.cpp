@@ -9,9 +9,11 @@
 #include "sparseSuperMatrixLinkage.h"
 
 SparseSuperMatrixLinkage::SparseSuperMatrixLinkage(shared_ptr<SparseMatrix> matrix_, const vector<int>& fixedRows, const vector<int>& fixedColumns, shared_ptr<SparseMatrix> superMatrix_, bool oneIndexed)
-: matrix(matrix_), superMatrix(superMatrix_)
+: matrix(matrix_), superMatrix(superMatrix_)/*, indexRemapper(superMatrix, matrix)*/
 {
     BuildSuperMatrixIndices(fixedRows, fixedColumns, oneIndexed);
+    
+    //RemoveRowsColumnsFromIndexRemapper(fixedRows, fixedColumns);
 }
 
 static void BuildRenumberingVector(int nConstrained, int nSuper, const vector<int>& fixedDOFs, vector<int>& superDOFs, int oneIndexed)
@@ -106,8 +108,41 @@ void SparseSuperMatrixLinkage::BuildSuperMatrixIndices(const vector<int>& fixedR
             }
             superMatrixIndices[i][j] = jSuper;
         }
-    } 
+    }
     
+    
+    int numRows = superRows.size();
+    printf("sparseSuperMatrixLinkage:");
+    printf("subMatrix Row index -> superMatrix row index: superMatrixColumnIndices\n");
+    for (int row=0; row<numRows; row++)
+    {
+        printf("%2i -> %2i:", row, superRows[row]);
+        for (int j=0; j<superMatrixIndices[row].size(); j++)
+        {
+            printf("%2i ", superMatrixIndices[row][j]);
+        }
+        printf("\n");
+    }
+    
+}
+
+void SparseSuperMatrixLinkage::RemoveRowsColumnsFromIndexRemapper(SparseMatrixIndexRemapper& indexRemapper, const vector<int>& rowsToRemove, const vector<int>& columnsToRemove)
+{
+    auto rowsToRemoveSorted = rowsToRemove;
+    std::sort(rowsToRemoveSorted.begin(), rowsToRemoveSorted.end());
+    // iterate in reverse order to avoid having to compensate for already deleted earlier rows
+    for (auto it = rowsToRemoveSorted.rbegin(); it != rowsToRemoveSorted.rend(); ++it)
+    {
+        indexRemapper.RemoveSuperRowFromSubMatrix(*it);
+    }
+    
+    auto columnsToRemoveSorted = columnsToRemove;
+    std::sort(columnsToRemoveSorted.begin(), columnsToRemoveSorted.end());
+    for (auto it = columnsToRemoveSorted.rbegin(); it != columnsToRemoveSorted.rend(); ++it)
+    {
+        printf("removing column %i\n", *it);
+        indexRemapper.RemoveSuperColumnFromSubMatrix(*it);
+    }
 }
 
 void SparseSuperMatrixLinkage::AssignFromSuperMatrix()

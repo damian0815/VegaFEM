@@ -8,7 +8,7 @@ endif
 include ../../Makefile-headers/Makefile-header
 R ?= ../..
 
-EXTRACXXFLAGS=-Wno-error=overloaded-virtual
+EXTRACXXFLAGS+=-Wno-error-overloaded-virtual
 
 # the object files to be compiled for this utility
 SIMULATOR_OBJECTS=interactiveDeformableSimulator.o initGraphics.o
