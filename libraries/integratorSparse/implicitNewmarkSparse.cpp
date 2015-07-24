@@ -72,22 +72,8 @@ ImplicitNewmarkSparse::ImplicitNewmarkSparse(int r, double timestep, shared_ptr<
     
     
     systemMatrix = std::make_shared<SparseMatrix>(*tangentStiffnessMatrix);
-    
-    auto testIndexRemapper = systemMatrix->AttachSuperMatrixRemapper(tangentStiffnessMatrix);
-    
+    systemMatrix->AttachSuperMatrix(tangentStiffnessMatrix);
     systemMatrix->RemoveRowsColumns(numConstrainedDOFs, constrainedDOFs);
-    vector<int> rowsColumns(constrainedDOFs, constrainedDOFs+numConstrainedDOFs);
-    systemMatrix->AttachSuperMatrix(rowsColumns, tangentStiffnessMatrix);
-    
-    printf("tangent stiffness matrix:\n");
-    tangentStiffnessMatrix->GetTopology().PrintTopology(1);
-    printf("system matrix:\n");
-    systemMatrix->GetTopology().PrintTopology(1);
-    
-    //SparseSuperMatrixLinkage::RemoveRowsColumnsFromIndexRemapper(testIndexRemapper, rowsColumns, rowsColumns);
-    printf("\n\nAfter removing:\n"); 
-    testIndexRemapper->Print();
-    
     
     
 #ifdef PARDISO
@@ -152,7 +138,7 @@ int ImplicitNewmarkSparse::SetState(double * q_, double * qvel_)
     forceModel->GetForceAndMatrix(q, internalForces, tangentStiffnessMatrix.get());
     
     *rayleighDampingMatrix = dampingStiffnessCoef * (*tangentStiffnessMatrix);
-    rayleighDampingMatrix->AddSubMatrix(dampingMassCoef, massMatrix);
+    rayleighDampingMatrix->AddFromSubMatrix(dampingMassCoef, massMatrix);
     
     // buffer = C * qvel
     rayleighDampingMatrix->MultiplyVector(qvel, buffer);
@@ -166,8 +152,8 @@ int ImplicitNewmarkSparse::SetState(double * q_, double * qvel_)
     
     // use tangentStiffnessMatrix as the buffer place
     tangentStiffnessMatrix->ResetToZero();
-    tangentStiffnessMatrix->AddSubMatrix(1.0, massMatrix);
-    tangentStiffnessMatrix->AddSubMatrix(1.0, dampingMatrix);
+    tangentStiffnessMatrix->AddFromSubMatrix(1.0, massMatrix);
+    tangentStiffnessMatrix->AddFromSubMatrix(1.0, dampingMatrix);
     systemMatrix->AssignFromSuperMatrix(tangentStiffnessMatrix); // must go via a matrix with tangentStiffnessMatrix's topology, because the AssignFromSuperMatrix indices were computed with respect to such topology
     
     memset(buffer, 0, sizeof(double) * r);
@@ -263,13 +249,13 @@ int ImplicitNewmarkSparse::DoTimestep()
         {
             // build effective stiffness: add mass matrix and damping matrix to tangentStiffnessMatrix
             tangentStiffnessMatrix->ScalarMultiply(dampingStiffnessCoef, rayleighDampingMatrix.get());
-            rayleighDampingMatrix->AddSubMatrix(dampingMassCoef, massMatrix);
+            rayleighDampingMatrix->AddFromSubMatrix(dampingMassCoef, massMatrix);
             
             rayleighDampingMatrix->ScalarMultiplyAdd(alpha4, tangentStiffnessMatrix.get());
             //*tangentStiffnessMatrix += alpha4 * *rayleighDampingMatrix;
-            tangentStiffnessMatrix->AddSubMatrix(alpha4, dampingMatrix);
+            tangentStiffnessMatrix->AddFromSubMatrix(alpha4, dampingMatrix);
             
-            tangentStiffnessMatrix->AddSubMatrix(alpha1, massMatrix);
+            tangentStiffnessMatrix->AddFromSubMatrix(alpha1, massMatrix);
             
             // compute force residual, store it into aux variable qresidual
             // qresidual = M * qaccel + C * qvel - externalForces + internalForces

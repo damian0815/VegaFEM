@@ -11,11 +11,19 @@
 #include "sparseMatrix.h"
 
 SparseMatrixIndexRemapper::SparseMatrixIndexRemapper(shared_ptr<SparseMatrix> superMatrix_, shared_ptr<SparseMatrix> subMatrix_)
-: superMatrix(superMatrix_), subMatrix(subMatrix_)
+:   superMatrix(superMatrix_),
+    subMatrix(subMatrix_)
 {
     SetupMapping();
 }
 
+SparseMatrixIndexRemapper::SparseMatrixIndexRemapper(const SparseMatrixIndexRemapper& other)
+:   subMatrix(other.subMatrix),
+    superMatrix(other.superMatrix),
+    superMatrixToSubMatrixRowMap(other.superMatrixToSubMatrixRowMap),
+    subMatrixSparseToSuperMatrixSparseColumnMaps(other.subMatrixSparseToSuperMatrixSparseColumnMaps)
+{
+}
 
 void SparseMatrixIndexRemapper::SetupMapping()
 {
@@ -66,6 +74,7 @@ void SparseMatrixIndexRemapper::PopulateColumnIndexMaps()
 void SparseMatrixIndexRemapper::RemoveSuperRowFromSubMatrix(int whichSuperMatrixRow)
 {
     auto it = superMatrixToSubMatrixRowMap.find(whichSuperMatrixRow);
+    assert(it != superMatrixToSubMatrixRowMap.end() && "super matrix row does not exist in the sub matrix");
     int whichSubMatrixRow = (*it).second;
     
     it = superMatrixToSubMatrixRowMap.erase(it);
@@ -74,6 +83,7 @@ void SparseMatrixIndexRemapper::RemoveSuperRowFromSubMatrix(int whichSuperMatrix
         --(*it).second;
     }
     
+    assert(whichSubMatrixRow < subMatrixSparseToSuperMatrixSparseColumnMaps.size() && "sub matrix row has no column entries - probable data corruption");
     subMatrixSparseToSuperMatrixSparseColumnMaps.erase(subMatrixSparseToSuperMatrixSparseColumnMaps.begin() + whichSubMatrixRow);
 }
 
@@ -85,18 +95,20 @@ void SparseMatrixIndexRemapper::RemoveSuperColumnFromSubMatrix(int whichSuperMat
         int superMatrixRow = kvp.first;
         int subMatrixRow = kvp.second;
         int superMatrixSparseColumn = superMatrix->GetInverseIndex(superMatrixRow, whichSuperMatrixDenseColumn);
-        
-        auto& subMatrixToSuperMatrixSparseColumnMap = subMatrixSparseToSuperMatrixSparseColumnMaps[subMatrixRow];
-        auto it = std::find(subMatrixToSuperMatrixSparseColumnMap.begin(), subMatrixToSuperMatrixSparseColumnMap.end(), superMatrixSparseColumn);
-        if (it != subMatrixToSuperMatrixSparseColumnMap.end())
+        if (superMatrixSparseColumn != -1)
         {
-            int subMatrixSparseIndex = *it;
-            //printf("removing sub matrix column sparse:%i dense:%i in row %i\n", subMatrixSparseIndex, whichSuperMatrixDenseColumn, subMatrixRow);
-            subMatrixToSuperMatrixSparseColumnMap.erase(it);
-        }
-        else
-        {
-            //printf("super matrix dense column %i is not in row %i\n", whichSuperMatrixDenseColumn, subMatrixRow);
+            auto& subMatrixToSuperMatrixSparseColumnMap = subMatrixSparseToSuperMatrixSparseColumnMaps[subMatrixRow];
+            auto it = std::find(subMatrixToSuperMatrixSparseColumnMap.begin(), subMatrixToSuperMatrixSparseColumnMap.end(), superMatrixSparseColumn);
+            if (it != subMatrixToSuperMatrixSparseColumnMap.end())
+            {
+                //int subMatrixSparseIndex = *it;
+                //printf("removing sub matrix column sparse:%i dense:%i in row %i\n", subMatrixSparseIndex, whichSuperMatrixDenseColumn, subMatrixRow);
+                subMatrixToSuperMatrixSparseColumnMap.erase(it);
+            }
+            else
+            {
+                //printf("super matrix dense column %i is not in row %i\n", whichSuperMatrixDenseColumn, subMatrixRow);
+            }
         }
         
     }

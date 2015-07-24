@@ -274,11 +274,10 @@ public:
     //void BuildSubMatrixIndices(SparseMatrix & submatrix, int subMatrixID=0);
     //void FreeSubMatrixIndices(int subMatrixID=0);
     // add a matrix to the current matrix, whose elements are a subset of the elements of the current matrix
-    // += factor * mat2
-    void AddSubMatrix(double factor, shared_ptr<SparseSubMatrixLinkage> subMatrixLinkage);
+    // += factor * mat2 
+    void AddFromSubMatrix(double factor, shared_ptr<SparseSubMatrixLinkage> subMatrixLinkage);
     // subMatrix must have been attached via AttachSubMatrix
-    void AddSubMatrix(double factor, shared_ptr<SparseMatrix> subMatrix);
-    
+    void AddFromSubMatrix(double factor, shared_ptr<SparseMatrix> subMatrix);
     
     /*
     // Build supermatrix indices is used for pair of matrices with rows/columns removed.
@@ -289,9 +288,7 @@ public:
     // Then, call this (potentially many times) to quickly assign the values at the appropriate places in the submatrix.
     // For example, you can use this to copy data from a matrix into a submatrix obtained by a previous call to RemoveRowColumns.
     
-    shared_ptr<SparseMatrixIndexRemapper> AttachSuperMatrixRemapper(shared_ptr<SparseMatrix> superMatrix);
-    void AttachSuperMatrix(const vector<int>& fixedRowsColumns, shared_ptr<SparseMatrix> superMatrix, bool oneIndex=false);
-    void AttachSuperMatrix(const vector<int>& fixedRows, const vector<int>& fixedColumns, shared_ptr<SparseMatrix>superMatrix, bool oneIndexed=false);
+    shared_ptr<SparseMatrixIndexRemapper> AttachSuperMatrix(shared_ptr<SparseMatrix> superMatrix);
     
     void AssignFromSuperMatrix(std::shared_ptr<SparseMatrix> superMatrix);
 
@@ -343,16 +340,6 @@ protected:
 
     void AttachSubMatrix(shared_ptr<SparseSubMatrixLinkage> linkage);
     vector<shared_ptr<SparseSubMatrixLinkage> > subMatrixLinkages;
-    
-    /*
-    int numSubMatrixIDs;
-    int *** subMatrixIndices;
-    int ** subMatrixIndexLengths;
-     */
-    
-    vector<shared_ptr<SparseSuperMatrixLinkage> > superMatrixLinkages;
-    int ** superMatrixIndices;
-    int * superRows;
     
     shared_ptr<SparseMatrixIndexRemapper> superMatrixIndexRemapper;
     

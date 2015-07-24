@@ -384,7 +384,7 @@ int ARPACKSolver::SolveGenEigShInv(SparseMatrix * K, SparseMatrix * M, int numEi
     // compute KsigmaM = K - sigma * M
     KsigmaM = new SparseMatrix(*K); 
     KsigmaM->BuildSubMatrixIndices(*M);
-    KsigmaM->AddSubMatrix(-sigma, *M);
+    KsigmaM->AddFromSubMatrix(-sigma, *M);
   }
 
   // create (K-sigma*M)^{-1} solver

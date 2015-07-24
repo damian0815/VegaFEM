@@ -85,12 +85,6 @@ void SparseMatrix::Allocate(size_t numRows)
     // compressed row storage
     columnIndices.resize(numRows);
     columnEntries.resize(numRows);
-    /*
-    numSubMatrixIDs = 0;
-    subMatrixIndices = NULL;
-    subMatrixIndexLengths = NULL;*/
-    superMatrixIndices = NULL;
-    superRows = NULL;
     diagonalIndices.resize(0);
     transposedIndices.resize(0);
 }
@@ -100,23 +94,7 @@ SparseMatrix::~SparseMatrix()
 {
     subMatrixLinkages.clear();
     
-    /*
-    if (subMatrixIndices != NULL)
-    {
-        for(int i=numSubMatrixIDs-1; i>=0; i--)
-            FreeSubMatrixIndices(i);
-    }*/
-    
-     
-    if (superRows != NULL)
-    {
-        for(int i=0; i<GetNumRows(); i++)
-        {
-            free(superMatrixIndices[i]);
-        }
-        free(superMatrixIndices);
-        free(superRows);
-    }
+    superMatrixIndexRemapper = nullptr;
     
     FreeTranspositionIndices();
 }
@@ -146,57 +124,9 @@ SparseMatrix::SparseMatrix(const SparseMatrix & source)
         AttachSubMatrix(source.subMatrixLinkages[i]);
     }
     
-    /*
-    subMatrixIndices = NULL;
-    subMatrixIndexLengths = NULL;
-    numSubMatrixIDs = source.numSubMatrixIDs;
-    if (source.subMatrixIndices != NULL)
+    if (source.superMatrixIndexRemapper != nullptr)
     {
-        subMatrixIndices = (int***) malloc (sizeof(int**) * numSubMatrixIDs);
-        memcpy(subMatrixIndices, source.subMatrixIndices, sizeof(int**) * numSubMatrixIDs);
-        subMatrixIndexLengths = (int**) malloc (sizeof(int*) * numSubMatrixIDs);
-        memcpy(subMatrixIndexLengths, source.subMatrixIndexLengths, sizeof(int*) * numSubMatrixIDs);
-        
-        for(int matrixID=0; matrixID < numSubMatrixIDs; matrixID++)
-        {
-            if (source.subMatrixIndices[matrixID] == NULL)
-            {
-                subMatrixIndices[matrixID] = NULL;
-                subMatrixIndexLengths[matrixID] = NULL;
-                continue;
-            }
-            
-            subMatrixIndices[matrixID] = (int**) malloc(sizeof(int*) * numRows);
-            subMatrixIndexLengths[matrixID] = (int*) malloc(sizeof(int) * numRows);
-            
-            for(int i=0; i<numRows; i++)
-            {
-                subMatrixIndexLengths[matrixID][i] = source.subMatrixIndexLengths[matrixID][i];
-                subMatrixIndices[matrixID][i] = (int*) malloc(sizeof(int) * subMatrixIndexLengths[matrixID][i]);
-                for(int j=0; j < subMatrixIndexLengths[matrixID][i]; j++)
-                {
-                    subMatrixIndices[matrixID][i][j] = source.subMatrixIndices[matrixID][i][j];
-                }
-            }
-        }
-    }*/
-    
-    superRows = NULL;
-    superMatrixIndices = NULL;
-    if (source.superRows != NULL)
-    {
-        superRows = (int*) malloc(sizeof(int) * numRows);
-        superMatrixIndices = (int**) malloc(sizeof(int*) * numRows);
-        for(int i=0; i<numRows; i++)
-        {
-            superRows[i] = source.superRows[i];
-            int rowLength = GetRowLength(i);
-            superMatrixIndices[i] = (int*) malloc(sizeof(int) * rowLength);
-            for(int j=0; j < rowLength; j++)
-            {
-                superMatrixIndices[i][j] = source.superMatrixIndices[i][j];
-            }
-        }
+        superMatrixIndexRemapper = make_shared<SparseMatrixIndexRemapper>(*source.superMatrixIndexRemapper);
     }
     
     if (source.diagonalIndices.size())
@@ -822,48 +752,32 @@ shared_ptr<SparseSubMatrixLinkage> SparseMatrix::GetExistingSubMatrixLinkage(sha
 }
 
 
-void SparseMatrix::AddSubMatrix(double factor, shared_ptr<SparseMatrix> subMatrix)
+void SparseMatrix::AddFromSubMatrix(double factor, shared_ptr<SparseMatrix> subMatrix)
 {
     auto linkage = GetExistingSubMatrixLinkage(subMatrix);
     assert(nullptr != linkage && "No linkage to the submatrix exists");
-    AddSubMatrix(factor, linkage);
+    AddFromSubMatrix(factor, linkage);
 }
 
-void SparseMatrix::AddSubMatrix(double factor, shared_ptr<SparseSubMatrixLinkage> link)
+void SparseMatrix::AddFromSubMatrix(double factor, shared_ptr<SparseSubMatrixLinkage> link)
 {
     assert(link->GetSuperMatrix().get() == this && "link is for a different super matrix");
     link->AddSubMatrixToSuperMatrix(factor);
 }
 
-shared_ptr<SparseMatrixIndexRemapper> SparseMatrix::AttachSuperMatrixRemapper(shared_ptr<SparseMatrix> superMatrix)
+shared_ptr<SparseMatrixIndexRemapper> SparseMatrix::AttachSuperMatrix(shared_ptr<SparseMatrix> superMatrix)
 {
+    assert(superMatrixIndexRemapper == nullptr && "already have a super matrix attached");
     superMatrixIndexRemapper = std::make_shared<SparseMatrixIndexRemapper>(superMatrix, shared_from_this());
     return superMatrixIndexRemapper;
-}
-
-void SparseMatrix::AttachSuperMatrix(const vector<int>& fixedRowsColumns, shared_ptr<SparseMatrix> superMatrix, bool oneIndexed)
-{
-    return AttachSuperMatrix(fixedRowsColumns, fixedRowsColumns, superMatrix, oneIndexed);
-}
-
-void SparseMatrix::AttachSuperMatrix(const vector<int>& fixedRows, const vector<int>& fixedColumns, shared_ptr<SparseMatrix> superMatrix, bool oneIndexed)
-{
-    auto linkage = make_shared<SparseSuperMatrixLinkage>(shared_from_this(), fixedRows, fixedColumns, superMatrix, oneIndexed);
-    superMatrixLinkages.push_back(linkage);
 }
 
 
 void SparseMatrix::AssignFromSuperMatrix(shared_ptr<SparseMatrix> superMatrix)
 {
-    if (superMatrixIndexRemapper != nullptr)
-    {
-        superMatrixIndexRemapper->AssignSubMatrixFromSuperMatrix();
-    }
-    else
-    {
-        auto linkage = std::find_if(superMatrixLinkages.begin(), superMatrixLinkages.end(), [superMatrix] (const shared_ptr<SparseSuperMatrixLinkage>& link) { return superMatrix == link->GetSuperMatrix(); });
-        (*linkage)->AssignFromSuperMatrix();
-    }
+    assert(superMatrixIndexRemapper != nullptr);
+    assert(superMatrixIndexRemapper->GetSuperMatrix() == superMatrix && "super matrix doesn't match stored");
+    superMatrixIndexRemapper->AssignSubMatrixFromSuperMatrix();
 }
 
 
