@@ -33,26 +33,23 @@
 #include "sparseMatrix.h"
 using namespace std;
 
-SparseMatrixOutline::SparseMatrixOutline(int numRows_): numRows(numRows_)
+SparseMatrixOutline::SparseMatrixOutline(int numRows_)
 {
-    Allocate();
+    Allocate(numRows_);
 }
 
 SparseMatrixOutline::~SparseMatrixOutline()
 {
-    // deallocate column entries
-    for(int i=0; i<numRows; i++)
-        columnEntries[i].clear();
     columnEntries.clear();
 }
 
-SparseMatrixOutline::SparseMatrixOutline(int numRows_, double diagonal): numRows(numRows_)
+SparseMatrixOutline::SparseMatrixOutline(int numRows_, double diagonal)
 {
-    Allocate();
+    Allocate(numRows_);
     
     pair<int,double> entry;
     
-    for(int i=0; i<numRows; i++)
+    for(int i=0; i<GetNumRows(); i++)
     {
         entry.first = i;
         entry.second = diagonal;
@@ -60,11 +57,11 @@ SparseMatrixOutline::SparseMatrixOutline(int numRows_, double diagonal): numRows
     }
 }
 
-SparseMatrixOutline::SparseMatrixOutline(int numRows_, double * diagonal): numRows(numRows_)
+SparseMatrixOutline::SparseMatrixOutline(int numRows_, double * diagonal)
 {
-    Allocate();
+    Allocate(numRows_);
     pair<int,double> entry;
-    for(int i=0; i<numRows; i++)
+    for(int i=0; i<GetNumRows(); i++)
     {
         entry.first = i;
         entry.second = diagonal[i];
@@ -95,11 +92,11 @@ SparseMatrixOutline::SparseMatrixOutline(const char * filename, int expand)
         throw 3;
     }
     
-    numRows = expand * m1;
+    int numRows = expand * m1;
     
     printf("Loading matrix from %s... Size is %d x %d .\n", filename, numRows, expand * n1);fflush(NULL);
     
-    Allocate();
+    Allocate(numRows);
     
     char s[4096];
     while (fgets(s,4096,inputMatrix) != NULL)
@@ -114,7 +111,7 @@ SparseMatrixOutline::SparseMatrixOutline(const char * filename, int expand)
     fclose(inputMatrix);
 }
 
-void SparseMatrixOutline::Allocate()
+void SparseMatrixOutline::Allocate(int numRows)
 {
     // allocate empty datastructure for row entries
     columnEntries.clear();
@@ -128,13 +125,11 @@ void SparseMatrixOutline::IncreaseNumRows(int numAddedRows)
     map<int,double> emptyMap;
     for(int i=0; i<numAddedRows; i++)
         columnEntries.push_back(emptyMap);
-    
-    numRows += numAddedRows;
 }
 
 void SparseMatrixOutline::AddEntry(int i, int j, double value)
 {
-    map<int,double>::iterator pos = columnEntries[i].find(j);
+    map<int,double>::iterator pos = columnEntries.at(i).find(j);
     if (pos != columnEntries[i].end())
         pos->second += value;
     else
@@ -169,6 +164,25 @@ void SparseMatrixOutline::AddBlock3x3Entry(int i, int j, double * matrix3x3)
             AddEntry(3*i+k,3*j+l,matrix3x3[3*k+l]);
 }
 
+void SparseMatrixOutline::AppendEntries(const SparseMatrixOutline& other)
+{
+    int offset = GetNumRows();
+    IncreaseNumRows(other.GetNumRows());
+    
+    int otherNumColumns = other.GetNumColumns();
+    for (int row=0; row<other.GetNumRows(); row++)
+    {
+        for (int column=0; column<otherNumColumns; column++)
+        {
+            if (other.HasEntry(row, column))
+            {
+                AddEntry(row+offset, column+offset);
+            }
+        }
+    }
+}
+
+
 double SparseMatrixOutline::GetEntry(int i, int j) const
 {
     map<int,double>::const_iterator pos = columnEntries[i].find(j);
@@ -187,7 +201,7 @@ bool SparseMatrixOutline::HasEntry(int i, int j) const
 int SparseMatrixOutline::GetNumColumns() const
 {
     int numColumns = -1;
-    for(int i=0; i<numRows; i++)
+    for(int i=0; i<GetNumRows(); i++)
     {
         map<int,double>::const_iterator j1;
         // traverse all row entries
@@ -204,8 +218,8 @@ int SparseMatrixOutline::Save(const char * filename, int oneIndexed) const
     if (!fout)
         return 1;
     
-    fprintf(fout, "%d\n%d\n", numRows, GetNumColumns());
-    for(int i=0; i<numRows; i++)
+    fprintf(fout, "%d\n%d\n", GetNumRows(), GetNumColumns());
+    for(int i=0; i<GetNumRows(); i++)
     {
         map<int,double>::const_iterator j1;
         // traverse all row entries
@@ -220,9 +234,9 @@ int SparseMatrixOutline::Save(const char * filename, int oneIndexed) const
 
 void SparseMatrixOutline::Print() const
 {
-    for (int i=0; i<numRows; i++)
+    for (int i=0; i<GetNumRows(); i++)
     {
-        for (int j=0; j<numRows; j++)
+        for (int j=0; j<GetNumRows(); j++)
             printf("%f ",GetEntry(i,j));
         printf("\n");
     }
@@ -245,7 +259,7 @@ void SparseMatrixOutline::PrintTopology(int clusterSize) const
 	printf("+");
 	printf("\n");
 	
-	for (int i=0; i<numRows; i+=clusterSize)
+	for (int i=0; i<GetNumRows(); i+=clusterSize)
 	{
 		printf("| ");
 		for (int j=0; j<numColumns; j+=clusterSize)
@@ -273,7 +287,7 @@ void SparseMatrixOutline::PrintTopology(int clusterSize) const
 int SparseMatrixOutline::GetNumEntries() const
 {
     int num = 0;
-    for(int i=0; i<numRows; i++)
+    for(int i=0; i<GetNumRows(); i++)
         num += columnEntries[i].size();
     return num;
 }
