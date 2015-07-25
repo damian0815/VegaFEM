@@ -94,7 +94,7 @@ SparseMatrix::~SparseMatrix()
 {
     subMatrixLinkages.clear();
     
-    superMatrixIndexRemapper = nullptr;
+    superMatrixLinkage = nullptr;
     
     FreeTranspositionIndices();
 }
@@ -119,14 +119,14 @@ SparseMatrix::SparseMatrix(const SparseMatrix & source)
         }
     }
     
-    for (int i=0; i<source.subMatrixLinkages.size(); i++)
+    if (source.subMatrixLinkages.size() > 0)
     {
-        AttachSubMatrix(source.subMatrixLinkages[i]);
+        fprintf(stderr, "Warning: not copying sub matrix linkages\n");
     }
     
-    if (source.superMatrixIndexRemapper != nullptr)
+    if (source.superMatrixLinkage != nullptr)
     {
-        superMatrixIndexRemapper = make_shared<SparseMatrixIndexRemapper>(*source.superMatrixIndexRemapper);
+        fprintf(stderr, "Warning: not copying super matrix linkage\n");
     }
     
     if (source.diagonalIndices.size())
@@ -765,19 +765,19 @@ void SparseMatrix::AddFromSubMatrix(double factor, shared_ptr<SparseSubMatrixLin
     link->AddSubMatrixToSuperMatrix(factor);
 }
 
-shared_ptr<SparseMatrixIndexRemapper> SparseMatrix::AttachSuperMatrix(shared_ptr<SparseMatrix> superMatrix)
+shared_ptr<SparseSuperMatrixLinkage> SparseMatrix::AttachSuperMatrix(shared_ptr<SparseMatrix> superMatrix)
 {
-    assert(superMatrixIndexRemapper == nullptr && "already have a super matrix attached");
-    superMatrixIndexRemapper = std::make_shared<SparseMatrixIndexRemapper>(superMatrix, shared_from_this());
-    return superMatrixIndexRemapper;
+    assert(superMatrixLinkage == nullptr && "already have a super matrix attached");
+    superMatrixLinkage = std::make_shared<SparseSuperMatrixLinkage>(superMatrix, shared_from_this());
+    return superMatrixLinkage;
 }
 
 
 void SparseMatrix::AssignFromSuperMatrix(shared_ptr<SparseMatrix> superMatrix)
 {
-    assert(superMatrixIndexRemapper != nullptr);
-    assert(superMatrixIndexRemapper->GetSuperMatrix() == superMatrix && "super matrix doesn't match stored");
-    superMatrixIndexRemapper->AssignSubMatrixFromSuperMatrix();
+    assert(superMatrixLinkage != nullptr);
+    assert(superMatrixLinkage->GetSuperMatrix() == superMatrix && "super matrix doesn't match stored");
+    superMatrixLinkage->AssignSubMatrixFromSuperMatrix();
 }
 
 
@@ -965,8 +965,8 @@ void SparseMatrix::RemoveRowColumn(int index)
         }   
     }
     
-    superMatrixIndexRemapper->RemoveSuperRowFromSubMatrix(index);
-    superMatrixIndexRemapper->RemoveSuperColumnFromSubMatrix(index);
+    superMatrixLinkage->GetIndexRemapper().RemoveSuperRowFromSubMatrix(index);
+    superMatrixLinkage->GetIndexRemapper().RemoveSuperColumnFromSubMatrix(index);
 }
 
 void SparseMatrix::RemoveRowsColumnsSlow(int numRemovedRowsColumns, int * removedRowsColumns, int oneIndexed)
@@ -1039,9 +1039,9 @@ void SparseMatrix::RemoveRowsColumns(int numRemovedRowsColumns, int * removedRow
     
     for (int i=0; i<numRemovedRowsColumns; i++)
     {
-        superMatrixIndexRemapper->RemoveSuperRowFromSubMatrix(removedRowsColumns[i] - oneIndexed);
-        superMatrixIndexRemapper->RemoveSuperColumnFromSubMatrix(removedRowsColumns[i] - oneIndexed);
-        //superMatrixIndexRemapper->Print();
+        superMatrixLinkage->GetIndexRemapper().RemoveSuperRowFromSubMatrix(removedRowsColumns[i] - oneIndexed);
+        superMatrixLinkage->GetIndexRemapper().RemoveSuperColumnFromSubMatrix(removedRowsColumns[i] - oneIndexed);
+        //superMatrixLinkage->Print();
     }
 }
 
@@ -1078,7 +1078,7 @@ void SparseMatrix::RemoveColumn(int index)
         }   
     }
     
-    superMatrixIndexRemapper->RemoveSuperColumnFromSubMatrix(index);
+    superMatrixLinkage->GetIndexRemapper().RemoveSuperColumnFromSubMatrix(index);
 }
 
 void SparseMatrix::RemoveColumns(int numRemovedColumns, int * removedColumns, int oneIndexed)
@@ -1141,7 +1141,7 @@ void SparseMatrix::RemoveColumns(int numRemovedColumns, int * removedColumns, in
     for (int i=0; i<numRemovedColumns; i++)
     {
         int column = removedColumns[i] - oneIndexed;
-        superMatrixIndexRemapper->RemoveSuperColumnFromSubMatrix(column);
+        superMatrixLinkage->GetIndexRemapper().RemoveSuperColumnFromSubMatrix(column);
     }
 }
 
@@ -1157,7 +1157,7 @@ void SparseMatrix::RemoveRow(int index)
     columnEntries.erase(columnEntries.begin()+index);
     columnIndices.erase(columnIndices.begin()+index);
     
-    superMatrixIndexRemapper->RemoveSuperRowFromSubMatrix(index);
+    superMatrixLinkage->GetIndexRemapper().RemoveSuperRowFromSubMatrix(index);
 }
 
 void SparseMatrix::RemoveRowsSlow(int numRows, int * rows, int oneIndexed)
@@ -1214,7 +1214,7 @@ void SparseMatrix::RemoveRows(int numRemovedRows, int * removedRows, int oneInde
     for (int i=0; i<numRemovedRows; i++)
     {
         int row = removedRows[i] - oneIndexed;
-        superMatrixIndexRemapper->RemoveSuperRowFromSubMatrix(row);
+        superMatrixLinkage->GetIndexRemapper().RemoveSuperRowFromSubMatrix(row);
     }
 }
 

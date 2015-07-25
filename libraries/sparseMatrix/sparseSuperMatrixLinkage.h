@@ -19,30 +19,17 @@ using std::vector;
 class SparseSuperMatrixLinkage
 {
 public:
-    SparseSuperMatrixLinkage(shared_ptr<SparseMatrix> matrix, const vector<int>& fixedRows, const vector<int>& fixedColumns, shared_ptr<SparseMatrix> superMatrix, bool oneIndexed=false);
+    SparseSuperMatrixLinkage(shared_ptr<SparseMatrix> superMatrix, shared_ptr<SparseMatrix> subMatrix);
     
-    shared_ptr<SparseMatrix> GetSuperMatrix() { return superMatrix; }
-    shared_ptr<SparseMatrix> GetSubMatrix() { return matrix; }
+    shared_ptr<SparseMatrix> GetSuperMatrix() { return indexRemapper.GetSuperMatrix(); }
+    shared_ptr<SparseMatrix> GetSubMatrix() { return indexRemapper.GetSubMatrix(); }
     
-    void AssignFromSuperMatrix();
+    void AssignSubMatrixFromSuperMatrix() { indexRemapper.AssignSubMatrixFromSuperMatrix(); }
     
-    static void RemoveRowsColumnsFromIndexRemapper(SparseMatrixIndexRemapper& indexRemapper, const vector<int>& rowsToRemove, const vector<int>& columnsToRemove);
+    SparseMatrixIndexRemapper& GetIndexRemapper() { return indexRemapper; }
     
 private:
-    void BuildSuperMatrixIndices(const vector<int>& fixedRows, const vector<int>& fixedColumns, bool oneIndexed);
-    
-    
-    shared_ptr<SparseMatrix> matrix;
-    shared_ptr<SparseMatrix> superMatrix;
-    
-       /*
-     length(subMatrixIndices) == number of rows
-     */
-    vector<vector<int> > superMatrixIndices;
-    
-    //SparseMatrixIndexRemapper indexRemapper;
-    
-    vector<int> superRows;
+    SparseMatrixIndexRemapper indexRemapper;
 };
 
 #endif /* defined(__VegaFEM__sparseSuperMatrixLinkage__) */

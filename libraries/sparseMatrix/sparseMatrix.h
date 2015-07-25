@@ -288,7 +288,7 @@ public:
     // Then, call this (potentially many times) to quickly assign the values at the appropriate places in the submatrix.
     // For example, you can use this to copy data from a matrix into a submatrix obtained by a previous call to RemoveRowColumns.
     
-    shared_ptr<SparseMatrixIndexRemapper> AttachSuperMatrix(shared_ptr<SparseMatrix> superMatrix);
+    shared_ptr<SparseSuperMatrixLinkage> AttachSuperMatrix(shared_ptr<SparseMatrix> superMatrix);
     
     void AssignFromSuperMatrix(std::shared_ptr<SparseMatrix> superMatrix);
 
@@ -341,7 +341,7 @@ protected:
     void AttachSubMatrix(shared_ptr<SparseSubMatrixLinkage> linkage);
     vector<shared_ptr<SparseSubMatrixLinkage> > subMatrixLinkages;
     
-    shared_ptr<SparseMatrixIndexRemapper> superMatrixIndexRemapper;
+    shared_ptr<SparseSuperMatrixLinkage> superMatrixLinkage;
     
     void InitFromOutline(const SparseMatrixOutline& sparseMatrixOutline);
     void Allocate(size_t numRows);

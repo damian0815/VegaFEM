@@ -17,13 +17,6 @@ SparseMatrixIndexRemapper::SparseMatrixIndexRemapper(shared_ptr<SparseMatrix> su
     SetupMapping();
 }
 
-SparseMatrixIndexRemapper::SparseMatrixIndexRemapper(const SparseMatrixIndexRemapper& other)
-:   subMatrix(other.subMatrix),
-    superMatrix(other.superMatrix),
-    superMatrixToSubMatrixRowMap(other.superMatrixToSubMatrixRowMap),
-    subMatrixSparseToSuperMatrixSparseColumnMaps(other.subMatrixSparseToSuperMatrixSparseColumnMaps)
-{
-}
 
 void SparseMatrixIndexRemapper::SetupMapping()
 {

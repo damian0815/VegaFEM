@@ -26,8 +26,6 @@ public:
     /// Matrices must have the same number of rows.
     SparseMatrixIndexRemapper(shared_ptr<SparseMatrix> superMatrix, shared_ptr<SparseMatrix> subMatrix);
     
-    SparseMatrixIndexRemapper(const SparseMatrixIndexRemapper& other);
-    
     inline int GetSuperMatrixSparseColumnForSubMatrixSparseColumn(int subMatrixRow, int subMatrixSparseColumn) const;
     
     inline int GetSubMatrixRowForSuperMatrixRow(int superMatrixRow) const { return superMatrixToSubMatrixRowMap.at(superMatrixRow); }
