@@ -1543,11 +1543,16 @@ void SparseMatrix::SetRows(SparseMatrix * source, int startRow, int startColumn)
 
 void SparseMatrix::AppendRowsColumns(SparseMatrix * source)
 {
+    assert(false && "not implemented");
+    
+    // the below doesn't work
+    /*
     vector<int> oldRowLength = GetRowLengths();
+    int oldNumRows = GetNumRows();
+    
+    IncreaseNumRows(source->GetNumRows());
     vector<int> rowLength = GetRowLengths();
     
-    int oldNumRows = GetNumRows();
-    IncreaseNumRows(source->GetNumRows());
     SetRows(source, oldNumRows);
     
     // add transpose of rows:
@@ -1558,20 +1563,20 @@ void SparseMatrix::AppendRowsColumns(SparseMatrix * source)
         for(int j=0; j<source->GetRowLength(row); j++)
         {
             int column = source->GetColumnIndex(row, j);
-            ++rowLength[column];
+            ++rowLength.at(column);
         }
     }
     
     // extend size
     for(int row=0; row<oldNumRows; row++)
     {
-        columnIndices[row].resize(rowLength[row]);
-        columnEntries[row].resize(rowLength[row]);
+        columnIndices.at(row).resize(rowLength.at(row));
+        columnEntries.at(row).resize(rowLength.at(row));
     }
     
     // restore old row length
     for(int i=0; i<oldNumRows; i++)
-        rowLength[i] = oldRowLength[i];
+        rowLength.at(i) = oldRowLength.at(i);
     
     // write entries into their place
     for(int row=0; row<source->GetNumRows(); row++)
@@ -1579,20 +1584,56 @@ void SparseMatrix::AppendRowsColumns(SparseMatrix * source)
         for(int j=0; j<source->GetRowLength(row); j++)
         {
             int column = source->GetColumnIndex(row, j);
-            columnIndices[column][rowLength[column]] = oldNumRows + row;
-            columnEntries[column][rowLength[column]] = source->GetEntry(row, j);
-            rowLength[column]++;
+            columnIndices.at(column).at(rowLength.at(column)) = oldNumRows + row;
+            columnEntries.at(column).at(rowLength.at(column)) = source->GetEntry(row, j);
+            ++rowLength.at(column);
         }
     }
     
     // append zero diagonal in lower-right block (helps with some solvers)
     for(int row=0; row<source->GetNumRows(); row++)
     {
-        rowLength[oldNumRows + row]++;
-        columnIndices[oldNumRows + row].push_back(oldNumRows + row);
-        columnEntries[oldNumRows + row].push_back(0.0);
+        ++rowLength.at(oldNumRows + row);
+        columnIndices.at(oldNumRows + row).push_back(oldNumRows + row);
+        columnEntries.at(oldNumRows + row).push_back(0.0);
+    }
+     */
+}
+
+void SparseMatrix::Append(SparseMatrix *source)
+{
+    // append source at the bottom right of this
+    int oldRowCount = GetNumRows();
+    IncreaseNumRows(source->GetNumRows());
+    
+    auto columnOffset = oldRowCount;
+    
+    for (int sourceRow=0; sourceRow<source->GetNumRows(); sourceRow++){
+        auto targetRow = oldRowCount+sourceRow;
+        for (int sourceSparseJ=0; sourceSparseJ<source->GetRowLength(sourceRow); sourceSparseJ++) {
+            auto sourceDenseJ = source->GetColumnIndex(sourceRow, sourceSparseJ);
+            auto targetColumn = columnOffset + sourceDenseJ;
+            int targetSparseColumn = InsertNewEntry(targetRow, targetColumn);
+            
+            auto entry = source->GetEntry(sourceRow, sourceSparseJ);
+            SetEntry(targetRow, targetSparseColumn, entry);
+            
+        }
     }
 }
+
+int SparseMatrix::InsertNewEntry(int row, int denseColumn)
+{
+    assert(row < GetNumRows() && "row is out of bounds");
+    assert(GetInverseIndex(row, denseColumn) == -1 && "entry already exists for this dense column");
+    assert((GetRowLength(row) == 0 || GetColumnIndex(row, GetRowLength(row)-1) < denseColumn) && "can only append entries at the end for now");
+    
+    columnIndices.at(row).push_back(denseColumn);
+    columnEntries.at(row).push_back(0.0);
+    
+    return columnIndices.at(row).size()-1;
+}
+
 
 SparseMatrix * SparseMatrix::CreateIdentityMatrix(int numRows)
 {

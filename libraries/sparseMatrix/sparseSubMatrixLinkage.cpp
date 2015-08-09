@@ -29,7 +29,7 @@ void SparseSubMatrixLinkage::AddSubMatrixToSuperMatrix(double factor)
         {
             int sparseSuperJ = indexRemapper.GetSuperMatrixSparseColumnForSubMatrixSparseColumn(row, sparseSubJ);
             //int sparseSuperJ = subToSuperIndices[sparseSubJ];
-            superColumnEntries[row][sparseSuperJ] += factor * subColumnEntries[row][sparseSubJ];
+            superColumnEntries.at(row).at(sparseSuperJ) += factor * subColumnEntries.at(row).at(sparseSubJ);
         }
     }
 }

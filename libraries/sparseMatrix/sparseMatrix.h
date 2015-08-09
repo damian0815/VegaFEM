@@ -232,6 +232,9 @@ public:
     void SetRows(SparseMatrix * source, int startRow, int startColumn=0); // starting with startRow, overwrites the rows with those of matrix "source"; data is written into columns starting at startColumn
     void AppendRowsColumns(SparseMatrix * source); // appends the matrix "source" at the bottom of matrix, and trans(source) to the right of the matrix
     
+    void Append(SparseMatrix *source); // appends source at the bottom right of this, where the start of 'bottom right' is defined by (GetNumRows(),GetNumRows())
+    int InsertNewEntry(int row, int denseColumn); // insert a new entry at (row,denseColumn), return sparseColumn
+    
     // transposition (note: the matrix need not be symmetric)
     void BuildTranspositionIndices();
     void FreeTranspositionIndices();

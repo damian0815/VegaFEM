@@ -56,7 +56,7 @@ void SparseMatrixIndexRemapper::PopulateColumnIndexMaps()
             if (superMatrixSparseIndex == -1)
             {
                 printf("Error (BuildSubMatrixIndices): given matrix is not a submatrix of this matrix. The following index does not exist in this matrix: (%d,%d)\n", row, denseColumn);
-                exit(1);
+                assert(false);
             }
             subMatrixSparseToSuperMatrixSparseColumnMaps[row][sparseColumn] = superMatrixSparseIndex;
         }

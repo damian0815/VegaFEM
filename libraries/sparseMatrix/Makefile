@@ -30,7 +30,7 @@ include $(SPARSEMATRIX_LIB_MAKEFILES)
 all: $(L)/sparseMatrix/libsparseMatrix.a
 
 $(L)/sparseMatrix/libsparseMatrix.a: $(SPARSEMATRIX_OBJECTS_FILENAMES)
-	ar r $@ $^; cp $@ $(L)/lib; cp $(L)/sparseMatrix/*.h $(L)/include
+	ar r $@ $^; cp $@ $(L)/lib; rsync -av $(L)/sparseMatrix/*.h $(L)/include
 
 $(SPARSEMATRIX_OBJECTS_FILENAMES): %.o: %.cpp $(SPARSEMATRIX_LIB_FILENAMES) $(SPARSEMATRIX_HEADER_FILENAMES)
 	$(CXX) $(CXXFLAGS) $(EXTRACXXFLAGS) -c $(INCLUDE) $< -o $@
