@@ -25,8 +25,10 @@ public:
     /// for each entry in sourceMatrix, map to the matching entry in targetMatrix, taking rowColumnOffset into account.
     SparseMatrixIndexRemapper(shared_ptr<SparseMatrix> superMatrix, shared_ptr<SparseMatrix> subMatrix, int denseRowColumnOffset);
     
-    inline int GetSuperMatrixSparseColumnForSubMatrixSparseColumn(int subMatrixRow, int subMatrixSparseColumn) const;
+    inline int GetSuperMatrixSparseColumnForSubMatrixSparseColumn_SubMatrixRow(int subMatrixRow, int subMatrixSparseColumn) const;
+    inline int GetSuperMatrixSparseColumnForSubMatrixSparseColumn_SuperMatrixRow(int superMatrixRow, int subMatrixSparseColumn) const;
     
+    inline bool HasSubMatrixRowForSuperMatrixRow(int superMatrixRow) const { return superMatrixToSubMatrixRowMap.count(superMatrixRow); }
     inline int GetSubMatrixRowForSuperMatrixRow(int superMatrixRow) const { return superMatrixToSubMatrixRowMap.at(superMatrixRow); }
     int GetSuperMatrixRowForSubMatrixRow(int subMatrixRow) const;
     
@@ -59,11 +61,16 @@ private:
     
 };
 
-int SparseMatrixIndexRemapper::GetSuperMatrixSparseColumnForSubMatrixSparseColumn(int superMatrixRow, int subMatrixSparseColumn) const
+int SparseMatrixIndexRemapper::GetSuperMatrixSparseColumnForSubMatrixSparseColumn_SubMatrixRow(int subMatrixRow, int subMatrixSparseColumn) const
 {
-    int subMatrixRow = GetSubMatrixRowForSuperMatrixRow(superMatrixRow);
     const auto& subMatrixToSuperMatrixSparseColumnMap = subMatrixSparseToSuperMatrixSparseColumnMaps[subMatrixRow];
     return subMatrixToSuperMatrixSparseColumnMap.at(subMatrixSparseColumn);
+}
+
+int SparseMatrixIndexRemapper::GetSuperMatrixSparseColumnForSubMatrixSparseColumn_SuperMatrixRow(int superMatrixRow, int subMatrixSparseColumn) const
+{
+    int subMatrixRow = GetSubMatrixRowForSuperMatrixRow(superMatrixRow);
+    return GetSuperMatrixSparseColumnForSubMatrixSparseColumn_SubMatrixRow(subMatrixRow, subMatrixSparseColumn);
 }
 
 #endif /* defined(__VegaFEM__sparseMatrixIndexRemapper__) */

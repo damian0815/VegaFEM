@@ -16,20 +16,15 @@ SparseSubMatrixLinkage::SparseSubMatrixLinkage(shared_ptr<SparseMatrix> matrix, 
 
 void SparseSubMatrixLinkage::AddSubMatrixToSuperMatrix(double factor)
 {
-    //const auto& subToSuperIndicesAllRows = indexRemapper.GetsubMatrixSparseToSuperMatrixSparseColumnMaps();
     auto& superColumnEntries = superMatrix->GetDataHandle();
     const auto& subColumnEntries = subMatrix->GetDataHandle();
     
-    for(int row=0; row<superMatrix->GetNumRows(); row++)
-    {
-        //const auto& subToSuperIndices = subToSuperIndicesAllRows[row];
-        //int subMatrixRowLength = subMatrix->GetRowLength(row);
-        int subMatrixRowLength = subMatrix->GetRowLength(row);
-        for(int sparseSubJ=0; sparseSubJ < subMatrixRowLength; sparseSubJ++)
-        {
-            int sparseSuperJ = indexRemapper.GetSuperMatrixSparseColumnForSubMatrixSparseColumn(row, sparseSubJ);
-            //int sparseSuperJ = subToSuperIndices[sparseSubJ];
-            superColumnEntries.at(row).at(sparseSuperJ) += factor * subColumnEntries.at(row).at(sparseSubJ);
+    for(int subRow=0; subRow<subMatrix->GetNumRows(); subRow++) {
+        int superRow = indexRemapper.GetSuperMatrixRowForSubMatrixRow(subRow);
+        int subMatrixRowLength = subMatrix->GetRowLength(subRow);
+        for(int sparseSubJ=0; sparseSubJ < subMatrixRowLength; sparseSubJ++) {
+            int sparseSuperJ = indexRemapper.GetSuperMatrixSparseColumnForSubMatrixSparseColumn_SubMatrixRow(subRow, sparseSubJ);
+            superColumnEntries.at(superRow).at(sparseSuperJ) += factor * subColumnEntries.at(subRow).at(sparseSubJ);
         }
     }
 }
