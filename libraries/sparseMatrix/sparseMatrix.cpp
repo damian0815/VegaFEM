@@ -713,12 +713,12 @@ void SparseMatrix::DiagonalSolve(double * rhs) const
 }
 
 
-shared_ptr<SparseSubMatrixLinkage> SparseMatrix::AttachSubMatrix(shared_ptr<SparseMatrix> subMatrix)
+shared_ptr<SparseSubMatrixLinkage> SparseMatrix::AttachSubMatrix(shared_ptr<SparseMatrix> subMatrix, int denseRowColumnOffset)
 {
     assert(GetExistingSubMatrixLinkage(subMatrix) == nullptr && "already have a linkage for this submatrix");
     
     shared_ptr<SparseMatrix> super = shared_from_this();
-    auto linkage = std::make_shared<SparseSubMatrixLinkage>(super, subMatrix);
+    auto linkage = std::make_shared<SparseSubMatrixLinkage>(super, subMatrix, denseRowColumnOffset);
     AttachSubMatrix(linkage);
     return linkage;
 }

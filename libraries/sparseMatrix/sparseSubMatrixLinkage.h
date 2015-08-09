@@ -18,7 +18,7 @@ using std::shared_ptr;
 class SparseSubMatrixLinkage
 {
 public:
-    SparseSubMatrixLinkage(shared_ptr<SparseMatrix> matrix, shared_ptr<SparseMatrix> subMatrix);
+    SparseSubMatrixLinkage(shared_ptr<SparseMatrix> matrix, shared_ptr<SparseMatrix> subMatrix, int denseRowColumnOffset);
     
     shared_ptr<SparseMatrix> GetSuperMatrix() { return superMatrix; }
     shared_ptr<SparseMatrix> GetSubMatrix() { return subMatrix; }

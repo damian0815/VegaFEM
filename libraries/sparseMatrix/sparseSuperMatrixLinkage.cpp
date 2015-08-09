@@ -8,8 +8,8 @@
 
 #include "sparseSuperMatrixLinkage.h"
 
-SparseSuperMatrixLinkage::SparseSuperMatrixLinkage(shared_ptr<SparseMatrix> superMatrix, shared_ptr<SparseMatrix> subMatrix)
-: indexRemapper(superMatrix, subMatrix)
+SparseSuperMatrixLinkage::SparseSuperMatrixLinkage(shared_ptr<SparseMatrix> superMatrix, shared_ptr<SparseMatrix> subMatrix, int rowColumnOffset)
+: indexRemapper(superMatrix, subMatrix, rowColumnOffset)
 {
 }
 

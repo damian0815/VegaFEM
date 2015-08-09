@@ -265,11 +265,12 @@ public:
     
     
     
-    // Build submatrix indices is used for pair of matrices where the sparsity of one matrix is a subset of another matrix (for example, mass matrix and
-    // stiffness matrix). Also, the two matrics have to have the same dimensions (i.e., number of rows and columns).
+    // Build submatrix indices is used for pair of matrices where the sparsity of one matrix is a subset of another matrix (for example, mass matrix and stiffness matrix).
+    // The two matrices need not have the same number of entries but the subMatrix should be contained within the bounds of the super matrix after adding denseRowColumnOffset to
+    // row and dense column indices in the sub matrix.
     
     // Call this once to establish the correspondence:
-    shared_ptr<SparseSubMatrixLinkage> AttachSubMatrix(shared_ptr<SparseMatrix> subMatrix);
+    shared_ptr<SparseSubMatrixLinkage> AttachSubMatrix(shared_ptr<SparseMatrix> subMatrix, int denseRowColumnOffset=0);
     void DetachSubMatrix(shared_ptr<SparseSubMatrixLinkage> linkage);
     shared_ptr<SparseSubMatrixLinkage> GetExistingSubMatrixLinkage(shared_ptr<SparseMatrix> subMatrix);
     

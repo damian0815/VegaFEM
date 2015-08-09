@@ -22,9 +22,8 @@ using std::shared_ptr;
 class SparseMatrixIndexRemapper
 {
 public:
-    /// for each entry in sourceMatrix, map to the matching entry in targetMatrix.
-    /// Matrices must have the same number of rows.
-    SparseMatrixIndexRemapper(shared_ptr<SparseMatrix> superMatrix, shared_ptr<SparseMatrix> subMatrix);
+    /// for each entry in sourceMatrix, map to the matching entry in targetMatrix, taking rowColumnOffset into account.
+    SparseMatrixIndexRemapper(shared_ptr<SparseMatrix> superMatrix, shared_ptr<SparseMatrix> subMatrix, int denseRowColumnOffset);
     
     inline int GetSuperMatrixSparseColumnForSubMatrixSparseColumn(int subMatrixRow, int subMatrixSparseColumn) const;
     
@@ -46,12 +45,6 @@ private:
     void PopulateRowMap();
     void PopulateColumnIndexMaps();
     
-     /*
-     length(subMatrixSparseToSuperMatrixSparseColumnMaps) == number of rows
-     */
-    // maps from subMatrix sparse column indices to superMatrix sparse column indices
-    
-    
     map<int, int> superMatrixToSubMatrixRowMap;
     
     // A list of the super matrix sparse indices, one for each of the sub matrix sparse indices
@@ -61,6 +54,8 @@ private:
     
     shared_ptr<SparseMatrix> superMatrix;
     shared_ptr<SparseMatrix> subMatrix;
+    
+    int denseRowColumnOffset;
     
 };
 

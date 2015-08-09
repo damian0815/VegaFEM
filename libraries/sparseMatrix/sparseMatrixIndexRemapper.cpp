@@ -10,9 +10,10 @@
 #include "sparseMatrixIndexRemapper.h"
 #include "sparseMatrix.h"
 
-SparseMatrixIndexRemapper::SparseMatrixIndexRemapper(shared_ptr<SparseMatrix> superMatrix_, shared_ptr<SparseMatrix> subMatrix_)
+SparseMatrixIndexRemapper::SparseMatrixIndexRemapper(shared_ptr<SparseMatrix> superMatrix_, shared_ptr<SparseMatrix> subMatrix_, int denseRowColumnOffset_)
 :   superMatrix(superMatrix_),
-    subMatrix(subMatrix_)
+    subMatrix(subMatrix_),
+    denseRowColumnOffset(denseRowColumnOffset_)
 {
     SetupMapping();
 }
@@ -20,7 +21,7 @@ SparseMatrixIndexRemapper::SparseMatrixIndexRemapper(shared_ptr<SparseMatrix> su
 
 void SparseMatrixIndexRemapper::SetupMapping()
 {
-    assert(superMatrix->GetNumRows() == subMatrix->GetNumRows() && "row count must match");
+    assert(superMatrix->GetNumRows() >= denseRowColumnOffset + subMatrix->GetNumRows() && "not enough rows");
     
     PopulateRowMap();
     PopulateColumnIndexMaps();
@@ -29,9 +30,8 @@ void SparseMatrixIndexRemapper::SetupMapping()
 void SparseMatrixIndexRemapper::PopulateRowMap()
 {
     superMatrixToSubMatrixRowMap.clear();
-    for (int superMatrixRow=0; superMatrixRow<superMatrix->GetNumRows(); superMatrixRow++)
-    {
-        int subMatrixRow = superMatrixRow;
+    for (int subMatrixRow=0; subMatrixRow<subMatrix->GetNumRows(); subMatrixRow++) {
+        auto superMatrixRow = subMatrixRow + denseRowColumnOffset;
         superMatrixToSubMatrixRowMap[superMatrixRow] = subMatrixRow;
     }
 }
@@ -39,26 +39,29 @@ void SparseMatrixIndexRemapper::PopulateRowMap()
 void SparseMatrixIndexRemapper::PopulateColumnIndexMaps()
 {
     subMatrixSparseToSuperMatrixSparseColumnMaps.clear();
-    subMatrixSparseToSuperMatrixSparseColumnMaps.resize(superMatrix->GetNumRows());
+    subMatrixSparseToSuperMatrixSparseColumnMaps.resize(subMatrix->GetNumRows());
     
-    for(int row=0; row<superMatrix->GetNumRows(); row++)
+    for(int subMatrixRow=0; subMatrixRow<subMatrix->GetNumRows(); subMatrixRow++)
     {
-        int submatrixRowLength = subMatrix->GetRowLength(row);
-        subMatrixSparseToSuperMatrixSparseColumnMaps[row].resize(submatrixRowLength);
-        const vector<int>& subMatrixDenseColumnIndices = subMatrix->GetColumnIndices()[row];
+        int submatrixRowLength = subMatrix->GetRowLength(subMatrixRow);
+        subMatrixSparseToSuperMatrixSparseColumnMaps[subMatrixRow].resize(submatrixRowLength);
+        const vector<int>& subMatrixDenseColumnIndices = subMatrix->GetColumnIndices()[subMatrixRow];
         
-        for(int sparseColumn=0; sparseColumn < submatrixRowLength; sparseColumn++)
+        int superMatrixRow = subMatrixRow + denseRowColumnOffset;
+        
+        for(int subMatrixSparseColumn=0; subMatrixSparseColumn < submatrixRowLength; subMatrixSparseColumn++)
         {
             // finds the position in row i of element with column index jDense
             // int GetInverseIndex(int i, int jDense);
-            int denseColumn = subMatrixDenseColumnIndices[sparseColumn];
-            int superMatrixSparseIndex = superMatrix->GetInverseIndex(row, denseColumn);
+            int subMatrixDenseColumn = subMatrixDenseColumnIndices[subMatrixSparseColumn];
+            int superMatrixDenseColumn = subMatrixDenseColumn + denseRowColumnOffset;
+            int superMatrixSparseIndex = superMatrix->GetInverseIndex(superMatrixRow, superMatrixDenseColumn);
             if (superMatrixSparseIndex == -1)
             {
-                printf("Error (BuildSubMatrixIndices): given matrix is not a submatrix of this matrix. The following index does not exist in this matrix: (%d,%d)\n", row, denseColumn);
+                printf("Error (BuildSubMatrixIndices): given matrix is not a submatrix of this matrix. The following index does not exist in this matrix: (%d,%d)\n", superMatrixRow, superMatrixDenseColumn);
                 assert(false);
             }
-            subMatrixSparseToSuperMatrixSparseColumnMaps[row][sparseColumn] = superMatrixSparseIndex;
+            subMatrixSparseToSuperMatrixSparseColumnMaps[subMatrixRow][subMatrixSparseColumn] = superMatrixSparseIndex;
         }
     }
 }

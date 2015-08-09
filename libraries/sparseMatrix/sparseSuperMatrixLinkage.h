@@ -19,7 +19,7 @@ using std::vector;
 class SparseSuperMatrixLinkage
 {
 public:
-    SparseSuperMatrixLinkage(shared_ptr<SparseMatrix> superMatrix, shared_ptr<SparseMatrix> subMatrix);
+    SparseSuperMatrixLinkage(shared_ptr<SparseMatrix> superMatrix, shared_ptr<SparseMatrix> subMatrix, int rowColumnOffset=0);
     
     shared_ptr<SparseMatrix> GetSuperMatrix() { return indexRemapper.GetSuperMatrix(); }
     shared_ptr<SparseMatrix> GetSubMatrix() { return indexRemapper.GetSubMatrix(); }
