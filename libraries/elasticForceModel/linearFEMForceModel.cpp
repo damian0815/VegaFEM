@@ -50,13 +50,14 @@ void LinearFEMForceModel::GetInternalForce(double * u, double * internalForces)
   K->MultiplyVector(u, internalForces);
 }
 
-SparseMatrixOutline LinearFEMForceModel::GetTangentStiffnessMatrixTopology()
+shared_ptr<SparseMatrix> LinearFEMForceModel::ConstructTangentStiffnessMatrix()
 {
-    return K->GetTopology();
+    auto topology = K->GetTopology();
+    return std::make_shared<SparseMatrix>(topology);
 }
 
-void LinearFEMForceModel::GetTangentStiffnessMatrix(double * u, SparseMatrix * tangentStiffnessMatrix)
+void LinearFEMForceModel::GetTangentStiffnessMatrix(double * u, shared_ptr<SparseMatrix> tangentStiffnessMatrix)
 {
-  *tangentStiffnessMatrix = *K;
+  *tangentStiffnessMatrix.get() = *K;
 } 
 

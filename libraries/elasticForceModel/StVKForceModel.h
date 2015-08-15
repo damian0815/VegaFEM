@@ -44,8 +44,8 @@ public:
   virtual ~StVKForceModel(); 
 
   virtual void GetInternalForce(double * u, double * internalForces);
-  virtual SparseMatrixOutline GetTangentStiffnessMatrixTopology();
-  virtual void GetTangentStiffnessMatrix(double * u, SparseMatrix * tangentStiffnessMatrix); 
+  virtual shared_ptr<SparseMatrix> ConstructTangentStiffnessMatrix();
+  virtual void GetTangentStiffnessMatrix(double * u, shared_ptr<SparseMatrix> tangentStiffnessMatrix);
 
 protected:
   StVKInternalForces * stVKInternalForces;

@@ -77,7 +77,7 @@ int ImplicitBackwardEulerSparse::DoTimestep()
     do
     {
         PerformanceCounter counterForceAssemblyTime;
-        forceModel->GetForceAndMatrix(q, internalForces, tangentStiffnessMatrix.get());
+        forceModel->GetForceAndMatrix(q, internalForces, tangentStiffnessMatrix);
         counterForceAssemblyTime.StopCounter();
         forceAssemblyTime = counterForceAssemblyTime.GetElapsedTime();
         

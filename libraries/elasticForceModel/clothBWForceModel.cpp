@@ -42,13 +42,14 @@ void ClothBWForceModel::GetInternalForce(double * u, double * internalForces)
   clothBW->ComputeForce(u, internalForces);
 }
 
-SparseMatrixOutline ClothBWForceModel::GetTangentStiffnessMatrixTopology()
+shared_ptr<SparseMatrix> ClothBWForceModel::ConstructTangentStiffnessMatrix()
 {
-  return clothBW->GenerateStiffnessMatrixTopology();
+    auto topology = clothBW->GenerateStiffnessMatrixTopology();
+    return std::make_shared<SparseMatrix>(topology);
 }
 
-void ClothBWForceModel::GetTangentStiffnessMatrix(double * u, SparseMatrix * tangentStiffnessMatrix)
+void ClothBWForceModel::GetTangentStiffnessMatrix(double * u, shared_ptr<SparseMatrix> tangentStiffnessMatrix)
 {
-  clothBW->ComputeStiffnessMatrix(u, tangentStiffnessMatrix);
+  clothBW->ComputeStiffnessMatrix(u, tangentStiffnessMatrix.get());
 } 
 

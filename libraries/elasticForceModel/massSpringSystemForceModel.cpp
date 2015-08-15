@@ -38,13 +38,14 @@ void MassSpringSystemForceModel::GetInternalForce(double * u, double * internalF
   massSpringSystem->ComputeForce(u, internalForces);
 }
 
-SparseMatrixOutline MassSpringSystemForceModel::GetTangentStiffnessMatrixTopology()
+shared_ptr<SparseMatrix> MassSpringSystemForceModel::ConstructTangentStiffnessMatrix()
 {
-    return massSpringSystem->GetStiffnessMatrixTopology();
+    auto topology = massSpringSystem->GetStiffnessMatrixTopology();
+    return std::make_shared<SparseMatrix>(topology);
 }
 
-void MassSpringSystemForceModel::GetTangentStiffnessMatrix(double * u, SparseMatrix * tangentStiffnessMatrix)
+void MassSpringSystemForceModel::GetTangentStiffnessMatrix(double * u, shared_ptr<SparseMatrix> tangentStiffnessMatrix)
 {
-  massSpringSystem->ComputeStiffnessMatrix(u, tangentStiffnessMatrix);
+  massSpringSystem->ComputeStiffnessMatrix(u, tangentStiffnessMatrix.get());
 } 
 

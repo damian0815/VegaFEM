@@ -40,18 +40,19 @@ void CorotationalLinearFEMForceModel::GetInternalForce(double * u, double * inte
   corotationalLinearFEM->ComputeForceAndStiffnessMatrix(u, internalForces, NULL, warp);
 }
 
-SparseMatrixOutline CorotationalLinearFEMForceModel::GetTangentStiffnessMatrixTopology()
+shared_ptr<SparseMatrix> CorotationalLinearFEMForceModel::ConstructTangentStiffnessMatrix()
 {
-    return corotationalLinearFEM->GetStiffnessMatrixTopology();
+    auto topology = corotationalLinearFEM->GetStiffnessMatrixTopology();
+    return std::make_shared<SparseMatrix>(topology);
 }
 
-void CorotationalLinearFEMForceModel::GetTangentStiffnessMatrix(double * u, SparseMatrix * tangentStiffnessMatrix)
+void CorotationalLinearFEMForceModel::GetTangentStiffnessMatrix(double * u, shared_ptr<SparseMatrix> tangentStiffnessMatrix)
 {
-  corotationalLinearFEM->ComputeForceAndStiffnessMatrix(u, NULL, tangentStiffnessMatrix, warp);
+  corotationalLinearFEM->ComputeForceAndStiffnessMatrix(u, NULL, tangentStiffnessMatrix.get(), warp);
 } 
 
-void CorotationalLinearFEMForceModel::GetForceAndMatrix(double * u, double * internalForces, SparseMatrix * tangentStiffnessMatrix)
+void CorotationalLinearFEMForceModel::GetForceAndMatrix(double * u, double * internalForces, shared_ptr<SparseMatrix> tangentStiffnessMatrix)
 {
-  corotationalLinearFEM->ComputeForceAndStiffnessMatrix(u, internalForces, tangentStiffnessMatrix, warp);
+  corotationalLinearFEM->ComputeForceAndStiffnessMatrix(u, internalForces, tangentStiffnessMatrix.get(), warp);
 }
 

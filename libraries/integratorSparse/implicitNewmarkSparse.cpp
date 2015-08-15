@@ -48,8 +48,7 @@ ImplicitNewmarkSparse::ImplicitNewmarkSparse(int r, double timestep, shared_ptr<
     
     UpdateAlphas();
     
-    auto topology = forceModel->GetTangentStiffnessMatrixTopology();
-    tangentStiffnessMatrix = std::make_shared<SparseMatrix>(topology);
+    tangentStiffnessMatrix = forceModel->ConstructTangentStiffnessMatrix();
     
     if (tangentStiffnessMatrix->Getn() != massMatrix->Getn())
     {
@@ -135,7 +134,7 @@ int ImplicitNewmarkSparse::SetState(double * q_, double * qvel_)
     // R(q) = P_0 = 0
     // i.e. M * qaccel = - C * qvel - R(q)
     
-    forceModel->GetForceAndMatrix(q, internalForces, tangentStiffnessMatrix.get());
+    forceModel->GetForceAndMatrix(q, internalForces, tangentStiffnessMatrix);
     
     *rayleighDampingMatrix = dampingStiffnessCoef * (*tangentStiffnessMatrix);
     rayleighDampingMatrix->AddFromSubMatrix(dampingMassCoef, massMatrix);
@@ -226,7 +225,7 @@ int ImplicitNewmarkSparse::DoTimestep()
          */
         
         PerformanceCounter counterForceAssemblyTime;
-        forceModel->GetForceAndMatrix(q, internalForces, tangentStiffnessMatrix.get());
+        forceModel->GetForceAndMatrix(q, internalForces, tangentStiffnessMatrix);
         counterForceAssemblyTime.StopCounter();
         forceAssemblyTime = counterForceAssemblyTime.GetElapsedTime();
         

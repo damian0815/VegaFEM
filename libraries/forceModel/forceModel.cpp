@@ -37,7 +37,7 @@ ForceModel::~ForceModel()
 {
 }
 
-void ForceModel::GetForceAndMatrix(double * u, double * internalForces, SparseMatrix * tangentStiffnessMatrix)
+void ForceModel::GetForceAndMatrix(double * u, double * internalForces, shared_ptr<SparseMatrix> tangentStiffnessMatrix)
 {
   GetInternalForce(u, internalForces);
   GetTangentStiffnessMatrix(u, tangentStiffnessMatrix);
@@ -51,13 +51,11 @@ void ForceModel::TestStiffnessMatrix(double * q, double * dq)
   double * internalForce1 = (double*) malloc (sizeof(double) * r);
   double * testV = (double*) malloc (sizeof(double) * r);
 
-    SparseMatrixOutline K0Outline = GetTangentStiffnessMatrixTopology();
-    SparseMatrixOutline K1Outline = GetTangentStiffnessMatrixTopology();
-    auto K0 = std::make_shared<SparseMatrix>(K0Outline);
-    auto K1 = std::make_shared<SparseMatrix>(K1Outline);
+    auto K0 = ConstructTangentStiffnessMatrix();
+    auto K1 = ConstructTangentStiffnessMatrix();
   printf("r: %d K: %d %d\n", r, K0->GetNumRows(), K0->GetNumColumns());
 
-  GetForceAndMatrix(q, internalForce0, K0.get());
+  GetForceAndMatrix(q, internalForce0, K0);
   double KNorm0 = K0->GetMaxAbsEntry();
 
   double fNorm0 = 0.0;
@@ -74,7 +72,7 @@ void ForceModel::TestStiffnessMatrix(double * q, double * dq)
       q1[j] = q[j] + dqeps[j];
     }
 
-    GetForceAndMatrix(q1, internalForce1, K1.get());
+    GetForceAndMatrix(q1, internalForce1, K1);
 
     // internalForce1 - internalForce0 - K0 * dqeps should be O(eps^2)
     K0->MultiplyVector(dqeps, testV);

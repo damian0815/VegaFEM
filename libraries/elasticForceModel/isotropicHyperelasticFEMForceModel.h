@@ -43,10 +43,10 @@ public:
   virtual ~IsotropicHyperelasticFEMForceModel(); 
 
   virtual void GetInternalForce(double * u, double * internalForces);
-  virtual SparseMatrixOutline GetTangentStiffnessMatrixTopology();
-  virtual void GetTangentStiffnessMatrix(double * u, SparseMatrix * tangentStiffnessMatrix); 
+  virtual shared_ptr<SparseMatrix> ConstructTangentStiffnessMatrix();
+  virtual void GetTangentStiffnessMatrix(double * u, shared_ptr<SparseMatrix> tangentStiffnessMatrix);
 
-  virtual void GetForceAndMatrix(double * u, double * internalForces, SparseMatrix * tangentStiffnessMatrix);
+  virtual void GetForceAndMatrix(double * u, double * internalForces, shared_ptr<SparseMatrix> tangentStiffnessMatrix);
 
 protected:
   IsotropicHyperelasticFEM * isotropicHyperelasticFEM;

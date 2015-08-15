@@ -42,8 +42,7 @@ CentralDifferencesSparse::CentralDifferencesSparse(int numDOFs, double timestep,
     rhs = (double*) malloc (sizeof(double) * r);
     rhsConstrained = (double*) malloc (sizeof(double) * (r - numConstrainedDOFs));
     
-    auto outline = forceModel->GetTangentStiffnessMatrixTopology();
-    tangentStiffnessMatrix = std::make_shared<SparseMatrix>(outline);
+    tangentStiffnessMatrix = forceModel->ConstructTangentStiffnessMatrix();
     
     rayleighDampingMatrix = shared_ptr<SparseMatrix>(new SparseMatrix(*tangentStiffnessMatrix));
     rayleighDampingMatrixToMassSubMatrixLinkage = rayleighDampingMatrix->AttachSubMatrix(massMatrix);
@@ -105,7 +104,7 @@ void CentralDifferencesSparse::DecomposeSystemMatrix()
     //printf("*** Central differences: decomposing the system matrix.\n");
     // construct damping matrix
     // rayleigh damping matrix = dampingMasscoef * massMatrix + dampingStiffnessCoef * stiffness matrix
-    forceModel->GetTangentStiffnessMatrix(q, tangentStiffnessMatrix.get());
+    forceModel->GetTangentStiffnessMatrix(q, tangentStiffnessMatrix);
     tangentStiffnessMatrix->ScalarMultiply(internalForceScalingFactor);
     
     tangentStiffnessMatrix->ScalarMultiply(dampingStiffnessCoef, rayleighDampingMatrix.get());

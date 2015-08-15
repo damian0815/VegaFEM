@@ -40,18 +40,19 @@ void IsotropicHyperelasticFEMForceModel::GetInternalForce(double * u, double * i
   isotropicHyperelasticFEM->ComputeForces(u, internalForces);
 }
 
-SparseMatrixOutline IsotropicHyperelasticFEMForceModel::GetTangentStiffnessMatrixTopology()
+shared_ptr<SparseMatrix> IsotropicHyperelasticFEMForceModel::ConstructTangentStiffnessMatrix()
 {
-  return isotropicHyperelasticFEM->GetStiffnessMatrixTopology();
+  auto topology = isotropicHyperelasticFEM->GetStiffnessMatrixTopology();
+    return std::make_shared<SparseMatrix>(topology);
 }
 
-void IsotropicHyperelasticFEMForceModel::GetTangentStiffnessMatrix(double * u, SparseMatrix * tangentStiffnessMatrix)
+void IsotropicHyperelasticFEMForceModel::GetTangentStiffnessMatrix(double * u, shared_ptr<SparseMatrix> tangentStiffnessMatrix)
 {
-  isotropicHyperelasticFEM->GetTangentStiffnessMatrix(u, tangentStiffnessMatrix);
+  isotropicHyperelasticFEM->GetTangentStiffnessMatrix(u, tangentStiffnessMatrix.get());
 } 
 
-void IsotropicHyperelasticFEMForceModel::GetForceAndMatrix(double * u, double * internalForces, SparseMatrix * tangentStiffnessMatrix)
+void IsotropicHyperelasticFEMForceModel::GetForceAndMatrix(double * u, double * internalForces, shared_ptr<SparseMatrix> tangentStiffnessMatrix)
 {
-  isotropicHyperelasticFEM->GetForceAndTangentStiffnessMatrix(u, internalForces, tangentStiffnessMatrix);
+  isotropicHyperelasticFEM->GetForceAndTangentStiffnessMatrix(u, internalForces, tangentStiffnessMatrix.get());
 }
 

@@ -37,6 +37,8 @@
 #include <stdlib.h>
 #include "sparseMatrix.h"
 
+using std::shared_ptr;
+
 class ForceModel
 {
 public:
@@ -45,11 +47,11 @@ public:
   inline int Getr() { return r; }
 
   virtual void GetInternalForce(double * u, double * internalForces) = 0;
-  virtual SparseMatrixOutline GetTangentStiffnessMatrixTopology() = 0;
-  virtual void GetTangentStiffnessMatrix(double * u, SparseMatrix * tangentStiffnessMatrix) = 0; 
+  virtual shared_ptr<SparseMatrix> ConstructTangentStiffnessMatrix() = 0;
+  virtual void GetTangentStiffnessMatrix(double * u, shared_ptr<SparseMatrix> tangentStiffnessMatrix) = 0;
 
   // sometimes computation time can be saved if we know that we will need both internal forces and tangent stiffness matrices:
-  virtual void GetForceAndMatrix (double * u, double * internalForces, SparseMatrix * tangentStiffnessMatrix); 
+  virtual void GetForceAndMatrix (double * u, double * internalForces, shared_ptr<SparseMatrix> tangentStiffnessMatrix);
 
   // reset routines
   virtual void ResetToZero() {}
