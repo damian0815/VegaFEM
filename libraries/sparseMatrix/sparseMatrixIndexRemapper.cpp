@@ -130,10 +130,22 @@ void SparseMatrixIndexRemapper::Print()
     }
 }
 
+static map<int,int>::const_iterator GetRowMapIterator(const map<int,int>& rowMap, int subMatrixRow)
+{
+    auto it = std::find_if(rowMap.begin(), rowMap.end(), [subMatrixRow](const std::pair<int,int>& kvp){ return kvp.second == subMatrixRow; });
+    return it;
+}
+
 int SparseMatrixIndexRemapper::GetSuperMatrixRowForSubMatrixRow(int subMatrixRow) const
 {
-    auto it = std::find_if(superMatrixToSubMatrixRowMap.begin(), superMatrixToSubMatrixRowMap.end(), [subMatrixRow](const std::pair<int,int>& kvp){ return kvp.second == subMatrixRow; });
+    auto it = GetRowMapIterator(superMatrixToSubMatrixRowMap, subMatrixRow);
     return (*it).first;
+}
+
+bool SparseMatrixIndexRemapper::HasSuperMatrixRowForSubMatrixRow(int subMatrixRow) const
+{
+    auto it = GetRowMapIterator(superMatrixToSubMatrixRowMap, subMatrixRow);
+    return (it != superMatrixToSubMatrixRowMap.end());
 }
 
 void SparseMatrixIndexRemapper::AssignSubMatrixFromSuperMatrix()
@@ -146,10 +158,42 @@ void SparseMatrixIndexRemapper::AssignSubMatrixFromSuperMatrix()
         const vector<double>& superColumnEntries = superMatrixEntries[superRow];
         const vector<int>& subSparseToSuperSparseColumnMap = subMatrixSparseToSuperMatrixSparseColumnMaps[subRow];
         int subRowLength = subMatrix->GetRowLength(subRow);
-        for(int subSparseColumn=0; subSparseColumn < subRowLength; subSparseColumn++)
-        {
+        for(int subSparseColumn=0; subSparseColumn < subRowLength; subSparseColumn++) {
             int superSparseColumn = subSparseToSuperSparseColumnMap[subSparseColumn];
             subColumnEntries[subRow][subSparseColumn] = superColumnEntries[superSparseColumn];
         }
     }
+}
+
+void SparseMatrixIndexRemapper::OnEntryWasInsertedIntoSuperMatrix(int superRow, int insertedSuperDenseColumn)
+{
+    if (HasSubMatrixRowForSuperMatrixRow(superRow)) {
+
+        int subRow = GetSubMatrixRowForSuperMatrixRow(superRow);
+        vector<int>& subSparseToSuperSparseColumnMap = subMatrixSparseToSuperMatrixSparseColumnMaps.at(subRow);
+        
+        int insertedSuperSparseColumn = superMatrix->GetInverseIndex(superRow, insertedSuperDenseColumn);
+        assert(insertedSuperSparseColumn != -1 && "sparse column not found, something is broken");
+        for (int i=0; i<subSparseToSuperSparseColumnMap.size(); i++) {
+            //int subSparseColumn = i;
+            int& superSparseColumn = subSparseToSuperSparseColumnMap[i];
+            if (superSparseColumn >= insertedSuperSparseColumn) {
+                ++superSparseColumn;
+            }
+        }
+    }
+}
+
+void SparseMatrixIndexRemapper::OnEntryWasInsertedIntoSubMatrix(int subRow, int insertedSubDenseColumn)
+{
+    /*
+    if (HasSuperMatrixRowForSubMatrixRow(subRow)) {
+        int superRow = GetSuperMatrixRowForSubMatrixRow(subRow);
+        vector<int> subSparseToSuperSparseColumnMap = subMatrixSparseToSuperMatrixSparseColumnMaps.at(subRow);
+        
+        
+        for (int i=0; i<subSparseToSuperSparseColumnMap.size(); i++) {
+            int subSparseColumn = i;
+            if (subSparseColumn )
+    }*/
 }

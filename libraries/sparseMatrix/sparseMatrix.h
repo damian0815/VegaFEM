@@ -235,6 +235,8 @@ public:
     void Append(SparseMatrix *source); // appends source at the bottom right of this, where the start of 'bottom right' is defined by (GetNumRows(),GetNumRows())
     int InsertNewEntry(int row, int denseColumn); // insert a new entry at (row,denseColumn), return sparseColumn
     
+    void CreateEntriesIfNecessary(const SparseMatrixOutline& outline, unsigned int rowsColumnsOffset);
+    
     // transposition (note: the matrix need not be symmetric)
     void BuildTranspositionIndices();
     void FreeTranspositionIndices();

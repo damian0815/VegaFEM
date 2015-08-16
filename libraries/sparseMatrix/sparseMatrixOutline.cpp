@@ -164,6 +164,13 @@ void SparseMatrixOutline::AddBlock3x3Entry(int i, int j, double * matrix3x3)
             AddEntry(3*i+k,3*j+l,matrix3x3[3*k+l]);
 }
 
+void SparseMatrixOutline::AddBlock3x3Entry(int i, int j)
+{
+    for(int k=0; k<3; k++)
+        for(int l=0; l<3; l++)
+            AddEntry(3*i+k, 3*j+l);
+}
+
 void SparseMatrixOutline::AppendEntries(const SparseMatrixOutline& other)
 {
     int offset = GetNumRows();
@@ -190,6 +197,17 @@ double SparseMatrixOutline::GetEntry(int i, int j) const
         return (pos->second);
     else
         return 0;
+}
+
+vector<pair<int, int>> SparseMatrixOutline::GetEntries() const // return all entries as pairs (i,j)
+{
+    vector<pair<int,int>> entries;
+    for (int row=0; row<GetNumRows(); row++) {
+        for (const auto& column: columnEntries[row]) {
+            entries.push_back(make_pair(row, column.first));
+        }
+    }
+    return entries;
 }
 
 bool SparseMatrixOutline::HasEntry(int i, int j) const

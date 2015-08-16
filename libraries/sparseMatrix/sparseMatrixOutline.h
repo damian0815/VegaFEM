@@ -13,6 +13,7 @@
 #include <string.h>
 #include <vector>
 using std::vector;
+using std::pair;
 #include <map>
 
 class SparseMatrix;
@@ -39,6 +40,7 @@ public:
     
     // add entry at location (i,j) in the matrix
     void AddEntry(int i, int j, double value=0.0);
+    void AddBlock3x3Entry(int i, int j);
     void AddBlock3x3Entry(int i, int j, double * matrix3x3); // matrix3x3 should be given in row-major order
     // add a block (sparse) matrix (optionally multiplied with "scalarFactor"), starting at row i, and column j
     void AddBlockMatrix(int i, int j, const SparseMatrix * block, double scalarFactor=1.0);
@@ -55,6 +57,7 @@ public:
     int GetNumEntries() const; // get total number of non-zero matrix elements
 	bool HasEntry(int i, int j) const;
     double GetEntry(int i, int j) const; // returns the matrix entry at location (i,j) in the matrix (or zero if entry has not been assigned)
+    vector<pair<int, int> > GetEntries() const; // return all entries as pairs (i,j)
     void Print() const;
 	
 	

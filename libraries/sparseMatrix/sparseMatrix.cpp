@@ -1626,12 +1626,45 @@ int SparseMatrix::InsertNewEntry(int row, int denseColumn)
 {
     assert(row < GetNumRows() && "row is out of bounds");
     assert(GetInverseIndex(row, denseColumn) == -1 && "entry already exists for this dense column");
-    assert((GetRowLength(row) == 0 || GetColumnIndex(row, GetRowLength(row)-1) < denseColumn) && "can only append entries at the end for now");
+    //assert((GetRowLength(row) == 0 || GetColumnIndex(row, GetRowLength(row)-1) < denseColumn) && "can only append entries at the end for now");
+    auto& rowIndices = columnIndices.at(row);
+    auto insertIterator = std::lower_bound(rowIndices.begin(), rowIndices.end(), denseColumn);
+    auto insertIndex = insertIterator - rowIndices.begin();
     
-    columnIndices.at(row).push_back(denseColumn);
-    columnEntries.at(row).push_back(0.0);
+    auto& rowEntries = columnEntries.at(row);
+    rowIndices.insert(insertIterator, denseColumn);
+    rowEntries.insert(rowEntries.begin()+insertIndex, 0.0);
     
-    return columnIndices.at(row).size()-1;
+    for (auto& subMatrixLinkage: subMatrixLinkages) {
+        auto& indexRemapper = subMatrixLinkage->GetIndexRemapper();
+        indexRemapper.OnEntryWasInsertedIntoSuperMatrix(row, denseColumn);
+    }
+    
+    if (superMatrixLinkage != nullptr) {
+        superMatrixLinkage->GetIndexRemapper().OnEntryWasInsertedIntoSubMatrix(row, denseColumn);
+    }
+    
+    return insertIndex;
+    
+    //columnIndices.at(row).push_back(denseColumn);
+    //columnEntries.at(row).push_back(0.0);
+    
+    //return columnIndices.at(row).size()-1;
+}
+
+void SparseMatrix::CreateEntriesIfNecessary(const SparseMatrixOutline& outline, unsigned int rowColumnOffset)
+{
+    if ((rowColumnOffset + outline.GetNumRows()) > GetNumRows()) {
+        IncreaseNumRows((rowColumnOffset + outline.GetNumRows()) - GetNumRows());
+    }
+    
+    for (const auto& entry: outline.GetEntries()) {
+        int row = entry.first + rowColumnOffset;
+        int denseColumn = entry.second + rowColumnOffset;
+        if (GetInverseIndex(row, denseColumn) == -1) {
+            InsertNewEntry(row, denseColumn);
+        }
+    }
 }
 
 

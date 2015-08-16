@@ -30,10 +30,14 @@ public:
     
     inline bool HasSubMatrixRowForSuperMatrixRow(int superMatrixRow) const { return superMatrixToSubMatrixRowMap.count(superMatrixRow); }
     inline int GetSubMatrixRowForSuperMatrixRow(int superMatrixRow) const { return superMatrixToSubMatrixRowMap.at(superMatrixRow); }
+    bool HasSuperMatrixRowForSubMatrixRow(int subMatrixRow) const;
     int GetSuperMatrixRowForSubMatrixRow(int subMatrixRow) const;
     
     void RemoveSuperRowFromSubMatrix(int whichSuperMatrixRow);
     void RemoveSuperColumnFromSubMatrix(int whichSuperMatrixDenseColumn);
+    
+    void OnEntryWasInsertedIntoSuperMatrix(int superMatrixRow, int insertedSuperMatrixDenseColumn);
+    void OnEntryWasInsertedIntoSubMatrix(int subMatrixRow, int insertedSubMatrixDenseColumn);
     
     void AssignSubMatrixFromSuperMatrix();
     

@@ -25,6 +25,8 @@ public:
     
     void AddSubMatrixToSuperMatrix(double factor);
     
+    SparseMatrixIndexRemapper& GetIndexRemapper() { return indexRemapper; }
+    
 private:
     void BuildSubMatrixIndices();
     
