@@ -435,7 +435,7 @@ void SparseMatrix::PrintPartial(int startRow, int startDenseColumn, int endRow, 
         printf("%4i ", row);
         for (int denseColumn=startDenseColumn; denseColumn<=endDenseColumn; denseColumn++)
         {
-            int sparseColumn = GetInverseIndex(row, denseColumn) != -1;
+            int sparseColumn = GetInverseIndex(row, denseColumn);
             if (sparseColumn == -1)
             {
                 printf("         ");
