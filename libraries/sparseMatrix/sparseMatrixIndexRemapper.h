@@ -33,6 +33,9 @@ public:
     bool HasSuperMatrixRowForSubMatrixRow(int subMatrixRow) const;
     int GetSuperMatrixRowForSubMatrixRow(int subMatrixRow) const;
     
+    bool HasSubMatrixSparseColumnForSuperMatrixSparseColumn(int superMatrixRow, int superMatrixSparseColumn);
+    int GetSubMatrixSparseColumnForSuperMatrixSparseColumn(int superMatrixRow, int superMatrixSparseColumn);
+    
     void RemoveSuperRowFromSubMatrix(int whichSuperMatrixRow);
     void RemoveSuperColumnFromSubMatrix(int whichSuperMatrixDenseColumn);
     
@@ -42,6 +45,7 @@ public:
     void AssignSubMatrixFromSuperMatrix();
     
     void Print();
+    
     
     shared_ptr<SparseMatrix> GetSubMatrix() { return subMatrix; }
     shared_ptr<SparseMatrix> GetSuperMatrix() { return superMatrix; }
@@ -55,7 +59,7 @@ private:
     
     // A list of the super matrix sparse indices, one for each of the sub matrix sparse indices
     typedef vector<int> SubMatrixSparseColumnToSuperMatrixSparseColumnMap;
-    // One subMatirxSparseColumnToSuperMatrixSparseColumnMap for each row in the sub matrix
+    // One subMatrixSparseColumnToSuperMatrixSparseColumnMap for each row in the sub matrix
     vector<SubMatrixSparseColumnToSuperMatrixSparseColumnMap> subMatrixSparseToSuperMatrixSparseColumnMaps;
     
     shared_ptr<SparseMatrix> superMatrix;

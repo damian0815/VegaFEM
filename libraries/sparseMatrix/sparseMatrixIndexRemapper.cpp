@@ -114,19 +114,22 @@ void SparseMatrixIndexRemapper::RemoveSuperColumnFromSubMatrix(int whichSuperMat
 
 void SparseMatrixIndexRemapper::Print()
 {
-    printf("SparseMatrixIndexRemapper\n");
-    printf("subMatrix Row index -> superMatrix row index: superMatrixColumnIndices\n");
     for (auto& kvp: superMatrixToSubMatrixRowMap)
     {
-        int superMatrixRow = kvp.first;
-        int subMatrixRow = kvp.second;
-        printf("%2i -> %2i: ", subMatrixRow, superMatrixRow);
-        for (int j=0; j<subMatrixSparseToSuperMatrixSparseColumnMaps[subMatrixRow].size(); j++)
-        {
-            auto superMatrixSparseColumn = subMatrixSparseToSuperMatrixSparseColumnMaps[subMatrixRow][j];
-            printf("%2i ", superMatrixSparseColumn);
+        int superRow = kvp.first;
+        int subRow = kvp.second;
+        const auto& subSparseToSuperSparseColumnMap = subMatrixSparseToSuperMatrixSparseColumnMaps.at(subRow);
+        if (subSparseToSuperSparseColumnMap.size()>0) {
+            printf("sub row %2i -> super row %2i: ", subRow, superRow);
+            for (int subSparseColumn=0; subSparseColumn<subSparseToSuperSparseColumnMap.size(); subSparseColumn++)
+            {
+                auto superSparseColumn = subSparseToSuperSparseColumnMap[subSparseColumn];
+                auto subDenseColumn = subMatrix->GetColumnIndex(subRow, subSparseColumn);
+                auto superDenseColumn = superMatrix->GetColumnIndex(superRow, superSparseColumn);
+                printf("%2i:%2i, ", subDenseColumn, superDenseColumn);
+            }
+            printf("\n");
         }
-        printf("\n");
     }
 }
 
@@ -196,4 +199,23 @@ void SparseMatrixIndexRemapper::OnEntryWasInsertedIntoSubMatrix(int subRow, int 
             int subSparseColumn = i;
             if (subSparseColumn )
     }*/
+}
+
+bool SparseMatrixIndexRemapper::HasSubMatrixSparseColumnForSuperMatrixSparseColumn(int superMatrixRow, int superMatrixSparseColumn)
+{
+    return GetSubMatrixSparseColumnForSuperMatrixSparseColumn(superMatrixRow, superMatrixSparseColumn) != -1;
+}
+
+int SparseMatrixIndexRemapper::GetSubMatrixSparseColumnForSuperMatrixSparseColumn(int superMatrixRow, int superMatrixSparseColumn)
+{
+    int subMatrixRow = superMatrixToSubMatrixRowMap.at(superMatrixRow);
+    const auto& subSparseToSuperSparseColumnMap = subMatrixSparseToSuperMatrixSparseColumnMaps.at(subMatrixRow);
+    for (int i=0; i<subSparseToSuperSparseColumnMap.size(); i++) {
+        int thisSuperSparseColumn = subSparseToSuperSparseColumnMap[i];
+        if (thisSuperSparseColumn == superMatrixSparseColumn) {
+            return i;
+        }
+    }
+    
+    return -1;
 }

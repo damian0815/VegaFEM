@@ -152,7 +152,10 @@ public:
     void SumRowEntries(double * rowSums) const; // returns the sum of all entries in each row
     double GetMaxAbsEntry() const; // max abs value of a matrix entry
     double GetInfinityNorm() const; // matrix infinity norm
-    void Print(bool sparsePrint=false) const; // prints the matrix out to standard output
+    void Print() const; // prints the matrix out to standard output
+    void PrintSparse() const;
+    void PrintPartial(int startRow, int startDenseColumn, int endRow, int endDenseColumn);
+    
     double GetRowNorm2(int row) const;
     
     // matrix algebra (all involved matrices must have the same pattern of non-zero entries)

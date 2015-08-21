@@ -260,6 +260,23 @@ void SparseMatrixOutline::Print() const
     }
 }
 
+void SparseMatrixOutline::PrintSparse() const
+{
+    for (int i=0; i<GetNumRows(); i++)
+    {
+        const auto& row = columnEntries[i];
+        if (row.size()>0)
+        {
+            printf("%3i: ", i);
+            for (auto it: row)
+            {
+                printf("%3i,", it.first);
+            }
+            printf("\n");
+        }
+    }
+}
+
 static void PrintMultiple(const char* toPrint, int count)
 {
 	for (int i=0; i<count; i++)
