@@ -17,11 +17,7 @@ else
   cd ..
 fi
 
-echo "Compiling all libraries and driver..."
-make -j3 -C utilities/interactiveDeformableSimulator 
-
-echo "Compiling volumetric mesh utilities..."
-make -j3 -C utilities/volumetricMeshUtilities
+make
 
 echo 'Note: Examples are in the "examples" subfolder. Binaries are in the "utilities/bin" subfolder.'
 

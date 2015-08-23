@@ -379,43 +379,73 @@ void SparseMatrix::ResetRowToZero(int row)
     columnEntries[row].assign(rowLength, 0);
 }
 
-void SparseMatrix::Print(bool sparsePrint) const
+void SparseMatrix::PrintSparse() const
 {
-    if (sparsePrint)
+    for (int i=0; i<GetNumRows(); i++)
     {
-        for (int i=0; i<GetNumRows(); i++)
-        {
-            int rowLength = GetRowLength(i);
-            for(int j=0; j< rowLength; j++)
-                printf("%d %d %G\n", i, columnIndices[i][j], columnEntries[i][j]);
-        }
+        int rowLength = GetRowLength(i);
+        for(int j=0; j< rowLength; j++)
+            printf("%d %d %G\n", i, columnIndices[i][j], columnEntries[i][j]);
     }
-    else
+}
+
+void SparseMatrix::Print() const
+{
+    int numColumns = GetNumColumns();
+    for (int i=0; i<GetNumRows(); i++)
     {
-        int numColumns = GetNumColumns();
-        for (int i=0; i<GetNumRows(); i++)
+        int index = 0;
+        int rowLength = GetRowLength(i);
+        for(int j=0; j< rowLength; j++)
         {
-            int index = 0;
-            int rowLength = GetRowLength(i);
-            for(int j=0; j< rowLength; j++)
-            {
-                while (index < columnIndices[i][j])
-                {
-                    index++;
-                    printf("%f,",0.0);
-                }
-                printf("%f,",columnEntries[i][j]);
-                index++;
-            }
-            
-            while (index < numColumns)
+            while (index < columnIndices[i][j])
             {
                 index++;
                 printf("%f,",0.0);
             }
-            
-            printf("\n");
-        } 
+            printf("%f,",columnEntries[i][j]);
+            index++;
+        }
+        
+        while (index < numColumns)
+        {
+            index++;
+            printf("%f,",0.0);
+        }
+        
+        printf("\n");
+    } 
+}
+
+void SparseMatrix::PrintPartial(int startRow, int startDenseColumn, int endRow, int endDenseColumn)
+{
+    startRow = min(max(0,startRow), GetNumRows()-1);
+    startDenseColumn = max(0,startDenseColumn);
+    endRow = min(max(0,endRow), GetNumRows()-1);
+    endDenseColumn = max(0,endDenseColumn);
+    
+    printf("     ");
+    for (int denseColumn=startDenseColumn; denseColumn<=endDenseColumn; denseColumn++)
+    {
+        printf("  %4i   ", denseColumn);
+    }
+    printf("\n");
+    for (int row=startRow; row<=endRow; row++)
+    {
+        printf("%4i ", row);
+        for (int denseColumn=startDenseColumn; denseColumn<=endDenseColumn; denseColumn++)
+        {
+            int sparseColumn = GetInverseIndex(row, denseColumn);
+            if (sparseColumn == -1)
+            {
+                printf("         ");
+            }
+            else
+            {
+                printf("%8g ", GetEntry(row, sparseColumn));
+            }
+        }
+        printf("\n");
     }
 }
 
@@ -1638,11 +1668,16 @@ int SparseMatrix::InsertNewEntry(int row, int denseColumn)
     for (auto& subMatrixLinkage: subMatrixLinkages) {
         auto& indexRemapper = subMatrixLinkage->GetIndexRemapper();
         indexRemapper.OnEntryWasInsertedIntoSuperMatrix(row, denseColumn);
+        
+        auto subMatrix = subMatrixLinkage->GetSubMatrix();
+        assert(subMatrix->subMatrixLinkages.size()==0);
+        assert(subMatrix->superMatrixLinkage == nullptr);
     }
     
-    if (superMatrixLinkage != nullptr) {
+    assert(superMatrixLinkage == nullptr);
+/*    if (superMatrixLinkage != nullptr) {
         superMatrixLinkage->GetIndexRemapper().OnEntryWasInsertedIntoSubMatrix(row, denseColumn);
-    }
+    }*/
     
     return insertIndex;
     

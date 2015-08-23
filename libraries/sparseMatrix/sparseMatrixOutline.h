@@ -59,6 +59,7 @@ public:
     double GetEntry(int i, int j) const; // returns the matrix entry at location (i,j) in the matrix (or zero if entry has not been assigned)
     vector<pair<int, int> > GetEntries() const; // return all entries as pairs (i,j)
     void Print() const;
+    void PrintSparse() const;
 	
 	
     void PrintTopology(int clusterSize=3) const; // clusterSize is the size of the square blocks that are assumed to compose the matrix; eg for 3x3 blocks (3d FEM matrix), use clusteSize=3
