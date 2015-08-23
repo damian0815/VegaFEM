@@ -32,7 +32,10 @@ public:
     inline int GetSubMatrixRowForSuperMatrixRow(int superMatrixRow) const { return superMatrixToSubMatrixRowMap.at(superMatrixRow); }
     bool HasSuperMatrixRowForSubMatrixRow(int subMatrixRow) const;
     int GetSuperMatrixRowForSubMatrixRow(int subMatrixRow) const;
-    
+	
+	bool HasSubMatrixSparseColumnForSuperMatrixSparseColumn(int superMatrixRow, int superMatrixSparseColumn);
+	int GetSubMatrixSparseColumnForSuperMatrixSparseColumn(int superMatrixRow, int superMatrixSparseColumn);
+	
     void RemoveSuperRowFromSubMatrix(int whichSuperMatrixRow);
     void RemoveSuperColumnFromSubMatrix(int whichSuperMatrixDenseColumn);
     

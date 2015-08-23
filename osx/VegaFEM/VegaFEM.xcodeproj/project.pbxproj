@@ -6,7 +6,35 @@
 	objectVersion = 46;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		2D42B0191B850698003D77E5 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D42B0181B850698003D77E5 /* main.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		2D42B01D1B850F04003D77E5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2DAE42C31B5BAB010034BE8B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2DAE42C71B5BAB010034BE8B;
+			remoteInfo = VegaFEM;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		2D42B0131B850698003D77E5 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		2D42B0151B850698003D77E5 /* testSparseMatrixIndexRemapper */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = testSparseMatrixIndexRemapper; sourceTree = BUILT_PRODUCTS_DIR; };
+		2D42B0181B850698003D77E5 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		2DAE42CF1B5BAE610034BE8B /* camera */ = {isa = PBXFileReference; lastKnownFileType = folder; name = camera; path = ../../libraries/camera; sourceTree = "<group>"; };
 		2DAE42D01B5BAE610034BE8B /* clothBW */ = {isa = PBXFileReference; lastKnownFileType = folder; name = clothBW; path = ../../libraries/clothBW; sourceTree = "<group>"; };
 		2DAE42D11B5BAE610034BE8B /* configFile */ = {isa = PBXFileReference; lastKnownFileType = folder; name = configFile; path = ../../libraries/configFile; sourceTree = "<group>"; };
@@ -51,12 +79,48 @@
 		2DAE42FB1B5BE76C0034BE8B /* interactiveDeformableSimulator */ = {isa = PBXFileReference; lastKnownFileType = folder; name = interactiveDeformableSimulator; path = ../../utilities/interactiveDeformableSimulator; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFrameworksBuildPhase section */
+		2D42B0121B850698003D77E5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
 /* Begin PBXGroup section */
+		2D42B00E1B8505E3003D77E5 /* test */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = test;
+			sourceTree = "<group>";
+		};
+		2D42B0161B850698003D77E5 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2D42B0151B850698003D77E5 /* testSparseMatrixIndexRemapper */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2D42B0171B850698003D77E5 /* testSparseMatrixIndexRemapper */ = {
+			isa = PBXGroup;
+			children = (
+				2D42B0181B850698003D77E5 /* main.cpp */,
+			);
+			path = testSparseMatrixIndexRemapper;
+			sourceTree = "<group>";
+		};
 		2DAE42C21B5BAB010034BE8B = {
 			isa = PBXGroup;
 			children = (
+				2D42B00E1B8505E3003D77E5 /* test */,
 				2DAE42FA1B5BE75E0034BE8B /* utilities */,
 				2DAE42CE1B5BAE330034BE8B /* libraries */,
+				2D42B0171B850698003D77E5 /* testSparseMatrixIndexRemapper */,
+				2D42B0161B850698003D77E5 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
@@ -135,12 +199,38 @@
 		};
 /* End PBXLegacyTarget section */
 
+/* Begin PBXNativeTarget section */
+		2D42B0141B850698003D77E5 /* testSparseMatrixIndexRemapper */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2D42B01A1B850698003D77E5 /* Build configuration list for PBXNativeTarget "testSparseMatrixIndexRemapper" */;
+			buildPhases = (
+				2D42B0111B850698003D77E5 /* Sources */,
+				2D42B0121B850698003D77E5 /* Frameworks */,
+				2D42B0131B850698003D77E5 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2D42B01E1B850F04003D77E5 /* PBXTargetDependency */,
+			);
+			name = testSparseMatrixIndexRemapper;
+			productName = testSparseMatrixIndexRemapper;
+			productReference = 2D42B0151B850698003D77E5 /* testSparseMatrixIndexRemapper */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
 /* Begin PBXProject section */
 		2DAE42C31B5BAB010034BE8B /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0510;
 				ORGANIZATIONNAME = "Damian Stewart";
+				TargetAttributes = {
+					2D42B0141B850698003D77E5 = {
+						CreatedOnToolsVersion = 6.4;
+					};
+				};
 			};
 			buildConfigurationList = 2DAE42C61B5BAB010034BE8B /* Build configuration list for PBXProject "VegaFEM" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -150,15 +240,78 @@
 				en,
 			);
 			mainGroup = 2DAE42C21B5BAB010034BE8B;
+			productRefGroup = 2D42B0161B850698003D77E5 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				2DAE42C71B5BAB010034BE8B /* VegaFEM */,
+				2D42B0141B850698003D77E5 /* testSparseMatrixIndexRemapper */,
 			);
 		};
 /* End PBXProject section */
 
+/* Begin PBXSourcesBuildPhase section */
+		2D42B0111B850698003D77E5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2D42B0191B850698003D77E5 /* main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		2D42B01E1B850F04003D77E5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2DAE42C71B5BAB010034BE8B /* VegaFEM */;
+			targetProxy = 2D42B01D1B850F04003D77E5 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		2D42B01B1B850698003D77E5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"$(SRCROOT)/../../libraries/include",
+				);
+				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../../libraries/lib";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				OTHER_LDFLAGS = "-lsparseMatrix";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		2D42B01C1B850698003D77E5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"$(SRCROOT)/../../libraries/include",
+				);
+				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../../libraries/lib";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = "-lsparseMatrix";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		2DAE42C81B5BAB010034BE8B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -253,6 +406,14 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		2D42B01A1B850698003D77E5 /* Build configuration list for PBXNativeTarget "testSparseMatrixIndexRemapper" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2D42B01B1B850698003D77E5 /* Debug */,
+				2D42B01C1B850698003D77E5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
 		2DAE42C61B5BAB010034BE8B /* Build configuration list for PBXProject "VegaFEM" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

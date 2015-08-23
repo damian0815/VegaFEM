@@ -197,3 +197,23 @@ void SparseMatrixIndexRemapper::OnEntryWasInsertedIntoSubMatrix(int subRow, int 
             if (subSparseColumn )
     }*/
 }
+
+bool SparseMatrixIndexRemapper::HasSubMatrixSparseColumnForSuperMatrixSparseColumn(int superRow, int superSparseColumn)
+{
+	return GetSubMatrixSparseColumnForSuperMatrixSparseColumn(superRow, superSparseColumn) != -1;
+}
+
+int SparseMatrixIndexRemapper::GetSubMatrixSparseColumnForSuperMatrixSparseColumn(int superRow, int superSparseColumn)
+{
+	int subRow = GetSubMatrixRowForSuperMatrixRow(superRow);
+    const vector<int>& subSparseToSuperSparseColumnMap = subMatrixSparseToSuperMatrixSparseColumnMaps.at(subRow);
+	for (int mapIndex=0; mapIndex<subSparseToSuperSparseColumnMap.size(); mapIndex++) {
+		if (subSparseToSuperSparseColumnMap[mapIndex]==superSparseColumn) {
+			return mapIndex;
+		}
+	}
+	
+	return -1;
+	
+}
+
