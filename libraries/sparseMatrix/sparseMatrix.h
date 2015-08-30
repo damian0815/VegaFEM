@@ -106,7 +106,6 @@ using std::shared_ptr;
 #include "sparseMatrixOutline.h"
 
 class SparseSubMatrixLinkage;
-class SparseSuperMatrixLinkage;
 class SparseMatrixIndexRemapper;
 
 class SparseMatrix: public std::enable_shared_from_this<SparseMatrix>

@@ -11,13 +11,13 @@ R ?= ../..
 EXTRACXXFLAGS+=-Wno-format-security
 
 # the object files to be compiled for this library
-SPARSEMATRIX_OBJECTS=sparseMatrix.o sparseMatrixMT.o sparseMatrixOutline.o sparseSubMatrixLinkage.o sparseSuperMatrixLinkage.o sparseMatrixIndexRemapper.o
+SPARSEMATRIX_OBJECTS=sparseMatrix.o sparseMatrixMT.o sparseMatrixOutline.o sparseSubMatrixLinkage.o sparseMatrixIndexRemapper.o
 
 # the libraries this library depends on
 SPARSEMATRIX_LIBS=
 
 # the headers in this library
-SPARSEMATRIX_HEADERS=sparseMatrix.h sparseMatrixMT.h sparseMatrixOutline.h sparseSubMatrixLinkage.h sparseSuperMatrixLinkage.h sparseMatrixIndexRemapper.h
+SPARSEMATRIX_HEADERS=sparseMatrix.h sparseMatrixMT.h sparseMatrixOutline.h sparseSubMatrixLinkage.h sparseMatrixIndexRemapper.h
 
 
 SPARSEMATRIX_OBJECTS_FILENAMES=$(addprefix $(L)/sparseMatrix/, $(SPARSEMATRIX_OBJECTS))
