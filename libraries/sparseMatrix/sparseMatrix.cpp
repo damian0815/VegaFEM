@@ -795,10 +795,10 @@ void SparseMatrix::AddFromSubMatrix(double factor, shared_ptr<SparseSubMatrixLin
     link->AddSubMatrixToSuperMatrix(factor);
 }
 
-shared_ptr<SparseSuperMatrixLinkage> SparseMatrix::AttachSuperMatrix(shared_ptr<SparseMatrix> superMatrix)
+shared_ptr<SparseSubMatrixLinkage> SparseMatrix::AttachSuperMatrix(shared_ptr<SparseMatrix> superMatrix)
 {
     assert(superMatrixLinkage == nullptr && "already have a super matrix attached");
-    superMatrixLinkage = std::make_shared<SparseSuperMatrixLinkage>(superMatrix, shared_from_this());
+    superMatrixLinkage = superMatrix->AttachSubMatrix(shared_from_this());
     return superMatrixLinkage;
 }
 
@@ -1056,7 +1056,7 @@ void SparseMatrix::RemoveRowsColumns(int numRemovedRowsColumns, int * removedRow
         columnIndices[sourceRow].resize(targetIndex);
         columnEntries[sourceRow].resize(targetIndex);
         
-        // replace target row with source row, fast`
+        // replace target row with source row, fast
         columnIndices[targetRow].swap(columnIndices[sourceRow]);
         columnEntries[targetRow].swap(columnEntries[sourceRow]);
         ++targetRow;
@@ -1067,7 +1067,7 @@ void SparseMatrix::RemoveRowsColumns(int numRemovedRowsColumns, int * removedRow
     columnIndices.resize(newRowCount);
     
     
-    for (int i=0; i<numRemovedRowsColumns; i++)
+    for (int i=numRemovedRowsColumns-1; i>=0; i--)
     {
         superMatrixLinkage->GetIndexRemapper().RemoveSuperRowFromSubMatrix(removedRowsColumns[i] - oneIndexed);
         superMatrixLinkage->GetIndexRemapper().RemoveSuperColumnFromSubMatrix(removedRowsColumns[i] - oneIndexed);

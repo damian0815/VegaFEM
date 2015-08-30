@@ -14,6 +14,7 @@ SparseSubMatrixLinkage::SparseSubMatrixLinkage(shared_ptr<SparseMatrix> matrix, 
 }
 
 
+/*
 void SparseSubMatrixLinkage::AddSubMatrixToSuperMatrix(double factor)
 {
     auto& superColumnEntries = superMatrix->GetDataHandle();
@@ -28,3 +29,4 @@ void SparseSubMatrixLinkage::AddSubMatrixToSuperMatrix(double factor)
         }
     }
 }
+*/

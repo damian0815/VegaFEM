@@ -153,8 +153,26 @@ bool SparseMatrixIndexRemapper::HasSuperMatrixRowForSubMatrixRow(int subMatrixRo
 
 void SparseMatrixIndexRemapper::AssignSubMatrixFromSuperMatrix()
 {
-    auto& subColumnEntries = subMatrix->GetDataHandle();
     const auto& superMatrixEntries = superMatrix->GetDataHandle();
+    auto& subMatrixEntries = subMatrix->GetDataHandle();
+    
+    for (const auto it: superMatrixToSubMatrixRowMap)
+    {
+        int superRow = it.first;
+        int subRow = it.second;
+        //printf("assigning sub row %i from super row %i\n", subRow, superRow);
+        const vector<double>& superColumnEntries = superMatrixEntries[superRow];
+        vector<double>& subColumnEntries = subMatrixEntries[subRow];
+        
+        const vector<int>& subSparseToSuperSparseColumnMap = subMatrixSparseToSuperMatrixSparseColumnMaps[subRow];
+        int subRowLength = subMatrix->GetRowLength(subRow);
+        for(int subSparseColumn=0; subSparseColumn < subRowLength; subSparseColumn++) {
+            int superSparseColumn = subSparseToSuperSparseColumnMap[subSparseColumn];
+            subColumnEntries[subSparseColumn] = superColumnEntries[superSparseColumn];
+        }
+    }
+    /*
+    
     for(int subRow=0; subRow<subMatrix->GetNumRows(); subRow++)
     {
         int superRow = GetSuperMatrixRowForSubMatrixRow(subRow);
@@ -164,6 +182,21 @@ void SparseMatrixIndexRemapper::AssignSubMatrixFromSuperMatrix()
         for(int subSparseColumn=0; subSparseColumn < subRowLength; subSparseColumn++) {
             int superSparseColumn = subSparseToSuperSparseColumnMap[subSparseColumn];
             subColumnEntries[subRow][subSparseColumn] = superColumnEntries[superSparseColumn];
+        }
+    }*/
+}
+
+void SparseMatrixIndexRemapper::AddSubMatrixToSuperMatrix(double factor)
+{
+    auto& superColumnEntries = superMatrix->GetDataHandle();
+    const auto& subColumnEntries = subMatrix->GetDataHandle();
+    
+    for(int subRow=0; subRow<subMatrix->GetNumRows(); subRow++) {
+        int superRow = GetSuperMatrixRowForSubMatrixRow(subRow);
+        int subMatrixRowLength = subMatrix->GetRowLength(subRow);
+        for(int sparseSubJ=0; sparseSubJ < subMatrixRowLength; sparseSubJ++) {
+            int sparseSuperJ = GetSuperMatrixSparseColumnForSubMatrixSparseColumn_SubMatrixRow(subRow, sparseSubJ);
+            superColumnEntries.at(superRow).at(sparseSuperJ) += factor * subColumnEntries.at(subRow).at(sparseSubJ);
         }
     }
 }

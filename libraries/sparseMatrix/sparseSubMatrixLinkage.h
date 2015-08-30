@@ -24,7 +24,8 @@ public:
     shared_ptr<SparseMatrix> GetSuperMatrix() { return superMatrix; }
     shared_ptr<SparseMatrix> GetSubMatrix() { return subMatrix; }
     
-    void AddSubMatrixToSuperMatrix(double factor);
+    void AddSubMatrixToSuperMatrix(double factor) { indexRemapper.AddSubMatrixToSuperMatrix(factor); }
+    void AssignSubMatrixFromSuperMatrix() { indexRemapper.AssignSubMatrixFromSuperMatrix(); }
     
     SparseMatrixIndexRemapper& GetIndexRemapper() { return indexRemapper; }
     

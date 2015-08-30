@@ -24,6 +24,11 @@ class SparseMatrixIndexRemapper
 public:
     /// for each entry in sourceMatrix, map to the matching entry in targetMatrix, taking rowColumnOffset into account.
     SparseMatrixIndexRemapper(shared_ptr<SparseMatrix> superMatrix, shared_ptr<SparseMatrix> subMatrix, int denseRowColumnOffset);
+       
+    void AssignSubMatrixFromSuperMatrix();
+    void AddSubMatrixToSuperMatrix(double factor=1.0);
+    
+    void Print();
     
     inline int GetSuperMatrixSparseColumnForSubMatrixSparseColumn_SubMatrixRow(int subMatrixRow, int subMatrixSparseColumn) const;
     inline int GetSuperMatrixSparseColumnForSubMatrixSparseColumn_SuperMatrixRow(int superMatrixRow, int subMatrixSparseColumn) const;
@@ -41,10 +46,7 @@ public:
     
     void OnEntryWasInsertedIntoSuperMatrix(int superMatrixRow, int insertedSuperMatrixDenseColumn);
     void OnEntryWasInsertedIntoSubMatrix(int subMatrixRow, int insertedSubMatrixDenseColumn);
-    
-    void AssignSubMatrixFromSuperMatrix();
-    
-    void Print();
+
     
     
     shared_ptr<SparseMatrix> GetSubMatrix() { return subMatrix; }

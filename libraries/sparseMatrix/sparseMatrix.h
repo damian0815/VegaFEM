@@ -288,17 +288,10 @@ public:
     // subMatrix must have been attached via AttachSubMatrix
     void AddFromSubMatrix(double factor, shared_ptr<SparseMatrix> subMatrix);
     
-    /*
-    // Build supermatrix indices is used for pair of matrices with rows/columns removed.
-    // oneIndexed: tells whether the fixed rows and columns are specified 1-indexed or 0-indexed
-    // First, call BuildSuperMatrixIndices once to inialize (all fixed rows and columns are indexed with respect the superMatrix):
-    void BuildSuperMatrixIndices(int numFixedRowColumns, int * fixedRowColumns, SparseMatrix * superMatrix, int oneIndexed=0); // use this version if the indices of removed rows and columns are the same
-    void BuildSuperMatrixIndices(int numFixedRows, int * fixedRows, int numFixedColumns, int * fixedColumns, SparseMatrix * superMatrix, int oneIndexed=0); // allows arbitrary row and column indices*/
-    // Then, call this (potentially many times) to quickly assign the values at the appropriate places in the submatrix.
-    // For example, you can use this to copy data from a matrix into a submatrix obtained by a previous call to RemoveRowColumns.
     
-    shared_ptr<SparseSuperMatrixLinkage> AttachSuperMatrix(shared_ptr<SparseMatrix> superMatrix);
-    
+    // Attach 'this' as a subMatrix of superMatrix.
+    shared_ptr<SparseSubMatrixLinkage> AttachSuperMatrix(shared_ptr<SparseMatrix> superMatrix);
+    // Assign values of this matrix by copying values from the matching entries in superMatrix. The superMatrix must have been 
     void AssignFromSuperMatrix(std::shared_ptr<SparseMatrix> superMatrix);
 
     
@@ -350,7 +343,7 @@ protected:
     void AttachSubMatrix(shared_ptr<SparseSubMatrixLinkage> linkage);
     vector<shared_ptr<SparseSubMatrixLinkage> > subMatrixLinkages;
     
-    shared_ptr<SparseSuperMatrixLinkage> superMatrixLinkage;
+    shared_ptr<SparseSubMatrixLinkage> superMatrixLinkage;
     
     void InitFromOutline(const SparseMatrixOutline& sparseMatrixOutline);
     void Allocate(size_t numRows);
