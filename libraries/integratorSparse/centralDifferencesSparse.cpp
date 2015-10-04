@@ -45,8 +45,8 @@ CentralDifferencesSparse::CentralDifferencesSparse(int numDOFs, double timestep,
     tangentStiffnessMatrix = forceModel->ConstructTangentStiffnessMatrix();
     
     rayleighDampingMatrix = shared_ptr<SparseMatrix>(new SparseMatrix(*tangentStiffnessMatrix));
-    rayleighDampingMatrixToMassSubMatrixLinkage = rayleighDampingMatrix->AttachSubMatrix(massMatrix);
-    tangentStiffnessMatrixToMassSubMatrixLinkage = tangentStiffnessMatrix->AttachSubMatrix(massMatrix);
+    rayleighDampingMatrix->AttachSubMatrix(massMatrix);
+    tangentStiffnessMatrix->AttachSubMatrix(massMatrix);
     
     if (tangentStiffnessMatrix->GetNumRows() != massMatrix->GetNumRows())
     {
@@ -108,11 +108,11 @@ void CentralDifferencesSparse::DecomposeSystemMatrix()
     tangentStiffnessMatrix->ScalarMultiply(internalForceScalingFactor);
     
     tangentStiffnessMatrix->ScalarMultiply(dampingStiffnessCoef, rayleighDampingMatrix.get());
-    rayleighDampingMatrix->AddFromSubMatrix(dampingMassCoef, rayleighDampingMatrixToMassSubMatrixLinkage);
+    rayleighDampingMatrix->AddFromSubMatrix(dampingMassCoef, massMatrix);
     
     // system matrix = mass matrix + 0.5 * timestep * damping matrix (and remove constrained rows and columns)
     rayleighDampingMatrix->ScalarMultiply(0.5 * timestep, tangentStiffnessMatrix.get());
-    tangentStiffnessMatrix->AddFromSubMatrix(1.0, tangentStiffnessMatrixToMassSubMatrixLinkage);
+    tangentStiffnessMatrix->AddFromSubMatrix(1.0, massMatrix);
     systemMatrix->AssignFromSuperMatrix(tangentStiffnessMatrix);
     
     //systemMatrix->SaveToMatlabFormat("system.mat");

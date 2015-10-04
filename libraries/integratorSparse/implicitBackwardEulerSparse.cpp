@@ -119,7 +119,7 @@ int ImplicitBackwardEulerSparse::DoTimestep()
         else
         {
             tangentStiffnessMatrix->ScalarMultiply(dampingStiffnessCoef, rayleighDampingMatrix.get());
-            rayleighDampingMatrix->AddFromSubMatrix(dampingMassCoef, rayleighDampingMatrixToMassSubMatrixLinkage);
+            rayleighDampingMatrix->AddFromSubMatrix(dampingMassCoef, massMatrix);
             
             // build effective stiffness: 
             // Keff = M + h D + h^2 * K
@@ -139,10 +139,10 @@ int ImplicitBackwardEulerSparse::DoTimestep()
             *tangentStiffnessMatrix *= timestep;
             
             *tangentStiffnessMatrix += *rayleighDampingMatrix;
-            tangentStiffnessMatrix->AddFromSubMatrix(1.0, tangentStiffnessMatrixToDampingSubMatrixLinkage); // at this point, tangentStiffnessMatrix = h * K + D
+            tangentStiffnessMatrix->AddFromSubMatrix(1.0, dampingMatrix); // at this point, tangentStiffnessMatrix = h * K + D
             tangentStiffnessMatrix->MultiplyVectorAdd(qvel, qresidual);
             *tangentStiffnessMatrix *= timestep;
-            tangentStiffnessMatrix->AddFromSubMatrix(1.0, tangentStiffnessMatrixToMassSubMatrixLinkage);
+            tangentStiffnessMatrix->AddFromSubMatrix(1.0, massMatrix);
             
             // add externalForces, internalForces
             for(int i=0; i<r; i++)

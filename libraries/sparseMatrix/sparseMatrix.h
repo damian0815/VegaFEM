@@ -237,7 +237,8 @@ public:
     void Append(SparseMatrix *source); // appends source at the bottom right of this, where the start of 'bottom right' is defined by (GetNumRows(),GetNumRows())
     int InsertNewEntry(int row, int denseColumn); // insert a new entry at (row,denseColumn), return sparseColumn
     
-    void CreateEntriesIfNecessary(const SparseMatrixOutline& outline, unsigned int rowsColumnsOffset);
+    // returns entries that were created
+    vector<pair<int,int>> CreateEntriesIfNecessary(const SparseMatrixOutline& outline, unsigned int rowsColumnsOffset);
     
     // transposition (note: the matrix need not be symmetric)
     void BuildTranspositionIndices();
@@ -275,7 +276,7 @@ public:
     
     // Call this once to establish the correspondence:
     shared_ptr<SparseSubMatrixLinkage> AttachSubMatrix(shared_ptr<SparseMatrix> subMatrix, int denseRowColumnOffset=0);
-    void DetachSubMatrix(shared_ptr<SparseSubMatrixLinkage> linkage);
+    void DetachSubMatrix(shared_ptr<SparseMatrix> subMatrix);
     shared_ptr<SparseSubMatrixLinkage> GetExistingSubMatrixLinkage(shared_ptr<SparseMatrix> subMatrix);
     
 

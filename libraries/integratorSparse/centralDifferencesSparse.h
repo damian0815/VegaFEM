@@ -106,10 +106,8 @@ protected:
     double * rhs;
     double * rhsConstrained;
     shared_ptr<SparseMatrix> rayleighDampingMatrix;
-    shared_ptr<SparseSubMatrixLinkage> rayleighDampingMatrixToMassSubMatrixLinkage;
     
     shared_ptr<SparseMatrix> tangentStiffnessMatrix;
-    shared_ptr<SparseSubMatrixLinkage> tangentStiffnessMatrixToMassSubMatrixLinkage;
     
     shared_ptr<SparseMatrix> systemMatrix;
     int tangentialDampingMode;

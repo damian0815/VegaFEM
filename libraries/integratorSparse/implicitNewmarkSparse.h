@@ -104,10 +104,7 @@ public:
     
 protected:
     shared_ptr<SparseMatrix> rayleighDampingMatrix;
-    shared_ptr<SparseSubMatrixLinkage> rayleighDampingMatrixToMassSubMatrixLinkage;
     shared_ptr<SparseMatrix> tangentStiffnessMatrix;
-    shared_ptr<SparseSubMatrixLinkage> tangentStiffnessMatrixToDampingSubMatrixLinkage;
-    shared_ptr<SparseSubMatrixLinkage> tangentStiffnessMatrixToMassSubMatrixLinkage;
     
     shared_ptr<SparseMatrix> systemMatrix;
     

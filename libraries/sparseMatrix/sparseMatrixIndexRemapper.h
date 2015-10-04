@@ -9,6 +9,7 @@
 #ifndef __VegaFEM__sparseMatrixIndexRemapper__
 #define __VegaFEM__sparseMatrixIndexRemapper__
 
+#include <set>
 #include <iostream>
 #include <map>
 #include <vector>
@@ -17,6 +18,7 @@ class SparseMatrix;
 
 using std::vector;
 using std::map;
+using std::set;
 using std::shared_ptr;
 
 class SparseMatrixIndexRemapper
@@ -44,10 +46,13 @@ public:
     void RemoveSuperRowFromSubMatrix(int whichSuperMatrixRow);
     void RemoveSuperColumnFromSubMatrix(int whichSuperMatrixDenseColumn);
     
+    bool IsSuperRowRemovedFromSubMatrix(int whichSuperRow) const { return removedSuperMatrixRows.count(whichSuperRow) != 0;  }
+    bool IsSuperColumnRemovedFromSubMatrix(int whichSuperDenseColumn) const { return removedSuperMatrixDenseColumns.count(whichSuperDenseColumn) != 0; }
+    
     void OnEntryWasInsertedIntoSuperMatrix(int superMatrixRow, int insertedSuperMatrixDenseColumn);
     void OnEntryWasInsertedIntoSubMatrix(int subMatrixRow, int insertedSubMatrixDenseColumn);
-
     
+    void AddEntryToMap(int superRow, int superDenseColumn);
     
     shared_ptr<SparseMatrix> GetSubMatrix() { return subMatrix; }
     shared_ptr<SparseMatrix> GetSuperMatrix() { return superMatrix; }
@@ -66,6 +71,9 @@ private:
     
     shared_ptr<SparseMatrix> superMatrix;
     shared_ptr<SparseMatrix> subMatrix;
+    
+    set<int> removedSuperMatrixRows;
+    set<int> removedSuperMatrixDenseColumns;
     
     int denseRowColumnOffset;
     

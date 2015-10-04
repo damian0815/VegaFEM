@@ -6,6 +6,7 @@
 //  Copyright (c) 2015 Damian Stewart. All rights reserved.
 //
 
+#include <set>
 #include <assert.h>
 #include "sparseMatrixIndexRemapper.h"
 #include "sparseMatrix.h"
@@ -81,6 +82,8 @@ void SparseMatrixIndexRemapper::RemoveSuperRowFromSubMatrix(int whichSuperMatrix
     
     assert(whichSubMatrixRow < subMatrixSparseToSuperMatrixSparseColumnMaps.size() && "sub matrix row has no column entries - probable data corruption");
     subMatrixSparseToSuperMatrixSparseColumnMaps.erase(subMatrixSparseToSuperMatrixSparseColumnMaps.begin() + whichSubMatrixRow);
+    
+    removedSuperMatrixRows.insert(whichSuperMatrixRow);
 }
 
 
@@ -109,6 +112,7 @@ void SparseMatrixIndexRemapper::RemoveSuperColumnFromSubMatrix(int whichSuperMat
         
     }
     
+    removedSuperMatrixDenseColumns.insert(whichSuperMatrixDenseColumn);
 }
 
 
@@ -218,6 +222,22 @@ void SparseMatrixIndexRemapper::OnEntryWasInsertedIntoSuperMatrix(int superRow, 
             }
         }
     }
+}
+
+
+void SparseMatrixIndexRemapper::AddEntryToMap(int superRow, int superDenseColumnToAdd)
+{
+    assert(HasSubMatrixRowForSuperMatrixRow(superRow) && "Must already have a row in sub matrix for this row in super matrix");
+    
+    auto superSparseColumnToAdd = superMatrix->GetInverseIndex(superRow, superDenseColumnToAdd);
+    assert(superSparseColumnToAdd != -1 && "super entry does not exist");
+    assert(!HasSubMatrixSparseColumnForSuperMatrixSparseColumn(superRow, superSparseColumnToAdd) && "Must not already have this entry");
+    
+    auto subRow = GetSubMatrixRowForSuperMatrixRow(superRow);
+    auto subSparseToSuperSparseColumnMap = subMatrixSparseToSuperMatrixSparseColumnMaps.at(subRow);
+    
+    auto addedSubSparseColumn = subMatrix->InsertNewEntry(subRow, superDenseColumnToAdd - denseRowColumnOffset);
+    subSparseToSuperSparseColumnMap.insert(subSparseToSuperSparseColumnMap.begin()+addedSubSparseColumn, superSparseColumnToAdd);
 }
 
 void SparseMatrixIndexRemapper::OnEntryWasInsertedIntoSubMatrix(int subRow, int insertedSubDenseColumn)

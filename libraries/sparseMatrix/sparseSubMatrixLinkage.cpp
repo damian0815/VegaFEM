@@ -14,19 +14,3 @@ SparseSubMatrixLinkage::SparseSubMatrixLinkage(shared_ptr<SparseMatrix> matrix, 
 }
 
 
-/*
-void SparseSubMatrixLinkage::AddSubMatrixToSuperMatrix(double factor)
-{
-    auto& superColumnEntries = superMatrix->GetDataHandle();
-    const auto& subColumnEntries = subMatrix->GetDataHandle();
-    
-    for(int subRow=0; subRow<subMatrix->GetNumRows(); subRow++) {
-        int superRow = indexRemapper.GetSuperMatrixRowForSubMatrixRow(subRow);
-        int subMatrixRowLength = subMatrix->GetRowLength(subRow);
-        for(int sparseSubJ=0; sparseSubJ < subMatrixRowLength; sparseSubJ++) {
-            int sparseSuperJ = indexRemapper.GetSuperMatrixSparseColumnForSubMatrixSparseColumn_SubMatrixRow(subRow, sparseSubJ);
-            superColumnEntries.at(superRow).at(sparseSuperJ) += factor * subColumnEntries.at(subRow).at(sparseSubJ);
-        }
-    }
-}
-*/

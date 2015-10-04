@@ -10,6 +10,7 @@
 #define __VegaFEM__sparseSubMatrixLinkage__
 
 #include <iostream>
+#include <set>
 #include "sparseMatrix.h"
 #include "sparseMatrixIndexRemapper.h"
 
@@ -27,11 +28,12 @@ public:
     void AddSubMatrixToSuperMatrix(double factor) { indexRemapper.AddSubMatrixToSuperMatrix(factor); }
     void AssignSubMatrixFromSuperMatrix() { indexRemapper.AssignSubMatrixFromSuperMatrix(); }
     
+    void AddSuperMatrixEntryToLinkage(int superRow, int superDenseColumn) { indexRemapper.AddEntryToMap(superRow, superDenseColumn); }
+    
     SparseMatrixIndexRemapper& GetIndexRemapper() { return indexRemapper; }
     
 private:
     void BuildSubMatrixIndices();
-    
     
     shared_ptr<SparseMatrix> superMatrix;
     shared_ptr<SparseMatrix> subMatrix;

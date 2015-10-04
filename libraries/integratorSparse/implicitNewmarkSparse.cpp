@@ -57,9 +57,9 @@ ImplicitNewmarkSparse::ImplicitNewmarkSparse(int r, double timestep, shared_ptr<
     }
     
     rayleighDampingMatrix = std::make_shared<SparseMatrix>(*tangentStiffnessMatrix);
-    rayleighDampingMatrixToMassSubMatrixLinkage = rayleighDampingMatrix->AttachSubMatrix(massMatrix);
-    tangentStiffnessMatrixToMassSubMatrixLinkage = tangentStiffnessMatrix->AttachSubMatrix(massMatrix);
-    tangentStiffnessMatrixToDampingSubMatrixLinkage = tangentStiffnessMatrix->AttachSubMatrix(dampingMatrix);
+    rayleighDampingMatrix->AttachSubMatrix(massMatrix);
+    tangentStiffnessMatrix->AttachSubMatrix(massMatrix);
+    tangentStiffnessMatrix->AttachSubMatrix(dampingMatrix);
     
     if (tangentStiffnessMatrix->GetNumRows() != massMatrix->GetNumRows())
     {
@@ -98,12 +98,11 @@ ImplicitNewmarkSparse::~ImplicitNewmarkSparse()
 
 void ImplicitNewmarkSparse::SetDampingMatrix(std::shared_ptr<SparseMatrix> dampingMatrix_)
 {
-    if (nullptr != tangentStiffnessMatrixToDampingSubMatrixLinkage)
-    {
-        tangentStiffnessMatrix->DetachSubMatrix(tangentStiffnessMatrixToDampingSubMatrixLinkage);
+    if (tangentStiffnessMatrix->GetExistingSubMatrixLinkage(dampingMatrix) != nullptr) {
+        tangentStiffnessMatrix->DetachSubMatrix(dampingMatrix);
     }
     IntegratorBaseSparse::SetDampingMatrix(dampingMatrix_);
-    tangentStiffnessMatrixToDampingSubMatrixLinkage = tangentStiffnessMatrix->AttachSubMatrix(dampingMatrix_);
+    tangentStiffnessMatrix->AttachSubMatrix(dampingMatrix_);
 }
 
 void ImplicitNewmarkSparse::UpdateAlphas()

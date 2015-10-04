@@ -758,14 +758,11 @@ void SparseMatrix::AttachSubMatrix(shared_ptr<SparseSubMatrixLinkage> link)
     subMatrixLinkages.push_back(link);
 }
 
-void SparseMatrix::DetachSubMatrix(shared_ptr<SparseSubMatrixLinkage> link)
+void SparseMatrix::DetachSubMatrix(shared_ptr<SparseMatrix> matrix)
 {
-    auto it = find(subMatrixLinkages.begin(), subMatrixLinkages.end(), link);
-    assert(it != subMatrixLinkages.end() && "submatrix linkage not found");
-    if (it != subMatrixLinkages.end())
-    {
-        subMatrixLinkages.erase(it);
-    }
+    auto link = GetExistingSubMatrixLinkage(matrix);
+    assert(link != nullptr && "submatrix linkage not found");
+    subMatrixLinkages.erase(std::find(subMatrixLinkages.begin(), subMatrixLinkages.end(), link));
 }
 
 shared_ptr<SparseSubMatrixLinkage> SparseMatrix::GetExistingSubMatrixLinkage(shared_ptr<SparseMatrix> subMatrix)
@@ -1671,7 +1668,7 @@ int SparseMatrix::InsertNewEntry(int row, int denseColumn)
         
         auto subMatrix = subMatrixLinkage->GetSubMatrix();
         assert(subMatrix->subMatrixLinkages.size()==0);
-        assert(subMatrix->superMatrixLinkage == nullptr);
+        //assert(subMatrix->superMatrixLinkage == nullptr);
     }
     
     assert(superMatrixLinkage == nullptr);
@@ -1687,19 +1684,23 @@ int SparseMatrix::InsertNewEntry(int row, int denseColumn)
     //return columnIndices.at(row).size()-1;
 }
 
-void SparseMatrix::CreateEntriesIfNecessary(const SparseMatrixOutline& outline, unsigned int rowColumnOffset)
+vector<pair<int,int>> SparseMatrix::CreateEntriesIfNecessary(const SparseMatrixOutline& outline, unsigned int rowColumnOffset)
 {
     if ((rowColumnOffset + outline.GetNumRows()) > GetNumRows()) {
         IncreaseNumRows((rowColumnOffset + outline.GetNumRows()) - GetNumRows());
     }
     
+    vector<pair<int,int>> createdEntries;
     for (const auto& entry: outline.GetEntries()) {
         int row = entry.first + rowColumnOffset;
         int denseColumn = entry.second + rowColumnOffset;
         if (GetInverseIndex(row, denseColumn) == -1) {
             InsertNewEntry(row, denseColumn);
+            createdEntries.push_back(make_pair(row, denseColumn));
         }
     }
+    
+    return createdEntries;
 }
 
 
