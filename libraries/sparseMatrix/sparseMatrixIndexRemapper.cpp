@@ -200,7 +200,8 @@ void SparseMatrixIndexRemapper::AddSubMatrixToSuperMatrix(double factor)
         int subMatrixRowLength = subMatrix->GetRowLength(subRow);
         for(int sparseSubJ=0; sparseSubJ < subMatrixRowLength; sparseSubJ++) {
             int sparseSuperJ = GetSuperMatrixSparseColumnForSubMatrixSparseColumn_SubMatrixRow(subRow, sparseSubJ);
-            superColumnEntries.at(superRow).at(sparseSuperJ) += factor * subColumnEntries.at(subRow).at(sparseSubJ);
+            //superColumnEntries.at(superRow).at(sparseSuperJ) += factor * subColumnEntries.at(subRow).at(sparseSubJ);
+            superColumnEntries[superRow][sparseSuperJ] += factor * subColumnEntries[subRow][sparseSubJ];
         }
     }
 }

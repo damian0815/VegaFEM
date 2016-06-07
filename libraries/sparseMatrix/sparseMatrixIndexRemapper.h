@@ -82,7 +82,7 @@ private:
 int SparseMatrixIndexRemapper::GetSuperMatrixSparseColumnForSubMatrixSparseColumn_SubMatrixRow(int subMatrixRow, int subMatrixSparseColumn) const
 {
     const auto& subMatrixToSuperMatrixSparseColumnMap = subMatrixSparseToSuperMatrixSparseColumnMaps[subMatrixRow];
-    return subMatrixToSuperMatrixSparseColumnMap.at(subMatrixSparseColumn);
+    return subMatrixToSuperMatrixSparseColumnMap[subMatrixSparseColumn];
 }
 
 int SparseMatrixIndexRemapper::GetSuperMatrixSparseColumnForSubMatrixSparseColumn_SuperMatrixRow(int superMatrixRow, int subMatrixSparseColumn) const
