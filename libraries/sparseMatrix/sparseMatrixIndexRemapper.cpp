@@ -8,8 +8,10 @@
 
 #include <set>
 #include <assert.h>
+#include <thread>
 #include "sparseMatrixIndexRemapper.h"
 #include "sparseMatrix.h"
+using std::pair;
 
 SparseMatrixIndexRemapper::SparseMatrixIndexRemapper(shared_ptr<SparseMatrix> superMatrix_, shared_ptr<SparseMatrix> subMatrix_, int denseRowColumnOffset_)
 :   superMatrix(superMatrix_),
@@ -190,46 +192,101 @@ void SparseMatrixIndexRemapper::AssignSubMatrixFromSuperMatrix()
     }*/
 }
 
-void SparseMatrixIndexRemapper::AddSubMatrixToSuperMatrix(double factor)
-{
-    auto& superColumnEntries = superMatrix->GetDataHandle();
-    const auto& subColumnEntries = subMatrix->GetDataHandle();
+static map<SparseMatrixIndexRemapper*, pair<std::chrono::nanoseconds, int>> doItDurations;
 
-    const auto rowLengths = subMatrix->GetRowLengths();
-    int maxRowLength = *(std::max_element(rowLengths.begin(), rowLengths.end()));
-    int sparseSuperJCache[maxRowLength];
-    double subEntriesCache[maxRowLength];
+void SparseMatrixIndexRemapper::AddSubMatrixToSuperMatrix(double factor) {
+    auto &superColumnEntries = superMatrix->GetDataHandle();
+    const auto &subColumnEntries = subMatrix->GetDataHandle();
 
-    for(int subRow=0; subRow<subMatrix->GetNumRows(); subRow++) {
-        int superRow = GetSuperMatrixRowForSubMatrixRow(subRow);
-        int subMatrixRowLength = rowLengths[subRow];
-        auto& thisSuperColumnEntries = superColumnEntries[superRow];
-        const auto& thisSubColumnEntries = subColumnEntries[subRow];
-        const auto& thisSubMatrixToSuperMatrixSparseColumnMap = subMatrixSparseToSuperMatrixSparseColumnMaps[subRow];
+    const auto subRowLengths = subMatrix->GetRowLengths();
 
-        PrepareAddSubMatrixRowCaches(thisSubMatrixToSuperMatrixSparseColumnMap, thisSubColumnEntries,
-                                     subMatrixRowLength, sparseSuperJCache, subEntriesCache);
+    const auto superRowLengths = superMatrix->GetRowLengths();
+    int maxSuperRowLength = *(std::max_element(superRowLengths.begin(), superRowLengths.end()));
+    double superEntriesCache[maxSuperRowLength];
 
-        DoAddSubMatrixRow(factor, sparseSuperJCache, subEntriesCache, subMatrixRowLength, thisSuperColumnEntries);
+
+
+
+    std::chrono::nanoseconds doItDuration(0);
+
+    auto loop = [&](int startRow, int rowCount, bool storeDoIt) {
+        for (int subRow = startRow; subRow < startRow + rowCount; subRow++) {
+        //for (int subRow = 0; subRow < subMatrix->GetNumRows(); subRow++) {
+            int superRow = GetSuperMatrixRowForSubMatrixRow(subRow);
+            int subMatrixRowLength = subRowLengths[subRow];
+            auto &thisSuperColumnEntries = superColumnEntries[superRow];
+            const auto &thisSubColumnEntries = subColumnEntries[subRow];
+            const auto &thisSubMatrixToSuperMatrixSparseColumnMap = subMatrixSparseToSuperMatrixSparseColumnMaps[subRow];
+
+            auto doItStart = std::chrono::high_resolution_clock::now();
+
+
+            for (int sparseSubJ = 0; sparseSubJ < subMatrixRowLength; sparseSubJ++) {
+                int sparseSuperJ = thisSubMatrixToSuperMatrixSparseColumnMap[sparseSubJ];
+                thisSuperColumnEntries[sparseSuperJ] += factor * thisSubColumnEntries[sparseSubJ];
+            }
+
+/*
+
+        std::fill(superEntriesCache, superEntriesCache+maxSuperRowLength, 0);
+        int superMatrixRowLength = superRowLengths[superRow];
+        for(int sparseSubJ=0; sparseSubJ < subMatrixRowLength; sparseSubJ++) {
+            int sparseSuperJ = thisSubMatrixToSuperMatrixSparseColumnMap[sparseSubJ];
+            superEntriesCache[sparseSuperJ] = thisSubColumnEntries[sparseSubJ] * factor;
+        }
+
+        for (int sparseSuperJ=0; sparseSuperJ < superMatrixRowLength; sparseSuperJ++) {
+            thisSuperColumnEntries[sparseSuperJ] += superEntriesCache[sparseSuperJ];
+        }
+*/
+
+            auto doItEnd = std::chrono::high_resolution_clock::now();
+            if (storeDoIt) {
+                doItDuration += doItEnd - doItStart;
+            }
+        }
+    };
+
+    vector<std::thread> threads;
+    int numRows = subMatrix->GetNumRows();
+    const int numThreads = 8;
+    for (int i=0; i<numThreads; i++) {
+        int rowCount = numRows/numThreads;
+        int rowStart = i*rowCount;
+        int actualRowCount = (i==(numThreads-1) ? numRows-rowStart : rowCount);
+        threads.push_back(std::thread(loop, rowStart, actualRowCount, i==0));
+    }
+
+    for (auto& thread: threads) {
+        thread.join();
+    }
+
+    doItDurations[this].first += doItDuration;
+    ++doItDurations[this].second;
+
+    if ((doItDurations[this].second % 300) == 299) {
+        double durationMillis = 1e-6 * doItDurations[this].first.count();
+        std::cout << "avg doItDuration (ms) " << this << ": " << (durationMillis/doItDurations[this].second) << std::endl;
+        doItDurations[this] = std::make_pair(std::chrono::nanoseconds(0), 0);
     }
 }
 
 void SparseMatrixIndexRemapper::PrepareAddSubMatrixRowCaches(
         const vector<int> &thisSubMatrixToSuperMatrixSparseColumnMap, const vector<double> &thisSubColumnEntries,
-        int subMatrixRowLength, int *sparseSuperJCache, double *subEntriesCache) const {
+        int subMatrixRowLength, int *sparseSuperJCache, double *subEntriesCache, float multiplicationFactor) const
+{
     for(int sparseSubJ=0; sparseSubJ < subMatrixRowLength; sparseSubJ++) {
             int sparseSuperJ = thisSubMatrixToSuperMatrixSparseColumnMap[sparseSubJ];
             sparseSuperJCache[sparseSubJ] = sparseSuperJ;
-            subEntriesCache[sparseSubJ] = thisSubColumnEntries[sparseSubJ];
+            subEntriesCache[sparseSubJ] = multiplicationFactor * thisSubColumnEntries[sparseSubJ];
         }
 }
 
-void SparseMatrixIndexRemapper::DoAddSubMatrixRow(double factor, const int *sparseSuperJCache,
-                                                  const double *subEntriesCache, int subMatrixRowLength,
-                                                  vector<double> &thisSuperColumnEntries) {
+void SparseMatrixIndexRemapper::DoAddSubMatrixRow(const int *sparseSuperJCache, const double *subEntriesCache,
+                                                  int subMatrixRowLength, vector<double> &thisSuperColumnEntries) {
     for (int sparseSubJ=0; sparseSubJ < subMatrixRowLength; sparseSubJ++) {
             int sparseSuperJ = sparseSuperJCache[sparseSubJ];
-            thisSuperColumnEntries[sparseSuperJ] += factor * subEntriesCache[sparseSubJ];
+            thisSuperColumnEntries[sparseSuperJ] += subEntriesCache[sparseSubJ];
         }
 }
 
