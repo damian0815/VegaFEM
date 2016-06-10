@@ -33,7 +33,6 @@
 #include <assert.h>
 #include "sparseMatrix.h"
 #include "sparseSubMatrixLinkage.h"
-#include "sparseSuperMatrixLinkage.h"
 #include "sparseMatrixIndexRemapper.h"
 using namespace std;
 

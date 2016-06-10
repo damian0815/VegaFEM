@@ -76,7 +76,13 @@ private:
     set<int> removedSuperMatrixDenseColumns;
     
     int denseRowColumnOffset;
-    
+
+    void PrepareAddSubMatrixRowCaches(
+            const vector<int> &thisSubMatrixToSuperMatrixSparseColumnMap, const vector<double> &thisSubColumnEntries,
+            int subMatrixRowLength, int *sparseSuperJCache, double *subEntriesCache) const;
+
+    void DoAddSubMatrixRow(double factor, const int *sparseSuperJCache, const double *subEntriesCache,
+                           int subMatrixRowLength, vector<double> &thisSuperColumnEntries);
 };
 
 int SparseMatrixIndexRemapper::GetSuperMatrixSparseColumnForSubMatrixSparseColumn_SubMatrixRow(int subMatrixRow, int subMatrixSparseColumn) const
