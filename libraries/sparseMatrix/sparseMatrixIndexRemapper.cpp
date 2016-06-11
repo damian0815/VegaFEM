@@ -33,6 +33,9 @@ void SparseMatrixIndexRemapper::SetupMapping()
 void SparseMatrixIndexRemapper::PopulateRowMap()
 {
     superMatrixToSubMatrixRowMap.clear();
+    superMatrixToSubMatrixRowMap.resize(subMatrix->GetNumRows() + denseRowColumnOffset);
+    std::fill(superMatrixToSubMatrixRowMap.begin(), superMatrixToSubMatrixRowMap.end(), -1);
+
     for (int subMatrixRow=0; subMatrixRow<subMatrix->GetNumRows(); subMatrixRow++) {
         auto superMatrixRow = subMatrixRow + denseRowColumnOffset;
         superMatrixToSubMatrixRowMap[superMatrixRow] = subMatrixRow;
@@ -72,14 +75,14 @@ void SparseMatrixIndexRemapper::PopulateColumnIndexMaps()
 
 void SparseMatrixIndexRemapper::RemoveSuperRowFromSubMatrix(int whichSuperMatrixRow)
 {
-    auto it = superMatrixToSubMatrixRowMap.find(whichSuperMatrixRow);
+    auto it = std::find(superMatrixToSubMatrixRowMap.begin(), superMatrixToSubMatrixRowMap.end(), whichSuperMatrixRow);
     assert(it != superMatrixToSubMatrixRowMap.end() && "super matrix row does not exist in the sub matrix");
-    int whichSubMatrixRow = (*it).second;
-    
-    it = superMatrixToSubMatrixRowMap.erase(it);
+    int whichSubMatrixRow = *it;
+
+    *it = -1;
     for (; it != superMatrixToSubMatrixRowMap.end(); ++it)
     {
-        --(*it).second;
+        --(*it);
     }
     
     assert(whichSubMatrixRow < subMatrixSparseToSuperMatrixSparseColumnMaps.size() && "sub matrix row has no column entries - probable data corruption");
@@ -91,10 +94,13 @@ void SparseMatrixIndexRemapper::RemoveSuperRowFromSubMatrix(int whichSuperMatrix
 
 void SparseMatrixIndexRemapper::RemoveSuperColumnFromSubMatrix(int whichSuperMatrixDenseColumn)
 {
-    for (auto& kvp: superMatrixToSubMatrixRowMap)
+    for (int superMatrixRow=0; superMatrixRow<superMatrixToSubMatrixRowMap.size(); ++superMatrixRow)
     {
-        int superMatrixRow = kvp.first;
-        int subMatrixRow = kvp.second;
+        int subMatrixRow = superMatrixToSubMatrixRowMap[superMatrixRow];
+        if (subMatrixRow == -1) {
+            continue;
+        }
+
         int superMatrixSparseColumn = superMatrix->GetInverseIndex(superMatrixRow, whichSuperMatrixDenseColumn);
         if (superMatrixSparseColumn != -1)
         {
@@ -120,10 +126,12 @@ void SparseMatrixIndexRemapper::RemoveSuperColumnFromSubMatrix(int whichSuperMat
 
 void SparseMatrixIndexRemapper::Print()
 {
-    for (auto& kvp: superMatrixToSubMatrixRowMap)
-    {
-        int superRow = kvp.first;
-        int subRow = kvp.second;
+    for (int superRow=0; superRow<superMatrixToSubMatrixRowMap.size(); ++superRow) {
+        int subRow = superMatrixToSubMatrixRowMap[superRow];
+        if (subRow == -1) {
+            continue;
+        }
+
         const auto& subSparseToSuperSparseColumnMap = subMatrixSparseToSuperMatrixSparseColumnMaps.at(subRow);
         if (subSparseToSuperSparseColumnMap.size()>0) {
             printf("sub row %2i -> super row %2i: ", subRow, superRow);
@@ -139,21 +147,16 @@ void SparseMatrixIndexRemapper::Print()
     }
 }
 
-static map<int,int>::const_iterator GetRowMapIterator(const map<int,int>& rowMap, int subMatrixRow)
-{
-    auto it = std::find_if(rowMap.begin(), rowMap.end(), [subMatrixRow](const std::pair<int,int>& kvp){ return kvp.second == subMatrixRow; });
-    return it;
-}
-
 int SparseMatrixIndexRemapper::GetSuperMatrixRowForSubMatrixRow(int subMatrixRow) const
 {
-    auto it = GetRowMapIterator(superMatrixToSubMatrixRowMap, subMatrixRow);
-    return (*it).first;
+    auto it = std::find(superMatrixToSubMatrixRowMap.begin(), superMatrixToSubMatrixRowMap.end(), subMatrixRow);
+    assert(it != superMatrixToSubMatrixRowMap.end());
+    return (it - superMatrixToSubMatrixRowMap.begin());
 }
 
 bool SparseMatrixIndexRemapper::HasSuperMatrixRowForSubMatrixRow(int subMatrixRow) const
 {
-    auto it = GetRowMapIterator(superMatrixToSubMatrixRowMap, subMatrixRow);
+    auto it = std::find(superMatrixToSubMatrixRowMap.begin(), superMatrixToSubMatrixRowMap.end(), subMatrixRow);
     return (it != superMatrixToSubMatrixRowMap.end());
 }
 
@@ -161,11 +164,13 @@ void SparseMatrixIndexRemapper::AssignSubMatrixFromSuperMatrix()
 {
     const auto& superMatrixEntries = superMatrix->GetDataHandle();
     auto& subMatrixEntries = subMatrix->GetDataHandle();
-    
-    for (const auto it: superMatrixToSubMatrixRowMap)
+
+    for (int superRow = 0; superRow<superMatrixToSubMatrixRowMap.size(); ++superRow)
     {
-        int superRow = it.first;
-        int subRow = it.second;
+        int subRow = superMatrixToSubMatrixRowMap[superRow];
+        if (subRow == -1) {
+            continue;
+        }
         //printf("assigning sub row %i from super row %i\n", subRow, superRow);
         const vector<double>& superColumnEntries = superMatrixEntries[superRow];
         vector<double>& subColumnEntries = subMatrixEntries[subRow];
@@ -218,7 +223,7 @@ void SparseMatrixIndexRemapper::AddSubMatrixToSuperMatrix(double factor) {
             const auto &thisSubColumnEntries = subColumnEntries[subRow];
             const auto &thisSubMatrixToSuperMatrixSparseColumnMap = subMatrixSparseToSuperMatrixSparseColumnMaps[subRow];
 
-            auto doItStart = std::chrono::high_resolution_clock::now();
+            //auto doItStart = std::chrono::high_resolution_clock::now();
 
 
             for (int sparseSubJ = 0; sparseSubJ < subMatrixRowLength; sparseSubJ++) {
@@ -240,25 +245,29 @@ void SparseMatrixIndexRemapper::AddSubMatrixToSuperMatrix(double factor) {
         }
 */
 
-            auto doItEnd = std::chrono::high_resolution_clock::now();
-            if (storeDoIt) {
-                doItDuration += doItEnd - doItStart;
-            }
+            //auto doItEnd = std::chrono::high_resolution_clock::now();
+            //if (storeDoIt) {
+            //    doItDuration += doItEnd - doItStart;
+            //}
         }
     };
 
-    vector<std::thread> threads;
-    int numRows = subMatrix->GetNumRows();
-    const int numThreads = 8;
-    for (int i=0; i<numThreads; i++) {
-        int rowCount = numRows/numThreads;
-        int rowStart = i*rowCount;
-        int actualRowCount = (i==(numThreads-1) ? numRows-rowStart : rowCount);
-        threads.push_back(std::thread(loop, rowStart, actualRowCount, i==0));
-    }
+    const int numThreads = 1;
+    if (numThreads == 1) {
+        loop(0, subMatrix->GetNumRows(), true);
+    } else {
+        vector<std::thread> threads;
+        int numRows = subMatrix->GetNumRows();
+        for (int i = 0; i < numThreads; i++) {
+            int rowCount = numRows / numThreads;
+            int rowStart = i * rowCount;
+            int actualRowCount = (i == (numThreads - 1) ? numRows - rowStart : rowCount);
+            threads.push_back(std::thread(loop, rowStart, actualRowCount, i == 0));
+        }
 
-    for (auto& thread: threads) {
-        thread.join();
+        for (auto& thread: threads) {
+            thread.join();
+        }
     }
 
     doItDurations[this].first += doItDuration;
@@ -348,7 +357,9 @@ bool SparseMatrixIndexRemapper::HasSubMatrixSparseColumnForSuperMatrixSparseColu
 
 int SparseMatrixIndexRemapper::GetSubMatrixSparseColumnForSuperMatrixSparseColumn(int superMatrixRow, int superMatrixSparseColumn)
 {
-    int subMatrixRow = superMatrixToSubMatrixRowMap.at(superMatrixRow);
+    assert(superMatrixRow < superMatrixToSubMatrixRowMap.size());
+    int subMatrixRow = superMatrixToSubMatrixRowMap[superMatrixRow];
+    assert(subMatrixRow != -1);
     const auto& subSparseToSuperSparseColumnMap = subMatrixSparseToSuperMatrixSparseColumnMaps.at(subMatrixRow);
     for (int i=0; i<subSparseToSuperSparseColumnMap.size(); i++) {
         int thisSuperSparseColumn = subSparseToSuperSparseColumnMap[i];

@@ -35,8 +35,14 @@ public:
     inline int GetSuperMatrixSparseColumnForSubMatrixSparseColumn_SubMatrixRow(int subMatrixRow, int subMatrixSparseColumn) const;
     inline int GetSuperMatrixSparseColumnForSubMatrixSparseColumn_SuperMatrixRow(int superMatrixRow, int subMatrixSparseColumn) const;
     
-    inline bool HasSubMatrixRowForSuperMatrixRow(int superMatrixRow) const { return superMatrixToSubMatrixRowMap.count(superMatrixRow); }
-    inline int GetSubMatrixRowForSuperMatrixRow(int superMatrixRow) const { return superMatrixToSubMatrixRowMap.at(superMatrixRow); }
+    inline bool HasSubMatrixRowForSuperMatrixRow(int superMatrixRow) const
+    {
+        return std::find(superMatrixToSubMatrixRowMap.begin(), superMatrixToSubMatrixRowMap.end(), superMatrixRow) != superMatrixToSubMatrixRowMap.end();
+    }
+    inline int GetSubMatrixRowForSuperMatrixRow(int superMatrixRow) const
+    {
+        return superMatrixToSubMatrixRowMap.at(superMatrixRow);
+    }
     bool HasSuperMatrixRowForSubMatrixRow(int subMatrixRow) const;
     int GetSuperMatrixRowForSubMatrixRow(int subMatrixRow) const;
     
@@ -62,7 +68,7 @@ private:
     void PopulateRowMap();
     void PopulateColumnIndexMaps();
     
-    map<int, int> superMatrixToSubMatrixRowMap;
+    vector<int> superMatrixToSubMatrixRowMap;
     
     // A list of the super matrix sparse indices, one for each of the sub matrix sparse indices
     typedef vector<int> SubMatrixSparseColumnToSuperMatrixSparseColumnMap;
