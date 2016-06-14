@@ -9,6 +9,7 @@ utilities/interactiveDeformableSimulator/interactiveDeformableSimulator
 utilities/bin
 xcuserdata
 project.xcworkspace
+.idea
 
 
 
