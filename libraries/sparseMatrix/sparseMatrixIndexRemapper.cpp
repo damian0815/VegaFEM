@@ -275,7 +275,7 @@ void SparseMatrixIndexRemapper::AddSubMatrixToSuperMatrix(double factor) {
 
     if ((doItDurations[this].second % 300) == 299) {
         double durationMillis = 1e-6 * doItDurations[this].first.count();
-        std::cout << "avg doItDuration (ms) " << this << ": " << (durationMillis/doItDurations[this].second) << std::endl;
+        //std::cout << "avg doItDuration (ms) " << this << ": " << (durationMillis/doItDurations[this].second) << std::endl;
         doItDurations[this] = std::make_pair(std::chrono::nanoseconds(0), 0);
     }
 }
