@@ -31,10 +31,11 @@ public:
     void AddSuperMatrixEntryToLinkage(int superRow, int superDenseColumn) { indexRemapper.AddEntryToMap(superRow, superDenseColumn); }
     
     SparseMatrixIndexRemapper& GetIndexRemapper() { return indexRemapper; }
-    
+
+    void Print() { GetIndexRemapper().Print(); }
+
 private:
-    void BuildSubMatrixIndices();
-    
+
     shared_ptr<SparseMatrix> superMatrix;
     shared_ptr<SparseMatrix> subMatrix;
     

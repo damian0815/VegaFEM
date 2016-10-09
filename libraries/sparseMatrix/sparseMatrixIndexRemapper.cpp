@@ -77,12 +77,18 @@ void SparseMatrixIndexRemapper::RemoveSuperRowFromSubMatrix(int whichSuperMatrix
 {
     auto it = std::find(superMatrixToSubMatrixRowMap.begin(), superMatrixToSubMatrixRowMap.end(), whichSuperMatrixRow);
     assert(it != superMatrixToSubMatrixRowMap.end() && "super matrix row does not exist in the sub matrix");
+    assert((*it) >= 0 && "row has already been removed");
     int whichSubMatrixRow = *it;
 
     *it = -1;
+    ++it;
     for (; it != superMatrixToSubMatrixRowMap.end(); ++it)
     {
-        --(*it);
+        int& subMatrixRow = *it;
+        if (subMatrixRow != -1) {
+            assert(subMatrixRow >= 0);
+            --subMatrixRow;
+        }
     }
     
     assert(whichSubMatrixRow < subMatrixSparseToSuperMatrixSparseColumnMaps.size() && "sub matrix row has no column entries - probable data corruption");

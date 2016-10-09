@@ -997,12 +997,18 @@ void SparseMatrix::RemoveRowColumn(int index)
 
 void SparseMatrix::RemoveRowsColumnsSlow(int numRemovedRowsColumns, int * removedRowsColumns, int oneIndexed)
 {
-    for(int i=0; i<numRemovedRowsColumns; i++)
-        RemoveRowColumn(removedRowsColumns[i]-i-oneIndexed);
+    for(int i=0; i<numRemovedRowsColumns; i++) {
+        auto index = removedRowsColumns[i] - i - oneIndexed;
+        RemoveRowColumn(index);
+        //cout << "RemoveRowsColumnsSlow: Removed row/column " << index << " - rows now:\n";
+        //superMatrixLinkage->Print();
+    }
 }
 
 void SparseMatrix::RemoveRowsColumns(int numRemovedRowsColumns, int * removedRowsColumns, int oneIndexed)
 {
+    //RemoveRowsColumnsSlow(numRemovedRowsColumns, removedRowsColumns, oneIndexed);
+
     // the removed dofs must be pre-sorted
     // build a map from old dofs to new ones
     vector<int> oldToNew(GetNumRows());
@@ -1067,6 +1073,7 @@ void SparseMatrix::RemoveRowsColumns(int numRemovedRowsColumns, int * removedRow
     {
         superMatrixLinkage->GetIndexRemapper().RemoveSuperRowFromSubMatrix(removedRowsColumns[i] - oneIndexed);
         superMatrixLinkage->GetIndexRemapper().RemoveSuperColumnFromSubMatrix(removedRowsColumns[i] - oneIndexed);
+        //cout << "RemoveRowsColumns: Removed row " << removedRowsColumns[i] << endl;
         //superMatrixLinkage->Print();
     }
 }
