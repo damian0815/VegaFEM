@@ -118,7 +118,21 @@ public:
   // unimplemented
   // (use damping provided in the integrator class)
   void AddDampingForce(double * uvel, double * f, int startTriangle, int endTriangle);
-        
+
+    int GetNumMaterialGroups() { return numMaterialGroups; }
+
+    double GetTensileStiffness(int whichGroup) { return groupTensileStiffness[whichGroup]; }
+    double GetShearStiffness(int whichGroup) { return groupShearStiffness[whichGroup]; }
+    double GetBendStiffnessU(int whichGroup) { return groupBendStiffnessU[whichGroup]; }
+    double GetBendStiffnessV(int whichGroup) { return groupBendStiffnessV[whichGroup]; }
+    double GetDamping(int whichGroup) { return groupDamping[whichGroup]; }
+
+    void SetTensileStiffness(int whichGroup, double stiffness) { groupTensileStiffness[whichGroup] = stiffness; }
+    void SetShearStiffness(int whichGroup, double stiffness) { groupShearStiffness[whichGroup] = stiffness; }
+    void SetBendStiffnessU(int whichGroup, double stiffness) { groupBendStiffnessU[whichGroup] = stiffness; }
+    void SetBendStiffnessV(int whichGroup, double stiffness) { groupBendStiffnessV[whichGroup] = stiffness; }
+    void SetDamping(int whichGroup, double d) { groupDamping[whichGroup] = d; }
+    
 protected:
   double GetTriangleSurfaceArea(double * p0, double * p1, double * p2);
   void GenerateBW(int numParticles, double * masses, double * restPositions, int numTriangles, int * triangles, double * triangleUVs, int * triangleGroups, int numMaterialGroups, double * groupTensileStiffness, double * groupShearStiffness, double * groupBendStiffnessU, double * groupBendStiffnessV, double * groupDamping, int addGravity=0);
