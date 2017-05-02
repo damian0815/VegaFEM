@@ -118,7 +118,7 @@ void CentralDifferencesSparse::DecomposeSystemMatrix()
     //systemMatrix->SaveToMatlabFormat("system.mat");
     
 #ifdef PARDISO
-    int info = pardisoSolver->ComputeCholeskyDecomposition(systemMatrix);
+    int info = pardisoSolver->ComputeCholeskyDecomposition(systemMatrix.get());
     if (info != 0)
     {
         printf("Error: PARDISO solver returned non-zero exit code %d.\n", info);
@@ -131,9 +131,9 @@ void CentralDifferencesSparse::DecomposeSystemMatrix()
     if (spoolesSolver != NULL)
         delete(spoolesSolver);
     if (numSolverThreads > 1)
-        spoolesSolver = new SPOOLESSolverMT(systemMatrix, numSolverThreads);
+        spoolesSolver = new SPOOLESSolverMT(systemMatrix.get(), numSolverThreads);
     else
-        spoolesSolver = new SPOOLESSolver(systemMatrix);
+        spoolesSolver = new SPOOLESSolver(systemMatrix.get());
 #endif
 }
 

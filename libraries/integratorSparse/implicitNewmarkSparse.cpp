@@ -157,7 +157,7 @@ int ImplicitNewmarkSparse::SetState(double * q_, double * qvel_)
     memset(buffer, 0, sizeof(double) * r);
     
 #ifdef SPOOLES
-    SPOOLESSolver solver(systemMatrix);
+    SPOOLESSolver solver(systemMatrix.get());
     int info = solver.SolveLinearSystem(buffer, bufferConstrained);
     char solverString[16] = "SPOOLES";
 #endif
@@ -319,7 +319,7 @@ int ImplicitNewmarkSparse::DoTimestep()
         memset(buffer, 0, sizeof(double) * r);
         
 #ifdef SPOOLES
-        SPOOLESSolver solver(systemMatrix);
+        SPOOLESSolver solver(systemMatrix.get());
         int info = solver.SolveLinearSystem(buffer, bufferConstrained);
         char solverString[16] = "SPOOLES";
 #endif

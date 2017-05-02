@@ -36,27 +36,25 @@
 #include "volumetricMeshENuMaterial.h"
 #include "volumetricMeshOrthotropicMaterial.h"
 
-CorotationalLinearFEM::CorotationalLinearFEM(TetMesh * tetMesh_) : tetMesh(tetMesh_) 
+CorotationalLinearFEM::CorotationalLinearFEM(TetMesh * tetMesh_) : tetMesh(tetMesh_)
 {
   numVertices = tetMesh->getNumVertices();
 
   // store the undeformed positions
-  undeformedPositions = (double*) malloc (sizeof(double) * 3 * numVertices);
-  for(int i=0; i < numVertices; i++)
-  {
-    Vec3d * v = tetMesh->getVertex(i);
-    for(int j=0; j<3; j++)
-      undeformedPositions[3*i+j] = (*v)[j];
+  undeformedPositions = (double *) malloc(sizeof(double) * 3 * numVertices);
+  for (int i = 0; i < numVertices; i++) {
+    Vec3d *v = tetMesh->getVertex(i);
+    for (int j = 0; j < 3; j++)
+      undeformedPositions[3 * i + j] = (*v)[j];
   }
 
   int numElements = tetMesh->getNumElements();
 
-  MInverse = (double**) malloc (sizeof(double*) * numElements);
-  for(int el = 0; el < numElements; el++)
-  {
+  MInverse = (double **) malloc(sizeof(double *) * numElements);
+  for (int el = 0; el < numElements; el++) {
     // get the integer indices of the tet vertices
     int vtxIndex[4];
-    for(int vtx=0; vtx<4; vtx++)
+    for (int vtx = 0; vtx < 4; vtx++)
       vtxIndex[vtx] = tetMesh->getVertexIndex(el, vtx);
     /*
        Form matrix: 
@@ -64,25 +62,35 @@ CorotationalLinearFEM::CorotationalLinearFEM(TetMesh * tetMesh_) : tetMesh(tetMe
            [  1    1    1    1 ]
     */
     double M[16]; // row-major
-    for(int vtx=0; vtx<4; vtx++)
-      for(int dim=0; dim<3; dim++)
+    for (int vtx = 0; vtx < 4; vtx++)
+      for (int dim = 0; dim < 3; dim++)
         M[4 * dim + vtx] = undeformedPositions[3 * vtxIndex[vtx] + dim];
     M[12] = M[13] = M[14] = M[15] = 1.0;
 
     // invert M and cache inverse (see [Mueller 2004])
-    MInverse[el] = (double*) malloc (sizeof(double) * 16);
+    MInverse[el] = (double *) malloc(sizeof(double) * 16);
     inverse4x4(M, MInverse[el]);
   }
 
   // build acceleration indices for fast writing to the global stiffness matrix
-    SparseMatrix * sparseMatrix;
-    auto topology = GetStiffnessMatrixTopology();
-    sparseMatrix = new SparseMatrix(topology);
-    BuildRowColumnIndices(sparseMatrix);
-    delete(sparseMatrix);
+  SparseMatrix *sparseMatrix;
+  auto topology = GetStiffnessMatrixTopology();
+  sparseMatrix = new SparseMatrix(topology);
+  BuildRowColumnIndices(sparseMatrix);
+  delete (sparseMatrix);
 
   // compute stiffness matrices for all the elements in the undeformed configuration
-  KElementUndeformed = (double**) malloc (sizeof(double*) * numElements);
+  KElementUndeformed = (double **) malloc(sizeof(double *) * numElements);
+  for (int el = 0; el < numElements; el++) {
+    KElementUndeformed[el] = (double *) calloc(144, sizeof(double)); // element stiffness matrix
+  }
+
+  UpdateMaterialProperties();
+}
+
+void CorotationalLinearFEM::UpdateMaterialProperties()
+{
+    int numElements = tetMesh->getNumElements();
   for (int el = 0; el < numElements; el++)
   {
     double * MInv = MInverse[el];
@@ -213,7 +221,7 @@ CorotationalLinearFEM::CorotationalLinearFEM(TetMesh * tetMesh_) : tetMesh(tetMe
 	  EB[12 * i + j] += E[6 * i + k] * B[12 * k + j];
  
     // KElementUndeformed[el] = B^T * EB
-    KElementUndeformed[el] = (double*) calloc (144, sizeof(double)); // element stiffness matrix
+    memset(KElementUndeformed[el], 0, sizeof(double)*144); // element stiffness matrix
     for (int i=0; i<12; i++)
       for (int j=0; j<12; j++)
 	for (int k=0; k<6; k++)

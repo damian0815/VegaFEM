@@ -44,13 +44,14 @@ PARDISO_LIB=
 #PARDISO_LIB=-L$(PARDISO_DIR)/../../lib -L$(PARDISO_DIR)/lib/em64t -lmkl_solver_lp64 -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5
 
 # comment the next three lines if SPOOLES is available
-SPOOLES_DIR=
-SPOOLES_INCLUDE=
-SPOOLES_LIB=
+#SPOOLES_DIR=
+#SPOOLES_INCLUDE=
+#SPOOLES_LIB=
 # set PATH to SPOOLES here:
+SPOOLES_DIR=/Users/damian/code/spooles.2.2
 #SPOOLES_DIR=/Users/barbic/software/SPOOLES
-#SPOOLES_INCLUDE=-I$(SPOOLES_DIR)
-#SPOOLES_LIB=$(SPOOLES_DIR)/LinSol/srcST/Bridge.a $(SPOOLES_DIR)/LinSol/srcMT/BridgeMT.a $(SPOOLES_DIR)/MT/src/spoolesMT.a $(SPOOLES_DIR)/spooles.a
+SPOOLES_INCLUDE=-I$(SPOOLES_DIR)
+SPOOLES_LIB=$(SPOOLES_DIR)/LinSol/srcST/Bridge.a $(SPOOLES_DIR)/LinSol/srcMT/BridgeMT.a $(SPOOLES_DIR)/MT/src/spoolesMT.a $(SPOOLES_DIR)/spooles.a
 
 # === image libraries ===
 

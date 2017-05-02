@@ -217,13 +217,13 @@ int ImplicitBackwardEulerSparse::DoTimestep()
         int info;
         if (numSolverThreads > 1)
         {
-            SPOOLESSolverMT * solver = new SPOOLESSolverMT(systemMatrix, numSolverThreads);
+            SPOOLESSolverMT * solver = new SPOOLESSolverMT(systemMatrix.get(), numSolverThreads);
             info = solver->SolveLinearSystem(buffer, bufferConstrained);
             delete(solver);
         }
         else
         {
-            SPOOLESSolver * solver = new SPOOLESSolver(systemMatrix);
+            SPOOLESSolver * solver = new SPOOLESSolver(systemMatrix.get());
             info = solver->SolveLinearSystem(buffer, bufferConstrained);
             delete(solver);
         }

@@ -347,6 +347,8 @@ protected:
     
     void InitFromOutline(const SparseMatrixOutline& sparseMatrixOutline);
     void Allocate(size_t numRows);
+
+    void MultiplyVectorSubtract(const double *vector, double *result) const;
 };
 
 #endif

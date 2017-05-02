@@ -75,6 +75,7 @@ public:
 
   inline TetMesh * GetTetMesh() { return tetMesh; }
 
+  void UpdateMaterialProperties();
 protected:
   int numVertices;
   TetMesh * tetMesh;
@@ -91,6 +92,7 @@ protected:
   int ** columnIndices;
   void ClearRowColumnIndices();
   void BuildRowColumnIndices(SparseMatrix * sparseMatrix);
+
 };
 
 #endif

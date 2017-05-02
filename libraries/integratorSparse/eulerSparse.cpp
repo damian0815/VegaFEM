@@ -51,7 +51,7 @@ EulerSparse::EulerSparse(int r, double timestep, std::shared_ptr<SparseMatrix> m
 
   #ifdef SPOOLES
     printf("Creating SPOOLES solver for M.\n");
-    spoolesSolver = new SPOOLESSolver(massMatrix);
+    spoolesSolver = new SPOOLESSolver(massMatrix.get());
     printf("Solver created.\n");
   #endif
 

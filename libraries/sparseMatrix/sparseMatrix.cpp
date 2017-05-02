@@ -178,6 +178,16 @@ void SparseMatrix::MultiplyVectorAdd(const double * vector, double * result) con
     }
 }
 
+void SparseMatrix::MultiplyVectorSubtract(const double * vector, double * result) const
+{
+    for(int i=0; i<GetNumRows(); i++)
+    {
+        int rowLength = GetRowLength(i);
+        for(int j=0; j < rowLength; j++)
+            result[i] -= vector[columnIndices[i][j]] * columnEntries[i][j];
+    }
+}
+
 void SparseMatrix::TransposeMultiplyVector(const double * vector, int resultLength, double * result) const
 {
     for(int i=0; i<resultLength; i++)
