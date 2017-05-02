@@ -34,7 +34,6 @@
 #include "performanceCounter.h"
 #include "insertRows.h"
 #include "implicitNewmarkSparse.h"
-#include "sparseSuperMatrixLinkage.h"
 #include "sparseMatrixIndexRemapper.h"
 
 ImplicitNewmarkSparse::ImplicitNewmarkSparse(int r, double timestep, shared_ptr<SparseMatrix> massMatrix_, ForceModel * forceModel_, int positiveDefiniteSolver_, int numConstrainedDOFs_, int * constrainedDOFs_, double dampingMassCoef, double dampingStiffnessCoef, int maxIterations, double epsilon, double NewmarkBeta, double NewmarkGamma, int numSolverThreads_): IntegratorBaseSparse(r, timestep, massMatrix_, forceModel_, numConstrainedDOFs_, constrainedDOFs_, dampingMassCoef, dampingStiffnessCoef), positiveDefiniteSolver(positiveDefiniteSolver_), numSolverThreads(numSolverThreads_)

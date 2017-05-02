@@ -238,7 +238,7 @@ public:
     int InsertNewEntry(int row, int denseColumn); // insert a new entry at (row,denseColumn), return sparseColumn
     
     // returns entries that were created
-    vector<pair<int,int>> CreateEntriesIfNecessary(const SparseMatrixOutline& outline, unsigned int rowsColumnsOffset);
+    vector<pair<int,int> > CreateEntriesIfNecessary(const SparseMatrixOutline& outline, unsigned int rowsColumnsOffset);
     
     // transposition (note: the matrix need not be symmetric)
     void BuildTranspositionIndices();
